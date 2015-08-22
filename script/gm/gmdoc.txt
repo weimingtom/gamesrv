@@ -1,0 +1,16 @@
+helper:
+ usage: buildgmdoc
+
+
+
+init:
+ usage: setauthority pid authority
+ e.g. : setauthority 10001 80 # 将玩家10001权限设置成80(权限范围:[1,100])
+
+
+
+test:
+ usage: test test_filename ...
+
+
+

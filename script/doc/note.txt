@@ -1,0 +1,4 @@
+1. lualib
+	+snax
+		+interface
+			用于收集模块的变量定义
