@@ -1,0 +1,13 @@
+gamesrv_100.log
+test
+test1
+
+/home/game/servers/gamesrv_100/log/test:
+log1.log
+log2.log
+
+/home/game/servers/gamesrv_100/log/test1:
+test2
+
+/home/game/servers/gamesrv_100/log/test1/test2:
+log.log
