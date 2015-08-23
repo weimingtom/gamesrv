@@ -16,9 +16,14 @@ function hotfix.hotfix(modname)
 		logger.log("warning","hotfix",string.format("cann't hotfix non-script code,module=%s",modname))
 		return
 	end
+	if modname:sub(-4,-1) == ".lua" then
+		modname = modname:sub(1,-5)
+	end
 	if ignore_module[modname] then
 		return
 	end
+	modname = string.gsub(modname,"/",".")
+	modname = string.gsub(modname,"\\",".")
 	skynet.cache.clear()
 	local chunk,err
 	local errlist = {}

@@ -42,7 +42,7 @@ function maintain.onfiveminuteupdate()
 end
 
 function maintain.need_maintain()
-	local isok,fd = pcall(io.open,"../shell/maintain.flag")
+	local isok,fd = pcall(io.open,"../shell/flags/maintain.flag")
 	return isok and fd
 end
 
