@@ -1,7 +1,7 @@
 srvlist = {
 	gamesrv_100 = {
 		ip = "127.0.0.1",
-		port = 8080,
+		port = 8000,
 		minroleid = 10000,
 		maxroleid = 1000000,
 		maxclient = 10240,
@@ -9,7 +9,7 @@ srvlist = {
 	},
 	gamesrv_101 = {
 		ip = "127.0.0.1",
-		port = 8089,
+		port = 8001,
 		minroleid = 1000000,
 		maxroleid = 2000000,
 		maxclient = 10240,

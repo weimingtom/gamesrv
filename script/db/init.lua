@@ -1,5 +1,6 @@
 local redis = require "redis"
 local cjson = require "cjson"
+require "script.skynet"
 
 require "script.logger"
 cjson.encode_sparse_array(true)
