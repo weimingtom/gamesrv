@@ -26,7 +26,7 @@ tags
 #other
 shell/*.conf
 shell/genkey.txt
-#script/conf/*.conf
+script/conf/*.conf
 accountcenter/script/conf/*
 ds/*.bak
 ds/*.aof
