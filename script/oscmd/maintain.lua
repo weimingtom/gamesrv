@@ -2,7 +2,7 @@ maintain = maintain or {}
 
 maintain.time = {
 	weekday = 4,
-	readytime = {20,55},
+	readytime = {20,30},
 	starttime = {21,00},
 	endtime = {21,10},
 }

@@ -17,7 +17,7 @@ require "script.huodong.huodongmgr"
 
 game = game or {}
 function game.startgame()
-	print("Startgame...",playermgr)
+	print("Startgame...")
 	console.init()
 	logger.init()
 	db.init()
