@@ -81,7 +81,11 @@ local function onrequest(agent,cmd,request)
 	})
 	local protoname,subprotoname = string.match(cmd,"([^_]-)%_(.+)") 
 	local REQUEST = net[protoname].REQUEST
-	local func = assert(REQUEST[subprotoname],"unknow cmd:" .. cmd)
+    local func = REQUEST[subprotoname]
+    if not func then
+        logger.log("warnning","error",format("unknow cmd,pid=%s,cmd=%s request=%s",pid,cmd,request))
+        return
+    end
 
 	local r = func(obj,request)
 	logger.pprintf("Response:%s\n",{

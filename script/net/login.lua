@@ -84,7 +84,7 @@ netlogin.REQUEST = REQUEST
 --end
 
 local accountcenter = {
-	host = "127.0.0.1:8001",
+	host = "127.0.0.1:6000",
 }
 
 function REQUEST.register(obj,request)
@@ -170,6 +170,7 @@ function REQUEST.createrole(obj,request)
 				lv = 0,
 			}
 			player:nowsave()
+            obj.passlogin = true
 			return {result=result,newrole=newrole}
 		else
 
@@ -189,10 +190,10 @@ function REQUEST.entergame(obj,request)
 		if token then
 			local v = playermgr.gettoken(token)
 			if not v or v.pid ~= roleid then
-				return
+				return {result=STATUS_UNAUTH}
 			end
 		else
-			return
+			return {result=STATUS_UNAUTH}
 		end
 	end
 	
