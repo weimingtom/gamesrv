@@ -202,12 +202,12 @@ function Astar.test(num)
 	end
 	Astar.init(map)
 	local point_start = Astar.getpoint(1,1)
-	local point_end = Astar.getpoint(8,8)
+	local point_end = Astar.getpoint(80,1)
 	local t1 = os.clock()
 	for i = 1,num do
 		local _,root = Astar.findpath(point_start,point_end)
 		local path = {}
-		local parent = parent
+		local parent = root
 		if parent then
 			while parent do
 				table.insert(path,1,string.format("(%d,%d)",parent.x,parent.y))

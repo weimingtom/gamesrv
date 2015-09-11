@@ -90,6 +90,7 @@ function cserver:isopen(typ)
 		if not clustermgr.isconnect("frdsrv") then	
 			return false
 		end
+		return true
 	end
 end
 
