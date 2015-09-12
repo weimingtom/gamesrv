@@ -1,6 +1,3 @@
-require "script.skynet"
-require "script.logger"
-
 local patten = skynet.getenv("script")
 local ignore_module = {
 	["script.agent"] = true,

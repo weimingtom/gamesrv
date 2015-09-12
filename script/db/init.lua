@@ -1,37 +1,33 @@
-local redis = require "redis"
-local cjson = require "cjson"
-require "script.skynet"
+cdb = cdb or {}
 
-require "script.logger"
-cjson.encode_sparse_array(true)
-
-db = db or {}
-
-local conf = {
-	host = "127.0.0.1",
-	port = 6800,
-	auth = "sundream",
-	db = 0,
-}
-
-function db:connect(conf)
-	local skynet = require "skynet"
-	local srvname = conf.srvname or skynet.getenv("srvname")
-	require "script.conf.srvlist"
-	local srv = srvlist[srvname]
-	conf.db = srv.db or 0
-	self.conn = redis.connect(conf)	
-	print(format("connect to database:%s,conn:%s",conf,tostring(self.conn)))
-	return self.conn
+function cdb.new(conf)
+	local self = {}
+	self.conn = cdb:connect(conf)
+	setmetatable(self,{__index = function (t,k)
+		if cdb[k] then
+			return cdb[k]
+		end
+		if t.conn[k] then
+			return t.conn[k]
+		end
+	end})
+	return self
 end
 
-function db:disconnect()
+function cdb:connect(conf)
+	local conn = redis.connect(conf)	
+	logger:log("info","db",format("connect to database:%s conn:%s",conf,tostring(conn)))
+	return conn
+end
+
+function cdb:disconnect()
+	logger:log("info","db",format("disconnect %s",tostring(self.conn)))
 	self.conn:disconnect()
 	self.conn = nil
 end
 
 
-function db:key(...)
+function cdb:key(...)
 	local args = {...}
 	local ret = args[1] -- tblname
 	for i = 2,#args do
@@ -40,7 +36,7 @@ function db:key(...)
 	return ret
 end
 
-function db:get(key,default)
+function cdb:get(key,default)
 	local value = self.conn:get(key)
 	logger.log("debug","db",format("get,key=%s value=%s",key,value))
 	if value then
@@ -51,19 +47,19 @@ function db:get(key,default)
 	return value
 end
 
-function db:set(key,value)
+function cdb:set(key,value)
 	logger.log("debug","db",format("set,key=%s value=%s",key,value))
 	value = cjson.encode(value)
 	return self.conn:set(key,value)
 end
 
 
-function db:hset(key,field,value)
+function cdb:hset(key,field,value)
 	value = cjson.encode(value)	
 	self.conn:hset(key,field,value)
 end
 
-function db:hvals(key)
+function cdb:hvals(key)
 	local r = self.conn:hvals(key)
 	for k,v in pairs(r) do
 		r[k] = cjson.decode(v)
@@ -71,17 +67,4 @@ function db:hvals(key)
 	return r
 end
 
-function db.init()
-	if db.conn then
-		print "Already init"
-		return
-	end
-	db.conn = db:connect(conf)
-	setmetatable(db,{__index = db.conn,})
-end
-
-function db.shutdown()
-	db:disconnect()
-end
-
-return db
+return cdb

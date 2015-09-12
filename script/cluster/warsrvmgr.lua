@@ -1,6 +1,3 @@
-local skynet = require "skynet"
-
-
 warsrvmgr = warsrvmgr or {}
 
 function warsrvmgr.init()

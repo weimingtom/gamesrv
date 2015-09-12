@@ -1,6 +1,5 @@
 local skynet = require "skynet"
 
-
 local function err()
 	local var1 = 1
 	local var2 = "string"

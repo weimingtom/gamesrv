@@ -1,4 +1,3 @@
-local skynet = require "skynet"
 
 require "script.globalmgr"
 require "script.friend.friendmgr"

@@ -1,11 +1,3 @@
-local skynet = require "skynet"
-
-require "script.globalmgr"
-require "script.cluster"
-require "script.logger"
-require "script.cluster.route"
-require "script.playermgr"
-
 clustermgr = clustermgr or {}
 
 -- 载入服务器列表

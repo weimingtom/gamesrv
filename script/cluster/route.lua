@@ -1,11 +1,3 @@
-local skynet = require "skynet"
-
-require "script.globalmgr"
-require "script.playermgr"
-require "script.conf.srvlist"
-require "script.logger"
-require "script.server"
-
 route = route or {}
 
 function route.init()
@@ -95,7 +87,6 @@ function CMD.addroute(srvname,pids)
 end
 
 function CMD.sync_finish(srvname)
-	logger.log("debug","route",format("[CMD] addroute,srvname=%s pids=%s",srvname,pids))
 	logger.log("debug","route",string.format("[CMD] sync_finish,srvname=%s",srvname))
 	route.sync_state[srvname] = true
 end

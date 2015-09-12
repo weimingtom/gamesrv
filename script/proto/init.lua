@@ -1,10 +1,3 @@
-local skynet = require "skynet"
-local sproto = require "sproto"
-require "script.net"
-require "script.playermgr"
-require "script.logger"
-require "script.object"
-
 proto = proto or {}
 
 function proto.register(protoname)

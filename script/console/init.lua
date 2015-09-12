@@ -1,7 +1,3 @@
-local skynet = require "skynet"
-local socket = require "socket"
-
-
 console = {}
 
 local function console_main_loop()

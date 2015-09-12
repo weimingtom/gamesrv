@@ -1,7 +1,5 @@
-local skynet = require "skynet"
 local skynet_cluster = require "cluster"
 require "script.cluster.netcluster"
-require "script.logger"
 
 cluster = cluster or {}
 

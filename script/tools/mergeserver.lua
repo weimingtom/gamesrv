@@ -1,11 +1,3 @@
-local skynet = require "skynet"
-local httpc = require "http.httpc"
-
-require "script.db"
-require "script.playermgr"
-require "script.player"
-require "script.conf.srvlist"
-
 --[[
 	mergeserver step:
 	1. remote connect

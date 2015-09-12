@@ -1,4 +1,3 @@
-local skynet = require "skynet"
 
 logger = logger or {}
 function logger.write(filename,msg)

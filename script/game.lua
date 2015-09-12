@@ -1,4 +1,5 @@
 require "script.base"
+require "script.conf.srvlist"
 require "script.playermgr"
 require "script.proto"
 require "script.db"
@@ -10,10 +11,13 @@ require "script.gm"
 require "script.oscmd"
 require "script.globalmgr"
 require "script.cluster"
+require "script.cluster.route"
 require "script.war.aux"
 require "script.mail.mailmgr"
 require "script.loginqueue"
 require "script.huodong.huodongmgr"
+require "script.object"
+require "script.net"
 
 game = game or {}
 function game.startgame()

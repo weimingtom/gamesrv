@@ -1,6 +1,4 @@
-local skynet = require "skynet"
-require "script.logger"
-timer = {}
+timer = timer or {}
 function timer.timeout(flag,ti,func)
 	ti = ti * 100
 	logger.log("debug","timer",string.format("timeout,flag=%s ti=%s func=%s",flag,ti,func))

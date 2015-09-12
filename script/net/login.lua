@@ -153,22 +153,24 @@ function REQUEST.createrole(obj,request)
 		return {result=STATUS_NAME_INVALID}
 	end
 	local pid = playermgr.genpid()
-	local url = string.format("/createrole?gameflag=%s&srvname=%s&acct=%s&roleid=%s&name=%s&roletype=%s",cserver.gameflag,cserver.srvname,account,pid,name,roletype)
-	local status,body = httpc.get(accountcenter.host,url)
+    if not pid then
+		return {result = STATUS_OVERLIMIT,}
+    end
+	local newrole = {
+		roleid = pid,
+		roletype = roletype,
+		name = name,
+		lv = 0,
+		gold = 0,
+	}
+	local url = string.format("/createrole?gameflag=%s&srvname=%s&acct=%s&roleid=%s",cserver.gameflag,cserver.srvname,account,pid)
+	local status,body = httpc.get(accountcenter.host,url,nil,nil,newrole)
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then	
 			local player = playermgr.createplayer(pid)
-			if not player then
-				return {result = STATUS_OVERLIMIT,}
-			end
 			player:create(request)	
-			local newrole = {
-				roleid = player.pid,
-				roletype = roletype,
-				name = name,
-				lv = 0,
-			}
+	
 			player:nowsave()
             obj.passlogin = true
 			return {result=result,newrole=newrole}
@@ -235,7 +237,6 @@ netlogin.RESPONSE = RESPONSE
 function netlogin.kick(pid)
 	local player = playermgr.getplayer(pid)
 	if player then
-		local skynet = require "skynet"
 		sendpackage(pid,"login","kick")
 		skynet.send(player.__agent,"lua","kick",player.__fd)
 	end	

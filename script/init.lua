@@ -1,6 +1,4 @@
-skynet = require "script.skynet"
 require "script.game"
-require "script.conf.srvlist"
 
 local srvname = skynet.getenv("srvname")
 local c = srvlist[srvname]

@@ -26,6 +26,14 @@ function cplayer:init(pid)
 		pid = pid,
 		flag = self.flag,
 	})
+	-- profile
+	self.account = nil
+	self.gold = nil
+	self.chip = nil
+	self.lv = nil
+	self.roletype = nil
+	self.name = nil
+
 	self.data = {}
 	self.pid = pid
 	self.golden_carddb = ccarddb.new{pid = self.pid,flag = "golden",}
@@ -93,21 +101,39 @@ function cplayer:load(data)
 	self.data = data.data
 end
 
+function cplayer:packprofile()
+	return {
+		name = self.name,
+		lv = self.lv,
+		roletype = self.roletype,
+		gold = self.gold,
+		chip = self.chip,
+		account = self.account,
+	}
+end
+
+function cplayer:unpackprofile(profile)
+	self.name = profile.name
+	self.lv = profile.lv
+	self.roletype = profile.roletype
+	self.gold = profile.gold
+	self.chip = profile.chip
+	self.account = profile.account
+end
+
 function cplayer:savetodatabase()
 	assert(self.pid)
-	-- 非认证/跨服玩家
-	if not self.passlogin then
-		return
-	end
 	if self.nosavetodatabase then
 		return
 	end
 	if self.loadstate == "loaded" then
 		local data = self:save()
+		local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 		db:set(db:key("role",self.pid,"data"),data)
 	end
 	for k,v in pairs(self.autosaveobj) do
 		if v.loadstate == "loaded" then
+			local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 			db:set(db:key("role",self.pid,k),v:save())
 		end
 	end
@@ -121,6 +147,7 @@ function cplayer:loadfromdatabase(loadall)
 	assert(self.pid)
 	if self.loadstate == "unload" then
 		self.loadstate = "loading"
+		local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 		local data = db:get(db:key("role",self.pid,"data"))
 		pprintf("role:data=>%s",data)
 		-- 正常角色至少会有基本数据
@@ -135,6 +162,7 @@ function cplayer:loadfromdatabase(loadall)
 		for k,v in pairs(self.autosaveobj) do
 			if v.loadstate == "unload" then
 				v.loadstate = "loading"
+				local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 				local data = db:get(db:key("role",self.pid,k))
 				v:load(data)
 				v.loadstate = "loaded"
@@ -172,6 +200,8 @@ function cplayer:create(conf)
 		viplv = 0,
 		createtime = getsecond(),
 	}
+    db:hset(db:key("role","list"),self.pid,1)
+    route.addroute(pid)
 	self:oncreate()
 end
 
@@ -203,7 +233,7 @@ function cplayer:disconnect(reason)
 end
 
 function cplayer:synctoac()
-	local syncdata = {
+	local role = {
 		roleid = self.pid,
 		name = self:query("name"),
 		gold = self:query("gold"),
@@ -211,9 +241,9 @@ function cplayer:synctoac()
 		roletype = self:query("roletype"),
 	}
 	local cjson = require "cjson"
-	syncdata = cjson.encode(syncdata)
+	role = cjson.encode(role)
 	local url = string.format("/sync?gameflag=%s&srvname=%s&acct=%s&roleid=%s",cserver.gameflag,cserver.srvname,self.account,self.pid)
-	httpc.get("127.0.0.1:8001",url,nil,nil,syncdata)
+	httpc.get("127.0.0.1:8001",url,nil,nil,role)
 end
 
 

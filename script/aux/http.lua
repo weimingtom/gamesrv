@@ -1,10 +1,3 @@
-local cjson = require "cjson"
-local skynet = require "skynet"
-local sockethelper = require "http.sockethelper"
-local httpd = require "http.httpd"
-
-cjson.encode_sparse_array(true) --初始化一次即可
-
 function packbody(result,extra)
 	return string.format("result=%d|%s",result,cjson.encode(extra))
 end

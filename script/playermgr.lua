@@ -137,8 +137,6 @@ function playermgr.genpid()
 	end
 	assert(not db:get(db:key("role",pid)),"maxroleid error")
 	db:set(db:key("role","maxroleid"),pid)
-	db:hset(db:key("role","list"),pid,1)
-	route.addroute(pid)
 	return pid
 end
 
