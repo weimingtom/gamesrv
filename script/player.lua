@@ -90,6 +90,7 @@ end
 function cplayer:save()
 	local data = {}
 	data.data = self.data
+	data.profile = self:packprofile()
 	return data
 end
 
@@ -99,6 +100,7 @@ function cplayer:load(data)
 		return
 	end
 	self.data = data.data
+	self:unpackprofile(data.profile)
 end
 
 function cplayer:packprofile()
@@ -108,6 +110,7 @@ function cplayer:packprofile()
 		roletype = self.roletype,
 		gold = self.gold,
 		chip = self.chip,
+		viplv = self.viplv,
 		account = self.account,
 	}
 end
@@ -118,6 +121,7 @@ function cplayer:unpackprofile(profile)
 	self.roletype = profile.roletype
 	self.gold = profile.gold
 	self.chip = profile.chip
+	self.viplv = profile.viplv
 	self.account = profile.account
 end
 
@@ -191,15 +195,14 @@ function cplayer:create(conf)
 
 	self.loadstate = "loaded"
 	self.account = account
-	self.data = {
-		account = self.account,
-		name = conf.name,
-		roletype = conf.roletype,
-		gold = 1000,
-		lv = 25,
-		viplv = 0,
-		createtime = getsecond(),
-	}
+	self.name = conf.name
+	self.roletype = conf.roletype
+	self.gold = 0
+	self.lv = 25
+	self.chip = 0
+	self.viplv = 0
+	self.createtime = getsecond()
+
     db:hset(db:key("role","list"),self.pid,1)
     route.addroute(pid)
 	self:oncreate()
