@@ -2,7 +2,7 @@ require "script.base"
 require "script.conf.srvlist"
 require "script.playermgr"
 require "script.proto"
-require "script.db"
+require "script.db.dbmgr"
 require "script.timectrl"
 require "script.logger"
 require "script.net"
@@ -29,7 +29,7 @@ function game.startgame()
 	end
 	console.init()
 	logger.init()
-	db.init()
+	dbmgr.init()
 	globalmgr.init()
 	net.init()
 	proto.init()

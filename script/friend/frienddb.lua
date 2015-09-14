@@ -138,7 +138,7 @@ function cfrienddb:onlogoff(player)
 end
 
 function cfrienddb:getfrdblk(pid)
-	return friendmgr.getfrdblk(pid)
+	return resumemgr.getresume(pid)
 end
 
 function cfrienddb:addapplyer(pid)

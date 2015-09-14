@@ -155,6 +155,7 @@ function savetodatabase()
 end
 
 function updaterolelist()
+	local db = dbmgr.getdb()
 	db:set(db:key("role","maxroleid"),maxpid)
 	for oldpid,newpid in pairs(pid_old_new) do
 		db:hset(db:key("role","list"),newpid,1)

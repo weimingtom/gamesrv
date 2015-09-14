@@ -51,6 +51,7 @@ function cserver:savetodatabase()
 		return
 	end
 	local data = self:save()
+	local db = dbmgr.getdb()
 	db:set(db:key("global","server"),data)
 end
 
@@ -59,6 +60,7 @@ function cserver:loadfromdatabase()
 		return
 	end
 	self.loadstate = "loading"
+	local db = dbmgr.getdb()
 	local data = db:get(db:key("global","server"))
 	if data == nil then
 		self:create()
@@ -100,6 +102,11 @@ function cserver.isfrdsrv(srvname)
 	return string.find(srvname,"frdsrv") ~= nil
 end
 
+function cserver.isresumesrv(srvname)
+	srvname = srvname or cserver.srvname
+	return string.find(srvname,"resume") ~= nil
+end
+
 function cserver.isgamesrv(srvname)
 	srvname = srvname or cserver.srvname
 	return string.find(srvname,"gamesrv") ~= nil
@@ -119,8 +126,10 @@ function cserver.iswarsrvmgr(srvname)
 end
 
 function cserver.getsrvname(pid)
-	-- test
-	return "gamesrv_100"
+	local srvname = route.getsrvname(pid)
+	if not srvname then
+	end
+	return srvname
 end
 
 return cserver

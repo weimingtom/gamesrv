@@ -137,6 +137,7 @@ end
 function huodongmgr.loadfromdatabase()
 	if huodongmgr.loadstate == "unload" then
 		huodongmgr.loadstate = "loading"
+		local db = dbmgr.getdb()
 		local data = db:get(db:key("global","huodong"))
 		huodongmgr.load(data)
 		huodongmgr.loadstate = "loaded"
@@ -148,6 +149,7 @@ function huodongmgr.savetodatabase()
 		return
 	end
 	local data = huodongmgr.save()
+	local db = dbmgr.getdb()
 	db:set(db:key("global","huodong"),data)
 end
 

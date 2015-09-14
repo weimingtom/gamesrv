@@ -1,7 +1,3 @@
-
-require "script.friend.friendmgr"
-require "script.cluster"
-
 netfriend = netfriend or {}
 
 -- c2s

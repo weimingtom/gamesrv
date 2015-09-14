@@ -1,4 +1,4 @@
-local skynet_cluster = require "cluster"
+skynet_cluster = require "cluster"
 require "script.cluster.netcluster"
 
 cluster = cluster or {}
@@ -6,16 +6,17 @@ cluster = cluster or {}
 function cluster.init()
 	cluster.srvname = skynet.getenv("srvname")
 	skynet_cluster.open(cluster.srvname)
-	require "script.friend.friendmgr"
 	require "script.cluster.route"
 	require "script.cluster.clustermgr"
 	require "script.cluster.netcluster"
 	require "script.cluster.warsrv"
 	require "script.cluster.warsrvmgr"
 	require "script.cluster.gamesrv"
+	require "script.resume.resumemgr"
+
 	netcluster.init()
 	route.init()
-	friendmgr.init()
+	resumemgr.init()
 	clustermgr.init()
 	if cserver.iswarsrv() then
 		warsrv.init()

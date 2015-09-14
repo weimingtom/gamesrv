@@ -14,7 +14,7 @@ end
 
 function clustermgr.checkserver()
 	timer.timeout("clustermgr.checkserver",60,clustermgr.checkserver)
-	local self_srvname = skynet.getenv("srvname")
+	local self_srvname = cserver.srvname
 	for srvname,_ in pairs(clustermgr.srvlist) do
 		if srvname ~= self_srvname then
 			local ok,result = pcall(cluster.call,srvname,"heartbeat")
@@ -35,8 +35,8 @@ function clustermgr.onconnect(srvname)
 	local oldstate = clustermgr.connection[srvname]
 	clustermgr.connection[srvname] = true
 	if oldstate ~= true then
-		logger.log("info","cluster",string.format("server(%s->%s) connected",skynet.getenv("srvname"),srvname))
-		if cserver.isfrdsrv(srvname) then
+		logger.log("info","cluster",string.format("server(%s->%s) connected",cserver.srvname,srvname))
+		if cserver.isresume(srvname) then
 			broadcast(playermgr.allplayer(),"player","switch",{
 				friend = true,
 			})
@@ -49,7 +49,7 @@ function clustermgr.disconnect(srvname)
 	local oldstate = clustermgr.connection[srvname]
 	clustermgr.connection[srvname] = nil
 	if oldstate == true then
-		logger.log("critical","cluster",string.format("server(%s->%s) lost connect",skynet.getenv("srvname"),srvname))
+		logger.log("critical","cluster",string.format("server(%s->%s) lost connect",cserver.srvname,srvname))
 		if cserver.isfrdsrv(srvname) then
 			broadcast(playermgr.allplayer(),"player","switch",{
 				friend = false,

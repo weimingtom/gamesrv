@@ -10,6 +10,7 @@ function route.init()
 	end
 	local self_srvname = skynet.getenv("srvname")
 	local pids = route.map[self_srvname]
+	local db = dbmgr.getdb()
 	local pidlist = db:hkeys(db:key("role","list")) or {}
 	print("server all pids:",#pidlist)
 	for i,v in ipairs(pidlist) do

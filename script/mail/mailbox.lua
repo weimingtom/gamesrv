@@ -156,6 +156,7 @@ function cmailbox:savetodatabase()
 	end
 	if self.loadstate == "loaded" then
 		local data = self:save()
+		local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 		db:set(db:key("mail",self.pid),data)
 	end
 end

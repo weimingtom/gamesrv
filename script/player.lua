@@ -26,16 +26,17 @@ function cplayer:init(pid)
 		pid = pid,
 		flag = self.flag,
 	})
-	-- profile
+	-- resume
+	self.pid = pid
+	self.name = nil
 	self.account = nil
+	self.lv = nil
+	self.viplv = nil
+	self.roletype = nil
 	self.gold = nil
 	self.chip = nil
-	self.lv = nil
-	self.roletype = nil
-	self.name = nil
 
 	self.data = {}
-	self.pid = pid
 	self.golden_carddb = ccarddb.new{pid = self.pid,flag = "golden",}
 	self.wood_carddb = ccarddb.new{pid=self.pid,flag="wood",}
 	self.water_carddb = ccarddb.new{pid=self.pid,flag="water",}
@@ -90,8 +91,10 @@ end
 function cplayer:save()
 	local data = {}
 	data.data = self.data
+	data.resume = self:packresume()
 	return data
 end
+
 
 function cplayer:load(data)
 	if not data or not next(data) then
@@ -99,41 +102,46 @@ function cplayer:load(data)
 		return
 	end
 	self.data = data.data
+	self:unpackresume(data.resume)
 end
 
-function cplayer:packprofile()
-	return {
-		name = self.name,
-		lv = self.lv,
-		roletype = self.roletype,
+function cplayer:packresume()
+	local resume = {
 		gold = self.gold,
 		chip = self.chip,
 		account = self.account,
+		name = self.name,
+		lv = self.lv,
+		viplv = self.viplv,
+		roletype = self.roletype,
 	}
+	return resume
 end
 
-function cplayer:unpackprofile(profile)
-	self.name = profile.name
-	self.lv = profile.lv
-	self.roletype = profile.roletype
-	self.gold = profile.gold
-	self.chip = profile.chip
-	self.account = profile.account
+function cplayer:unpackresume(resume)
+	self.gold = resume.gold
+	self.chip = resume.chip
+	self.account = resume.account
+	self.name = resume.name
+	self.lv = resume.lv
+	self.viplv = resume.viplv
+	self.roletype = resume.roletype
 end
 
+		
 function cplayer:savetodatabase()
 	assert(self.pid)
 	if self.nosavetodatabase then
 		return
 	end
+
+	local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 	if self.loadstate == "loaded" then
 		local data = self:save()
-		local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 		db:set(db:key("role",self.pid,"data"),data)
 	end
 	for k,v in pairs(self.autosaveobj) do
 		if v.loadstate == "loaded" then
-			local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 			db:set(db:key("role",self.pid,k),v:save())
 		end
 	end
@@ -191,15 +199,14 @@ function cplayer:create(conf)
 
 	self.loadstate = "loaded"
 	self.account = account
-	self.data = {
-		account = self.account,
-		name = conf.name,
-		roletype = conf.roletype,
-		gold = 1000,
-		lv = 25,
-		viplv = 0,
-		createtime = getsecond(),
-	}
+	self.name = conf.name
+	self.roletype = conf.roletype
+	self.gold = 0
+	self.lv = 25
+	self.chip = 0
+	self.viplv = 0
+	self.createtime = getsecond()
+
     db:hset(db:key("role","list"),self.pid,1)
     route.addroute(pid)
 	self:oncreate()
@@ -235,10 +242,10 @@ end
 function cplayer:synctoac()
 	local role = {
 		roleid = self.pid,
-		name = self:query("name"),
-		gold = self:query("gold"),
-		lv = self:query("lv"),
-		roletype = self:query("roletype"),
+		name = self.name,
+		gold = self.gold,
+		lv = self.lv,
+		roletype = self.roletype,
 	}
 	local cjson = require "cjson"
 	role = cjson.encode(role)
@@ -256,17 +263,18 @@ local function heartbeat(pid)
 end
 
 function cplayer:oncreate()
-	logger.log("info","register",string.format("register,account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s",self.account,self.pid,self:query("name"),self:query("roletype"),self:query("lv"),self:getgold(),self:ip()))
+	logger.log("info","register",string.format("register,account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s",self.getaccount(),self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
 
 	self.frienddb:oncreate(self)
+	resumemgr.oncreate(self)
 end
 
 function cplayer:onlogin()
-	logger.log("info","login",string.format("login,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.account,self.pid,self:query("name"),self:query("roletype"),self:query("lv"),self:getgold(),self:ip()))
+	logger.log("info","login",string.format("login,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
 	local srvobj = globalmgr.getserver()
 	heartbeat(self.pid)
 	sendpackage(self.pid,"player","resource",{
-		gold = self:query("gold",0),
+		gold = self.gold,
 	})
 	sendpackage(self.pid,"player","switch",self:query("switch",{
 		gm = self:authority() > 0,
@@ -276,23 +284,25 @@ function cplayer:onlogin()
 	if srvobj:isopen("friend")	then
 		self.frienddb:onlogin(self)
 	end
+	resumemgr.onlogin(self)
 	self:doing("login")
 end
 
 function cplayer:onlogoff()
 
-	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.account,self.pid,self:query("name"),self:query("roletype"),self:query("lv"),self:getgold(),self:ip()))
+	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.getaccount(),self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
 	mailmgr.onlogoff(self)
 	local srvobj = globalmgr.getserver()
 	if srvobj:isopen("friend")	then
-		self.frienddb:onlogin(self)
+		self.frienddb:onlogoff(self)
 	end
+	resumemgr.onlogoff(self)
 	self:doing("logoff")
 end
 
 function cplayer:ondisconnect(reason)
 
-	logger.log("info","login",string.format("disconnect,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s reason=%s",self.account,self.pid,self:query("name"),self:query("roletype"),self:query("lv"),self:getgold(),self:ip(),reason))
+	logger.log("info","login",string.format("disconnect,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s reason=%s",self.getaccount(),self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),reason))
 	loginqueue.pop()
 end
 
@@ -308,9 +318,9 @@ end
 function cplayer:validpay(typ,num,notify)
 	local hasnum
 	if typ == "gold" then
-		hasnum = self:getgold()
+		hasnum = self.gold
 	elseif typ == "chip" then
-		hasnum = self:getchip()
+		hasnum = self.chip
 	else
 		error("invalid resource type:" .. tostring(typ))
 	end
@@ -327,9 +337,16 @@ function cplayer:validpay(typ,num,notify)
 	return true
 end
 
+function cplayer:addlv(val,reason)
+	local oldval = self.lv
+	local newval = oldval + val
+	logger.log("info","lv",string.format("#%d addlv,%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
+	self.resume:set("lv",newval)
+end
+
 function cplayer:addgold(val,reason)
 	val = math.floor(val)
-	local oldval = self:getgold()
+	local oldval = self.gold
 	local newval = oldval + val
 	logger.log("info","resource/gold",string.format("#%d addgold,%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
 	assert(newval >= 0,string.format("not enough gold:%d+%d=%d",oldval,val,newval))
@@ -339,7 +356,7 @@ end
 
 function cplayer:addchip(val,reason)
 	val = math.floor(val)
-	local oldval = self:getchip()
+	local oldval = self.chip
 	local newval = oldval + val
 	logger.log("info","resource/chip",string.format("#%d addchip,%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
 	assert(newval >= 0,string.format("not enough chip:%d+%d=%d",oldval,val,newval))
@@ -411,8 +428,8 @@ function cplayer:pack_fight_profile()
 	
 	return {
 		pid = self.pid,
-		lv = self:query("lv"),
-		name = self:query("name"),
+		lv = self.lv,
+		name = self.name,
 		wincnt = self:query("fight.wincnt",0),
 		failcnt = self:query("fight.failcnt",0),
 		consecutive_wincnt = self:query("fight.consecutive_wincnt",0),
@@ -450,14 +467,6 @@ end
 
 function cplayer:port()
 	return self.__port
-end
-
-function cplayer:getgold()
-	return self:query("gold",0)
-end
-
-function cplayer:getchip()
-	return self:query("chip",0)
 end
 
 -- setter

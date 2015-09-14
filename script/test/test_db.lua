@@ -1,10 +1,8 @@
-require "script.db"
-
-
 
 local function test()
 	tblname = "test"
-	db.init()
+	dbmgr.init()
+	local db = dbmgr.getdb()
 	print(db:set(tblname .. ":key1",1))
 	print(db:get(tblname .. ":key1"))
 	print(db:del(tblname .. ":key1"))
