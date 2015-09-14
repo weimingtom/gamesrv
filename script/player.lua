@@ -109,6 +109,7 @@ function cplayer:packresume()
 	local resume = {
 		gold = self.gold,
 		chip = self.chip,
+		viplv = self.viplv,
 		account = self.account,
 		name = self.name,
 		lv = self.lv,
