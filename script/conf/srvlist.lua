@@ -46,6 +46,11 @@ srvlist = {
 	warsrvmgr = {
 		ip = "127.0.0.1",
 		port = 11000,
+		db = {
+			host = "127.0.0.1",
+			port = 6800,
+			db = 3,
+		}
 	}
 }
 
