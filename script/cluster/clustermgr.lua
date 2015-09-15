@@ -36,7 +36,7 @@ function clustermgr.onconnect(srvname)
 	clustermgr.connection[srvname] = true
 	if oldstate ~= true then
 		logger.log("info","cluster",string.format("server(%s->%s) connected",cserver.srvname,srvname))
-		if cserver.isresume(srvname) then
+		if cserver.isresumesrv(srvname) then
 			broadcast(playermgr.allplayer(),"player","switch",{
 				friend = true,
 			})

@@ -240,10 +240,9 @@ function cplayer:synctoac()
 		lv = self.lv,
 		roletype = self.roletype,
 	}
-	local cjson = require "cjson"
 	role = cjson.encode(role)
 	local url = string.format("/sync?gameflag=%s&srvname=%s&acct=%s&roleid=%s",cserver.gameflag,cserver.srvname,self.account,self.pid)
-	httpc.get("127.0.0.1:8001",url,nil,nil,role)
+	httpc.get(cserver.accountcenter.host,url,nil,nil,role)
 end
 
 

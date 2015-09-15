@@ -4,10 +4,6 @@ netlogin = netlogin or {}
 local REQUEST = {}
 netlogin.REQUEST = REQUEST
 
-local accountcenter = {
-	host = "127.0.0.1:6000",
-}
-
 function REQUEST.register(obj,request)
 	local account = assert(request.account)
 	local passwd = assert(request.passwd)
@@ -18,7 +14,7 @@ function REQUEST.register(obj,request)
 		return {result=STATUS_PASSWD_FMT_ERR}
 	end
 	local url = string.format("/register?acct=%s&passwd=%s&checkpasswd=%s",account,passwd,passwd)
-	local status,body = httpc.get(accountcenter.host,url)
+	local status,body = httpc.get(cserver.accountcenter.host,url)
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then -- register success
@@ -37,13 +33,13 @@ function REQUEST.login(obj,request)
 	obj.passwd = passwd
 	local url = string.format("/login?acct=%s&passwd=%s",account,passwd)
 	logger.log("debug","test","start login")
-	local status,body = httpc.get(accountcenter.host,url)
+	local status,body = httpc.get(cserver.accountcenter.host,url)
 	logger.log("debug","test","after http request")
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then
 			url = string.format("/rolelist?gameflag=%s&srvname=%s&acct=%s",cserver.gameflag,cserver.srvname,account)
-			local status2,body2 = httpc.get(accountcenter.host,url)
+			local status2,body2 = httpc.get(cserver.accountcenter.host,url)
 			if status2 == 200 then
 				local result2,body2 = unpackbody(body2)
 				if result2 == 0 then
@@ -86,7 +82,7 @@ function REQUEST.createrole(obj,request)
 	}
 	local url = string.format("/createrole?gameflag=%s&srvname=%s&acct=%s&roleid=%s",cserver.gameflag,cserver.srvname,account,pid)
 	local data = cjson.encode(newrole)
-	local status,body = httpc.get(accountcenter.host,url,nil,nil,data)
+	local status,body = httpc.get(cserver.accountcenter.host,url,nil,nil,data)
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then	
