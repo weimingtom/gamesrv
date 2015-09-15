@@ -19,7 +19,7 @@ function cmailbox:init(pid)
 end
 
 function cmailbox:load(data)
-	require "script.mail"
+	require "script.mail.init"
 	if not data or not next(data) then
 		return
 	end
