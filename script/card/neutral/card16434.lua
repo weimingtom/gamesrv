@@ -1,5 +1,5 @@
 --<<card 导表开始>>
-local super = require "script.card"
+local super = require "script.card.init"
 
 ccard16434 = class("ccard16434",super,{
     sid = 16434,

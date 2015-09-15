@@ -1,9 +1,3 @@
-require "script.db"
-require "script.logger"
-require "script.attrblock.saveobj"
-require "script.globalmgr"
-require "script.conf.srvlist"
-
 playermgr = playermgr or {}
 
 function playermgr.getobject(pid)
@@ -158,7 +152,7 @@ function playermgr.recoverplayer(pid)
 end
 
 function playermgr.nettransfer(obj1,obj2)
-	local proto = require "script.proto"
+	local proto = require "script.proto.init"
 	local id1,id2 = obj1.pid,obj2.pid
 	logger.log("info","playermgr",string.format("nettransfer,id1=%s id2=%s",id1,id2))
 	local agent = assert(obj1.__agent,"link object havn't agent,pid:" .. tostring(id1))

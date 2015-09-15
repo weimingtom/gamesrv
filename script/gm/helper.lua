@@ -1,4 +1,4 @@
-gm = require "script.gm"
+gm = require "script.gm.init"
 
 --- usage: buildgmdoc
 function gm.buildgmdoc()

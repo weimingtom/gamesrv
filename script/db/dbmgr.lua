@@ -14,6 +14,7 @@ function dbmgr.getdb(srvname)
 		local srv = assert(srvlist[srvname])
 		local conf = deepcopy(srv.db)
 		conf.auth = conf.auth or "sundream"
+		require "script.db.init"
 		conn = cdb.new(conf)
 		dbmgr.conns[srvname] = conn
 	end

@@ -1,18 +1,10 @@
-local httpc = require "http.httpc"
 
-require "script.attrblock.saveobj"
-require "script.card.cardcontainer"
-require "script.card"
+require "script.card.init"
 require "script.card.carddb"
 require "script.card.cardtablelib"
-require "script.db"
-require "script.playermgr"
-require "script.logger"
 require "script.friend.frienddb"
-require "script.attrblock.time"
-require "script.loginqueue"
-require "script.mail.mailmgr"
 require "script.card.cardbaglib"
+require "script.card.cardcontainer"
 
 cplayer = class("cplayer",csaveobj,cdatabaseable)
 
@@ -192,11 +184,11 @@ function cplayer:isloaded()
 	return false
 end
 
-function cplayer:create(conf)
+function cplayer:create(obj,conf)
 	local name = assert(conf.name)
 	local roletype =assert(conf.roletype)
 	local account = assert(conf.account)
-	logger.log("info","createrole",string.format("createrole,account=%s pid=%s name=%s roletype=%s ip=%s",account,self.pid,name,roletype,self:ip()))
+	logger.log("info","createrole",string.format("createrole,account=%s pid=%s name=%s roletype=%s ip=%s",account,self.pid,name,roletype,obj.__ip))
 
 	self.loadstate = "loaded"
 	self.account = account
@@ -207,9 +199,9 @@ function cplayer:create(conf)
 	self.chip = 0
 	self.viplv = 0
 	self.createtime = getsecond()
-
+	local db = dbmgr.getdb()
     db:hset(db:key("role","list"),self.pid,1)
-    route.addroute(pid)
+    route.addroute(self.pid)
 	self:oncreate()
 end
 
@@ -264,7 +256,7 @@ local function heartbeat(pid)
 end
 
 function cplayer:oncreate()
-	logger.log("info","register",string.format("register,account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s",self.getaccount(),self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
+	logger.log("info","register",string.format("register,account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
 
 	self.frienddb:oncreate(self)
 	resumemgr.oncreate(self)
@@ -291,7 +283,7 @@ end
 
 function cplayer:onlogoff()
 
-	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.getaccount(),self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
+	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
 	mailmgr.onlogoff(self)
 	local srvobj = globalmgr.getserver()
 	if srvobj:isopen("friend")	then
@@ -303,7 +295,7 @@ end
 
 function cplayer:ondisconnect(reason)
 
-	logger.log("info","login",string.format("disconnect,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s reason=%s",self.getaccount(),self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),reason))
+	logger.log("info","login",string.format("disconnect,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s reason=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),reason))
 	loginqueue.pop()
 end
 

@@ -48,6 +48,7 @@ function cdb:get(key,default)
 end
 
 function cdb:set(key,value)
+	assert(value~=nil)
 	logger.log("debug","db",format("set,key=%s value=%s",key,value))
 	value = cjson.encode(value)
 	return self.conn:set(key,value)

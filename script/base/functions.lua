@@ -515,7 +515,7 @@ end
 -- package
 function sendpackage(pid,protoname,cmd,args,onresponse)
 	require "script.playermgr"
-	require "script.proto"
+	require "script.proto.init"
 	obj = playermgr.getobject(pid)
 	if obj then
 		if obj.__agent then

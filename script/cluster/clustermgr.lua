@@ -69,4 +69,8 @@ function clustermgr.init()
 	clustermgr.checkserver()
 end
 
+function __hotfix(oldmod)
+	clustermgr.loadconfig()
+end
+
 return clustermgr

@@ -1,6 +1,3 @@
-require "script.playermgr"
-require "script.logger"
-
 function doaward(pid,award,bsendmail,reason)
 	if type(award) == "number" then
 		award = getaward(award)

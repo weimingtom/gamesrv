@@ -1,8 +1,5 @@
-gm = require "script.gm"
+gm = require "script.gm.init"
 require "script.oscmd.maintain"
-require "script.net"
-require "script.playermgr"
-require "script.game"
 
 --- usage: maintain shutdown_time
 function gm.maintain(args)

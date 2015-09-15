@@ -1,8 +1,4 @@
 
-require "script.server"
-require "script.cluster.clustermgr"
-require "script.logger"
-
 warmgr = warmgr or {}
 
 function warmgr.init()

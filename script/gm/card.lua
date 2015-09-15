@@ -1,7 +1,5 @@
 
-gm = require "script.gm"
-require "script.net"
-require "script.playermgr"
+gm = require "script.gm.init"
 
 --- e.g.:  addcard 10001 11001 10
 function gm.addcard(args)

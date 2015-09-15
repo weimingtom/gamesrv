@@ -35,7 +35,7 @@ def parse_card_common(sheet_name,sheet,dstpath,modname):
         "endline" : "--<<card 导表结束>>",
         "inherit_head1":
 """
-local super = require "script.card"
+local super = require "script.card.init"
 """,
         "inherit_head2":
 """

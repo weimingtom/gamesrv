@@ -1,8 +1,3 @@
-require "script.attrblock.saveobj"
-require "script.logger"
-require "script.db"
-require "script.conf.srvlist"
-
 cserver = class("cserver",cdatabaseable,csaveobj,{
 	srvname = skynet.getenv("srvname"),
 	serverid = skynet.getenv("serverid"),

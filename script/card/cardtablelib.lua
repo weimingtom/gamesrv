@@ -1,5 +1,4 @@
 
-require "script.logger"
 require "script.war.aux"
 
 ccardtablelib = class("ccardtablelib",cdatabaseable)

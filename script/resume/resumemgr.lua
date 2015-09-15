@@ -6,9 +6,11 @@ function resumemgr.init()
 end
 
 function resumemgr.oncreate(player)
+	require "script.resume.init"
 	local pid = player.pid
 	local resume = cresume.newtemp(pid)
-	resume:create(player)
+	xpcall(resume.create,onerror,resume,player)
+	--resume:create(player)
 end
 
 function resumemgr.onlogin(player)
@@ -24,7 +26,7 @@ function resumemgr.onlogoff(player)
 end
 
 function resumemgr.loadresume(pid)
-	require "script.friend"
+	require "script.resume.init"
 	local resume = cresume.new(pid)
 	resume:loadfromdatabase()
 	return resume

@@ -1,4 +1,3 @@
-require "script.logger"
 require "script.war.hero"
 
 cwaterhero = class("cwaterhero",chero,{

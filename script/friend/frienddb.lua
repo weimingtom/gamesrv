@@ -1,10 +1,4 @@
 
-require "script.logger"
-require "script.attrblock.time"
-require "script.attrblock.container"
-require "script.friend"
-require "script.server"
-
 cfrienddb = class("cfrienddb",cdatabaseable)
 
 function cfrienddb:init(pid)
@@ -55,8 +49,6 @@ function cfrienddb:clear()
 end
 
 function cfrienddb:oncreate(player)
-	local frdblk = cfriend.newtemp(self.pid)
-	frdblk:create(player)
 end
 
 function cfrienddb:onload()

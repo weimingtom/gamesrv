@@ -1,6 +1,5 @@
 
-require "script.card"
-require "script.logger"
+require "script.card.init"
 require "script.war.aux"
 
 ccarddb = class("ccarddb",cdatabaseable)

@@ -1,6 +1,5 @@
 
-gm = require "script.gm"
-require "script.net"
+gm = require "script.gm.init"
 
 --- usage: test test_filename ...
 function gm.test(args)

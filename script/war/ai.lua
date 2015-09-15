@@ -1,7 +1,3 @@
-
-require "script.war.aux"
-require "script.war.warmgr"
-
 ai = {}
 
 function ai.inject_ai(warid,pid)

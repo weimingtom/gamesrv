@@ -1,6 +1,5 @@
 
 require "script.war.warobj"
-require "script.logger"
 require "script.war.aux"
 
 --- 1. player ready

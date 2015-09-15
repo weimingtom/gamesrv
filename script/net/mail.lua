@@ -1,7 +1,4 @@
 
-require "script.mail"
-require "script.mail.mailmgr"
-
 netmail = netmail or {}
 
 -- c2s

@@ -1,6 +1,4 @@
 
-require "script.war.aux"
-
 local BUFF_TYPE = 0
 local HALO_TYPE = 1
 

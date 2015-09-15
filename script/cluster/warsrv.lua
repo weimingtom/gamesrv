@@ -1,5 +1,5 @@
 
-require "script.war"
+require "script.war.init"
 require "script.war.warmgr"
 
 warsrv = warsrv or {}

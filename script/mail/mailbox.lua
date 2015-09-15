@@ -1,9 +1,4 @@
 
-require "script.db"
-require "script.attrblock.saveobj"
-require "script.logger"
-require "script.playermgr"
-
 local MIN_MAILID = 1000
 local MAX_MAILID = MAX_NUMBER
 

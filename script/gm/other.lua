@@ -1,6 +1,5 @@
 
-gm = require "script.gm"
-require "script.net"
+gm = require "script.gm.init"
 
 --- usage: echo msg
 function gm.echo(args)

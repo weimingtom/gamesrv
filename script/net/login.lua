@@ -1,10 +1,3 @@
-local httpc = require "http.httpc"
-
-require "script.db"
-require "script.playermgr"
-require "script.net"
-require "script.loginqueue"
-require "script.globalmgr"
 
 netlogin = netlogin or {}
 -- c2s
@@ -92,12 +85,13 @@ function REQUEST.createrole(obj,request)
 		gold = 0,
 	}
 	local url = string.format("/createrole?gameflag=%s&srvname=%s&acct=%s&roleid=%s",cserver.gameflag,cserver.srvname,account,pid)
-	local status,body = httpc.get(accountcenter.host,url,nil,nil,newrole)
+	local data = cjson.encode(newrole)
+	local status,body = httpc.get(accountcenter.host,url,nil,nil,data)
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then	
 			local player = playermgr.createplayer(pid)
-			player:create(request)	
+			player:create(obj,request)	
 	
 			player:nowsave()
             obj.passlogin = true

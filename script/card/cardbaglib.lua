@@ -1,5 +1,3 @@
-require "script.logger"
-
 ccardbaglib = class("ccardbaglib",cdatabaseable)
 
 function ccardbaglib:init(pid)

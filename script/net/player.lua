@@ -1,6 +1,4 @@
 
-require "script.gm"
-
 netplayer = netplayer or {}
 -- c2s
 local REQUEST = {}

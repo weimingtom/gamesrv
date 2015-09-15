@@ -6,6 +6,7 @@ socket = require "socket"
 redis = require "redis"
 sockethelper = require "http.sockethelper"
 httpd = require "http.httpd"
+httpc = require "http.httpc"
 sproto = require "sproto"
 netpack = require "netpack"
 
@@ -15,9 +16,7 @@ require "script.base.databaseable"
 require "script.base.netcache"
 require "script.base.timer"
 require "script.base.functions"
-require "script.aux"
+require "script.data.init"
+require "script.attrblock.init"
 require "script.errcode"
-require "script.data"
-
-
-
+require "script.aux.init"

@@ -1,7 +1,4 @@
 
-require "script.war.warmgr"
-require "script.war.aux"
-
 chero = class("chero")
 
 function chero.newhero(conf)

@@ -1,6 +1,4 @@
 
-require "script.logger"
-
 __cardid = __cardid or 0
 function genid()
 	__cardid = __cardid + 1

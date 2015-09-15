@@ -1,4 +1,5 @@
-local patten = skynet.getenv("script")
+local workdir = skynet.getenv("workdir")
+local patten = workdir .. "/?.lua"
 local ignore_module = {
 	["script.agent"] = true,
 	["script.watchdog"] = true,

@@ -1,10 +1,7 @@
 
 require "script.war.warcard"
 require "script.war.categorytarget"
-require "script.war.aux"
-require "script.war.hero"
-require "script.logger"
-require "script.cluster"
+require "script.war.hero.init"
 
 
 
