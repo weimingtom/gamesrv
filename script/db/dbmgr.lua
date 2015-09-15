@@ -12,6 +12,7 @@ function dbmgr.getdb(srvname)
 	local conn = dbmgr.conns[srvname]
 	if not conn then
 		local srv = assert(srvlist[srvname])
+		
 		local conf = deepcopy(srv.db)
 		conf.auth = conf.auth or "sundream"
 		require "script.db.init"

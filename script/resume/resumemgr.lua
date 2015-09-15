@@ -15,13 +15,13 @@ end
 
 function resumemgr.onlogin(player)
 	local pid = player.pid
-	local resume = resumegr.getresume(pid)
+	local resume = resumemgr.getresume(pid)
 	resume:sync(player:packresume())
 end
 
 function resumemgr.onlogoff(player)
 	local pid = player.pid
-	local resume = resumegr.getresume(pid)
+	local resume = resumemgr.getresume(pid)
 	resume:sync(player:packresume())
 end
 
