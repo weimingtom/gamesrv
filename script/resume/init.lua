@@ -36,6 +36,7 @@ function cresume:loadfromdatabase()
 	if self.loadstate == "unload" then
 		self.loadstate = "loading"
 		if cserver.isresumesrv() then
+			local db = dbmgr.getdb()
 			data = db:get(db:key("resume",self.pid))
 		else
 			data = cluster.call("resumesrv","resumemgr","query",self.pid,"*")
@@ -124,7 +125,6 @@ end
 
 
 function cresume:set(key,val,notsync)
-	assert(cserver.isgamesrv())
 	cdatabaseable.set(self,key,val)
 	if not notsync then
 		self:sync({[key] = val,})
