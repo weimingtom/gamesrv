@@ -6,6 +6,7 @@ function scenemgr.init()
 end
 
 function scenemgr.addscene(sceneid)
+	require "script.scene.init"
 	local scene = cscene.new(sceneid)
 	assert(scenemgr.scenes[sceneid] == nil)
 	logger.log("info","scene",string.format("addscene,sceneid=%s",sceneid))
@@ -24,6 +25,7 @@ function scenemgr.getscene(sceneid)
 	return scenemgr.scenes[sceneid]
 end
 
+-- c2s
 function scenemgr.changescene(pid,sceneid,package)
 	local player = scenemgr.players[pid]
 	if player.sceneid ~= sceneid then
@@ -63,11 +65,12 @@ function scenemgr.syncpos(pid,package)
 	player.dir = package.dir
 end
 
+-- s2c
 function scenemgr.setpos(pid,package)
 	local player = scenemgr.players[pid]
 	assert(player)
 	scenemgr.syncpos(pid,package)
-	proto.sendpackage(player.agent,"scene","setpos")
+	proto.sendpackage(player.agent,"scene","setpos",package)
 end
 
 function scenemgr.sync(pid,package,bsync)
