@@ -23,6 +23,7 @@ msg_messagebox 101 {
 		content 2 : string
 		attach 3 : AttachType
 		buttons 4 : *string
+		type 5 : integer
 	}
 }
 

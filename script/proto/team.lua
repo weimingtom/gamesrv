@@ -55,6 +55,32 @@ team_invite_jointeam 811 {
 ]]
 
 proto.s2c = [[
+.MemberType {
+	pid 0 : integer
+	name 1 : string
+	lv 2 : integer
+	roletype 3 : integer
+	# 1--captain,2--follow member,3--leave member,  4--offline member
+	state 4 : integer
+}
+
+team_publishteam 800 {
+	request {
+		teamid 0 : integer
+		time 1 : integer
+		target 2 : integer
+		taskid 3 : integer
+		members 4 : *MemberType
+	}
+}
+
+team_syncteam 801 {
+	request {
+		teamid 0 : integer
+		members 1 : *MemberType
+	}
+}
+
 ]]
 
 return proto

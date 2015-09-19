@@ -461,6 +461,26 @@ function cplayer:port()
 	return self.__port
 end
 
+function cplayer:teamstate()
+	local teamid = self.teamid
+	if not teamid then
+		return NO_TEAM
+	end
+	local team = teammgr.getteam(teamid)
+	if not team then
+		self.teamid = nil
+		return NO_TEAM 
+	end
+	if team.captain == self.pid then
+		return TEAM_CAPTAIN
+	elseif team.follow[self.pid] then
+		return TEAM_STATE_FOLLOW
+	elseif team.leave[self.pid] then
+		return TEAM_STATE_LEAVE
+	end
+	return NO_TEAM
+end
+
 -- setter
 function cplayer:setauthority(auth)
 	self:set("auth",auth)

@@ -44,6 +44,7 @@ function onbuysomething(player,request,buttonid)
 	end
 end
 netmsg.messagebox(10001,
+				LACK_CONDITION,
 				"条件不足",
 				"是否花费100金币购买:",
 				{
@@ -69,7 +70,7 @@ netmsg.messagebox(10001,
 --]]
 
 
-function netmsg.messagebox(pid,title,content,attach,buttons,callback)
+function netmsg.messagebox(pid,type,title,content,attach,buttons,callback)
 	local id
 	if callback then
 		if messagebox.id > MAX_NUMBER then
@@ -86,6 +87,7 @@ function netmsg.messagebox(pid,title,content,attach,buttons,callback)
 	end
 	local request = {
 		id = id,
+		type = type,
 		title = title,
 		content = content,
 		attach = attach,

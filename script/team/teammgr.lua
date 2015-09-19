@@ -70,7 +70,6 @@ function cteammgr:automatch(player)
 		if not publish then
 			return
 		end
-
 	else
 	end
 end
