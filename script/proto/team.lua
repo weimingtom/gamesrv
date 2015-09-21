@@ -74,13 +74,30 @@ team_publishteam 800 {
 	}
 }
 
-team_syncteam 801 {
+team_member 801 {
 	request {
 		teamid 0 : integer
-		members 1 : *MemberType
+		member 1 : MemberType
 	}
 }
 
+team_addapplyer 802 {
+	.ResumeType {
+		pid 0 : integer
+		name 1 : string
+		lv 2 : integer
+		roletype 3 : integer
+	}
+	request {
+		applyers 0 *Resumetype
+	}
+}
+
+team_delapplyer 803 {
+	request {
+		applyers : *integer
+	}
+}
 ]]
 
 return proto

@@ -15,9 +15,11 @@ function cteammgr:genid()
 end
 
 function cteammgr:createteam(player)
+	local pid = player.pid
 	assert(player.teamid==nil)
 	local teamid = self:genid()
 	local team = cteam.new(teamid)
+	logger.log("info","team",string.format("createteam,pid=%d teamid=%d",pid,teamid))
 	self.teams[teamid] = team
 	return teamid,team
 end
@@ -28,7 +30,9 @@ function cteammgr:dismissteam(player)
 	local teamid = player.teamid
 	local team = self:getteam(teamid)
 	assert(team.captain==pid)
-	team:dismiss()
+	logger.log("info","team",string.format("dismissteam,pid=%d teamid=%d",pid,teamid))
+	team:dismissteam()
+	self.teams[teamid] = nil
 end
 
 function cteammgr:publishteam(player,publish)
@@ -37,6 +41,7 @@ function cteammgr:publishteam(player,publish)
 	local teamid = player.teamid
 	local team = self:getteam(teamid)
 	assert(team.captain==pid)
+	logger.log("info","team",format("publishteam,pid=%d publish=%s",pid,publish))
 	local now = os.time()
 	publish.time = now
 	self.publish_teams[teamid] = publish
@@ -54,6 +59,7 @@ end
 function cteammgr:delpublishteam(teamid)
 	local publish = self.publish_teams[temaid]
 	if publish then
+		logger.log("info","team",string.format("delpublishteam,teamid=%d",teamid))
 		self.publish_teams[teamid] = nil
 	end
 end

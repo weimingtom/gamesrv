@@ -481,6 +481,31 @@ function cplayer:teamstate()
 	return NO_TEAM
 end
 
+function cplayer:getteamid()
+	if self.teamid then
+		local team = teammgr:getteam(self.teamid)
+		if not team then
+			sendpackage(self.pid,"team","member",self:packmember())
+			self.teamid = nil
+		end
+	end
+	return self.teamid
+end
+
+-- 组对成员
+function cplayer:packmember()
+	return {
+		teamid = self.teamid or 0,
+		member = {
+			pid = self.pid,
+			name = self.name,
+			lv = self.lv,
+			roletype = self.roletype,
+			state = self:teamstate(),
+		}
+	}
+end
+
 -- setter
 function cplayer:setauthority(auth)
 	self:set("auth",auth)
