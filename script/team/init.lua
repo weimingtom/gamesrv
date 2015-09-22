@@ -78,6 +78,12 @@ function cteam:jointeam(player)
 	self:broadcast(function (uid)
 		sendpackage(uid,"team","member",self:packmember(player))
 	end)
+	self:onjointeam(player)
+end
+
+function cteam:onjointeam(player)
+	local pid = player.pid
+	teammgr:unautomatch(pid,"jointeam")
 end
 
 function cteam:backteam(player)
@@ -157,6 +163,7 @@ function cteam:changecaptain(pid)
 	assert(oldcaptain)
 	local captain = playermgr.getplayer(pid)
 	assert(captain)
+	logger.log("info","team",string.format("changecaptain,teamid=%d captain=%d->%d",self.teamid,oldcaptain_pid,pid))
 	self.captain = pid
 	self.follow[oldcaptain_pid] = true
 	self:broadcast(function (uid)
@@ -167,6 +174,10 @@ end
 
 function cteam:addapplyer(player)
 	local pid = player
+	if self.applyers[pid] then
+		return
+	end
+	logger.log("info","team",string.format("addapplyer,pid=%d teamid=%d",pid,self.teamid))
 	local applyer = {
 		pid = pid,
 		name = player.name,
@@ -183,6 +194,7 @@ end
 function cteam:delapplyer(pid)
 	local applyer = self.applyers[pid]
 	if applyer then
+		logger.log("info","team",string.format("delapplyer,pid=%d teamid=%d",pid,self.teamid))
 		self:broadcast(function (uid)
 			sendpackage(uid,"team","delapplyer",{applyer,})
 		end)
@@ -191,7 +203,6 @@ end
 
 function cteam:packmember(player)
 	return player:packmember()
-
 end
 
 function cteam:broadcast(func)
@@ -216,4 +227,25 @@ function cteam:ismember(pid)
 	end
 	return false
 end
+
+function cteam:len(state,include_captain)
+	if state == TEAM_STATE_FOLLOW then
+		return string.len(keys(self.follow)) + (include_captain and 1 or 0)
+	elseif state == TEAM_STATE_LEAVE then
+		return string.len(keys(self.leave))
+	elseif state == TEAM_STATE_OFFLINE then
+		local cnt = 0
+		for pid,v in pairs(self.leave) do
+			if not playermgr.getplayer(pid) then
+				cnt = cnt + 1
+			end
+		end
+		return cnt
+	elseif state == TEAM_STATE_ALL then
+		return 1 + string.len(keys(self.follow)) + string.len(keys(self.leave))
+	else
+		assert("invalid team state:" .. tostring(state))
+	end
+end
+
 return cteam
