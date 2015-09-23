@@ -104,7 +104,7 @@ function CMD.sync(srvname,pid,data)
 		frdblk:nowsave()
 	end
 	if cserver.isfrdsrv() then
-		-- syncto frdsrv
+		-- syncto gamesrv
 		for srvname2,_ in pairs(frdblk.refs) do
 			if srvname2 ~= srvname then
 				cluster.call(srvname2,"friendmgr","sync",frdblk.pid,data)

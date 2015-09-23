@@ -126,7 +126,7 @@ function REQUEST.login(obj,request)
 			if status2 == 200 then
 				local result2,body2 = unpackbody(body2)
 				if result2 == 0 then
-					return {result=0,roles=rolelist,}
+					return {result=0,roles=body2.roles,}
 				else
 					return {result=result2}
 				end
