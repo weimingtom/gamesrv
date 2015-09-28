@@ -14,10 +14,12 @@ function cteammgr:genid()
 	return self.teamid
 end
 
-function cteammgr:createteam(player)
+function cteammgr:createteam(player,target)
+	local pid = player.pid
 	assert(player.teamid==nil)
 	local teamid = self:genid()
 	local team = cteam.new(teamid)
+	logger.log("info","team",string.format("createteam,pid=%d teamid=%d target=%d",pid,teamid,target))
 	self.teams[teamid] = team
 	return teamid,team
 end
@@ -28,7 +30,9 @@ function cteammgr:dismissteam(player)
 	local teamid = player.teamid
 	local team = self:getteam(teamid)
 	assert(team.captain==pid)
-	team:dismiss()
+	logger.log("info","team",string.format("dismissteam,pid=%d teamid=%d",pid,teamid))
+	team:dismissteam()
+	self.teams[teamid] = nil
 end
 
 function cteammgr:publishteam(player,publish)
@@ -37,16 +41,19 @@ function cteammgr:publishteam(player,publish)
 	local teamid = player.teamid
 	local team = self:getteam(teamid)
 	assert(team.captain==pid)
-	local now = os.time()
-	publish.time = now
-	self.publish_teams[teamid] = publish
+	logger.log("info","team",format("publishteam,pid=%d publish=%s",pid,publish))
+	team.publish = publish
+	teammgr.publish_teams[teamid] = true
 end
 
 function cteammgr:getpublishteam(teamid)
-	local publish = self.publish_teams[teamid]
-	if publish and publish.lifecircle and publish.lifecircle + publish.time <= now then
-		self:delpublishteam(teamid)
-		publish = nil
+	local team = self:getteam(teamid)
+	local publish
+	if team then
+		publish = team.publish
+		if publish and publish.lifecircle and publish.lifecircle + publish.time <= now then
+			self:delpublishteam(teamid)
+		end
 	end
 	return publish
 end
@@ -54,8 +61,24 @@ end
 function cteammgr:delpublishteam(teamid)
 	local publish = self.publish_teams[temaid]
 	if publish then
+		logger.log("info","team",string.format("delpublishteam,teamid=%d",teamid))
 		self.publish_teams[teamid] = nil
+		local team = self:getteam(teamid)
+		if team then
+			team.publish = false
+		end
 	end
+end
+
+function cteammgr:team_automatch(teamid)
+	local team = teammgr:getteam(teami)
+	if team and team.publish then
+		team.publish.automatch = true
+	end
+end
+
+function cteammgr:automatch(player)
+	
 end
 
 function cteammgr:automatch(player)
@@ -73,7 +96,5 @@ function cteammgr:automatch(player)
 	else
 	end
 end
-
-
 
 return teammgr
