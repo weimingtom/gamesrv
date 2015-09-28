@@ -18,6 +18,11 @@ require "script.huodong.huodongmgr"
 game = game or {}
 function game.startgame()
 	print("Startgame...")
+	local fd = io.open("/dev/urandom","r")
+	if fd then
+		local d = fd:read(4)
+		math.randomseed(os.time() + d:byte(1) + (d:byte(2) * 256) + (d:byte(3) * 65536) + (d:byte(4) * 4294967296))
+	end
 	console.init()
 	logger.init()
 	db.init()

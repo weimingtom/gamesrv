@@ -95,6 +95,10 @@ end
 
 function cplayer:savetodatabase()
 	assert(self.pid)
+	-- 非认证/跨服玩家
+	if not self.passlogin then
+		return
+	end
 	if self.nosavetodatabase then
 		return
 	end
@@ -181,6 +185,14 @@ end
 function cplayer:exitgame()
 	self:onlogoff()
 	playermgr.delobject(self.pid,"exitgame")
+end
+
+-- 跨服前处理流程
+function cplayer:ongosrv(srvname)
+end
+
+-- 回到原服前处理流程
+function cplayer:ongohome()
 end
 
 -- 掉线处理(正常退出游戏也会走该接口)

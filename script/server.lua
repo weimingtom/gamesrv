@@ -118,4 +118,9 @@ function cserver.iswarsrvmgr(srvname)
 	return string.find(srvname,"warsrvmgr") ~= nil
 end
 
+function cserver.getsrvname(pid)
+	-- test
+	return "gamesrv_100"
+end
+
 return cserver

@@ -126,6 +126,7 @@ function REQUEST.login(obj,request)
 			if status2 == 200 then
 				local result2,body2 = unpackbody(body2)
 				if result2 == 0 then
+					obj.passlogin = true
 					return {result=0,roles=body2.roles,}
 				else
 					return {result=result2}
@@ -180,9 +181,20 @@ function REQUEST.createrole(obj,request)
 end
 
 
-
 function REQUEST.entergame(obj,request)
 	local roleid = assert(request.roleid)
+	local token = request.token
+	if not obj.passlogin then
+		-- token auth
+		if token then
+			local v = playermgr.gettoken(token)
+			if not v or v.pid ~= roleid then
+				return
+			end
+		else
+			return
+		end
+	end
 	
 	local oldplayer = playermgr.getplayer(roleid) 
 	if obj == oldplayer then
@@ -228,8 +240,12 @@ function netlogin.kick(pid)
 	end	
 end
 
-function netlogin.queue(pid,info)
-	sendpackage(pid,"login","queue",info)
+function netlogin.queue(pid,package)
+	sendpackage(pid,"login","queue",package)
+end
+
+function netlogin.reentergame(pid,package)
+	sendpackage(pid,"login","reentergame",package)
 end
 
 return netlogin

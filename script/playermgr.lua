@@ -179,6 +179,70 @@ function playermgr.transfer_mark(obj1,obj2)
 	obj2.passwd = obj1.passwd
 end
 
+
+-- 跨服
+function playermgr.gosrv(player,srvname)
+	local pid = player.pid
+	local token = uuid()
+	local self_srvname = cserver.srvname
+	logger.log("info","kuafu",string.format("gosrv,pid=%d srvname=%s->%s token=%s",pid,self_srvname,srvname,token))
+	cluster.call(srvname,"modmethod","playermgr.addtoken",token,{pid=pid,})
+	player:ongosrv(srvname)
+	player:exitgame()
+	net.login.reentergame(pid,{
+		srvname = srvname,
+		token = token,
+	})	
+end
+
+function playermgr.gohome(player)
+	local pid = player.pid
+	local self_srvname = cserver.srvname
+	local srvname = cserver.getsrvname(pid)
+	local token = uuid()
+	logger.log("info","kuafu",string.format("gohome,pid=%d,srvname=%s->%s token=%s",pid,self_srvname,srvname,token))
+	player:ongohome()
+	player:exitgame()
+	net.login.reentergame(pid,{
+		srvname = srvname,
+		token = token,
+	})
+end
+
+-- token auth
+function playermgr.addtoken(token,ext)
+	local v = playermgr.tokens[token]
+	if v then
+		logger.log("error","token",format("addtoken,token=%s ext=%s",token,ext))
+	end
+	if ext.exceedtime then
+		ext.exceedtime = os.time() + ext.exceedtime
+	else
+		ext.exceedtime = os.time() + 300
+	end
+	playermgr.tokens[token] = ext
+end
+
+function playermgr.gettoken(token)
+	return playermgr.tokens[token]
+end
+
+function playermgr.deltoken(token)
+	playermgr.tokens[token] = nil
+end
+
+function playermgr.starttimer_checktoken()
+	timer.timeout("timer.starttimer_checktoken",30,playermgr.starttimer_checktoken)
+	local now = os.time()
+	for token,v in pairs(playermgr.tokens) do
+		if v.exceedtime then
+			if v.exceedtime < now then
+				playermgr.deltoken(token)
+			end
+		end
+	end
+end
+
 function playermgr.init()
 	logger.log("info","playermgr","init")
 	playermgr.num = 0
@@ -187,6 +251,7 @@ function playermgr.init()
 	playermgr.fd_obj = {}
 	playermgr.id_offlineplayer = {}
 
+	playermgr.tokens = {}
+	playermgr.starttimer_checktoken()
 end
-
 return playermgr

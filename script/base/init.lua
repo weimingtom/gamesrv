@@ -670,3 +670,11 @@ function onerror(msg)
 end
 
 
+function uuid()
+	local ret = {}
+	for i=1,32 do
+		table.insert(ret,math.random(0,0xf))
+	end
+	return table.concat(ret,"")
+end
+

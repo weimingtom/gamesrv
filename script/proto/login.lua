@@ -74,6 +74,13 @@ login_queue 2 {
 		waitnum 0 : integer
 	}
 }
+
+login_reentergame 3 {
+	request {
+		srvname 0 : string
+		token 1 : string
+	}
+}
 ]]
 
 return proto
