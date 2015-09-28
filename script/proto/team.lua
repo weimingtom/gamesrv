@@ -51,6 +51,9 @@ team_changecaptain 810 {
 }
 
 team_invite_jointeam 811 {
+	request {
+		pid 0 : integer
+	}
 }
 ]]
 

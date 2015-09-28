@@ -72,6 +72,15 @@ netmsg.messagebox(10001,
 
 function netmsg.messagebox(pid,type,title,content,attach,buttons,callback)
 	local id
+	local request = {
+		id = id,
+		type = type,
+		title = title,
+		content = content,
+		attach = attach,
+		buttons = buttons,
+	}
+
 	if callback then
 		if messagebox.id > MAX_NUMBER then
 			messagebox.id = 0
@@ -85,14 +94,6 @@ function netmsg.messagebox(pid,type,title,content,attach,buttons,callback)
 	else
 		id = 0
 	end
-	local request = {
-		id = id,
-		type = type,
-		title = title,
-		content = content,
-		attach = attach,
-		buttons = buttons,
-	}
 	sendpackage(pid,"msg","messagebox",request)
 end
 

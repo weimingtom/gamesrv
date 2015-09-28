@@ -79,6 +79,12 @@ function cteam:jointeam(player)
 	self:broadcast(function (uid)
 		sendpackage(uid,"team","member",self:packmember(player))
 	end)
+	self:onjointeam(player)
+end
+
+function cteam:onjointeam(player)
+	local pid = player.pid
+	teammgr:unautomatch(pid,"jointeam")
 end
 
 function cteam:backteam(player)
@@ -158,6 +164,7 @@ function cteam:changecaptain(pid)
 	assert(oldcaptain)
 	local captain = playermgr.getplayer(pid)
 	assert(captain)
+	logger.log("info","team",string.format("changecaptain,teamid=%d captain=%d->%d",self.teamid,oldcaptain_pid,pid))
 	self.captain = pid
 	self.follow[oldcaptain_pid] = true
 	self:broadcast(function (uid)
@@ -168,6 +175,10 @@ end
 
 function cteam:addapplyer(player)
 	local pid = player
+	if self.applyers[pid] then
+		return
+	end
+	logger.log("info","team",string.format("addapplyer,pid=%d teamid=%d",pid,self.teamid))
 	local applyer = {
 		pid = pid,
 		name = player.name,
@@ -179,6 +190,64 @@ function cteam:addapplyer(player)
 	self:broadcast(function (uid)
 		sendpackage(uid,"team","addapplyer",{applyer,})
 	end)
+end
+
+function cteam:delapplyer(pid)
+	local applyer = self.applyers[pid]
+	if applyer then
+		logger.log("info","team",string.format("delapplyer,pid=%d teamid=%d",pid,self.teamid))
+		self:broadcast(function (uid)
+			sendpackage(uid,"team","delapplyer",{applyer,})
+		end)
+	end
+end
+
+function cteam:packmember(player)
+	return player:packmember()
+end
+
+function cteam:broadcast(func)
+	func(self.captain)
+	for pid,_ in pairs(self.follow) do
+		func(pid)
+	end
+	for pid,_ in pairs(self.leave) do
+		func(pid)
+	end
+end
+
+function cteam:ismember(pid)
+	if self.captain == pid then
+		return true
+	end
+	if self.follow[pid] then
+		return true
+	end
+	if self.leave[pid] then
+		return true
+	end
+	return false
+end
+
+function cteam:len(state,include_captain)
+	if state == TEAM_STATE_FOLLOW then
+		return string.len(keys(self.follow)) + (include_captain and 1 or 0)
+	elseif state == TEAM_STATE_LEAVE then
+		return string.len(keys(self.leave))
+	elseif state == TEAM_STATE_OFFLINE then
+		local cnt = 0
+		for pid,v in pairs(self.leave) do
+			if not playermgr.getplayer(pid) then
+				cnt = cnt + 1
+			end
+		end
+		return cnt
+	elseif state == TEAM_STATE_ALL then
+		return 1 + string.len(keys(self.follow)) + string.len(keys(self.leave))
+	else
+		assert("invalid team state:" .. tostring(state))
+	end
+>>>>>>> 599302466ca877739f2d034ccfe88ca33300d2b0
 end
 
 function cteam:delapplyer(pid)
