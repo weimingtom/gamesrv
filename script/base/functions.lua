@@ -524,9 +524,12 @@ function sendpackage(pid,protoname,cmd,args,onresponse)
 	end
 end
 
-function broadcast(pids,protoname,cmd,args,onresponse)
-	for _,pid in pairs(pids) do
-		sendpackage(pid,protoname,cmd,args,onresponse)
+function broadcast(func)
+	require "script.playermgr"
+	for pid,player in pairs(playermgr.id_obj) do
+		if player then
+			func(player)
+		end
 	end
 end
 

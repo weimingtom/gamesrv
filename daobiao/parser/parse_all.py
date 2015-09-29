@@ -8,6 +8,7 @@ cmds = {
     1 : "python parse_card.py ../xls/card.xls " + os.path.join(code_outputpath,"card"),
     2 : "python parse_award.py ../xls/award.xls " + os.path.join(code_outputpath,"data"),
     3 : "python parse_huodong.py ../xls/huodong.xls " + os.path.join(code_outputpath,"data"),
+    4 : "python parse_team.py ../xls/team.xls " + os.path.join(code_outputpath,"data"),
 }
 
 def show_menu():

@@ -42,8 +42,19 @@ function cteammgr:publishteam(player,publish)
 	local team = self:getteam(teamid)
 	assert(team.captain==pid)
 	logger.log("info","team",format("publishteam,pid=%d publish=%s",pid,publish))
-	team.publish = publish
-	teammgr.publish_teams[teamid] = true
+	team.target = publish.target
+	team.stage = publish.stage
+	teammgr.publish_teams[teamid] = {
+		time = os.time(),
+	}
+	local package = {
+		target = 
+	}
+	broadcast(function (obj)
+		if obj.lv > data.limit then
+			sendpackage(uid,"team","publishteam",)
+		end
+	end)
 end
 
 function cteammgr:getpublishteam(teamid)

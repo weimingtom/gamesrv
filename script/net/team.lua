@@ -11,7 +11,7 @@ function REQUEST.createteam(player,request)
 	if teamid then
 		return
 	end
-	teammgr:createteam(player)
+	teammgr:createteam(player,request)
 end
 
 function REQUEST.dismissteam(player,request)
@@ -117,7 +117,9 @@ function REQUEST.recallmember(player,request)
 			net.msg.messgebox(uid,
 				MB_RECALLMEMBER,
 				"召回",
-				string.format("队长#<red>%s#(等级:%d级)召回你归队",player.name,player.lv),{"确认","取消",},
+				string.format("队长#<red>%s#(等级:%d级)召回你归队",player.name,player.lv),
+				{},
+				{"确认","取消",},
 				function (obj,request,buttonid)
 					if buttonid ~= 1 then
 						return
@@ -158,6 +160,7 @@ function REQUEST.apply_become_captain(player,request)
 		MB_APPLY_BECOME_CAPTAIN,
 		"申请队长",
 		string.format("队员#<red>%s#(等级:%d级)申请成为队长",player.name,player.lv),
+		{},
 		{"同意","拒绝"},
 		function (obj,request,buttonid)
 			if not buttonid ~= 1 then
@@ -213,6 +216,7 @@ function REQUEST.invite_jointeam(player,request)
 		MB_INVITE_JOINTEAM,
 		"邀请入队",
 		string.format("#<red>%s#(等级:%d级)邀请你加入他的队伍",player.name,player.lv),
+		{},
 		{"同意","拒绝"},
 		function (obj,request,buttonid)
 			if buttonid ~= 1 then

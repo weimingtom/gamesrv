@@ -1,11 +1,13 @@
 cteam = class("cteam")
 
-function cteam:init(teamid)
+function cteam:init(teamid,param)
 	self.teamid = teamid
 	self.follow = {}
 	self.leave = {}
 	self.captain = 0
 	self.applyers = {}
+	self.target = param.target or 0
+	self.stage = param.stage or 0
 	self.publish = false
 end
 
@@ -247,42 +249,5 @@ function cteam:len(state,include_captain)
 	else
 		assert("invalid team state:" .. tostring(state))
 	end
->>>>>>> 599302466ca877739f2d034ccfe88ca33300d2b0
-end
-
-function cteam:delapplyer(pid)
-	local applyer = self.applyers[pid]
-	if applyer then
-		self:broadcast(function (uid)
-			sendpackage(uid,"team","delapplyer",{applyer,})
-		end)
-	end
-end
-
-function cteam:packmember(player)
-	return player:packmember()
-end
-
-function cteam:broadcast(func)
-	func(self.captain)
-	for pid,_ in pairs(self.follow) do
-		func(pid)
-	end
-	for pid,_ in pairs(self.leave) do
-		func(pid)
-	end
-end
-
-function cteam:ismember(pid)
-	if self.captain == pid then
-		return true
-	end
-	if self.follow[pid] then
-		return true
-	end
-	if self.leave[pid] then
-		return true
-	end
-	return false
 end
 return cteam

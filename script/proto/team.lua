@@ -2,6 +2,10 @@
 local proto = {}
 proto.c2s = [[
 team_createteam 800 {
+	request {
+		target 0 : integer
+		stage 1 : integer	# 阶段（目标详情)
+	}
 }
 
 team_dismissteam 801 {
@@ -10,7 +14,8 @@ team_dismissteam 801 {
 team_publishteam 802 {
 	request {
 		target 0 : integer
-		automatch 1 : boolean
+		stage 1 : integer
+		automatch 2 : boolean
 	}
 }
 

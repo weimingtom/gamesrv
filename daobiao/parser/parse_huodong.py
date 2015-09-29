@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from pyExcelerator import *
-from makescript.parse import *
+from base import *
 import os
 import sys
 
@@ -33,19 +32,9 @@ return data_Huodong
 	script_filename = os.path.join(dstpath,"data_Huodong.lua")
 	daobiao(sheet,script_filename,cfg)
 
-def parse(xlsfilename,dstpath):
-	parses = {
-			"huodong" : parse_huodong,
-	}
-	sheets = parse_xls(xlsfilename)
-	for sheet_name,sheet_data in sheets:
-		sheet_name = sheet_name.encode("utf-8")
-		parsefunc = parses.get(sheet_name)
-		if not parsefunc:
-			continue
-		print("parse %s#%s..." % (xlsfilename,sheet_name))
-		parsefunc(sheet_name,sheet_data,dstpath)
-		print("parse %s#%s ok" % (xlsfilename,sheet_name))
+parses = {
+		"huodong" : parse_huodong,
+}
 
 if __name__ == "__main__":
 	if len(sys.argv) != 3:
@@ -53,5 +42,4 @@ if __name__ == "__main__":
 		exit(0)
 	xlsfilename = sys.argv[1]
 	dstpath = sys.argv[2]
-	print(xlsfilename,dstpath)
-	parse(xlsfilename,dstpath)
+	parse(xlsfilename,dstpath,parses)

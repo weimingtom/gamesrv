@@ -59,7 +59,7 @@ netmsg.messagebox(10001,
 							num = 2,
 						},
 					},
-					extra = {
+					ext = {
 						gold = 100,
 					}
 				},
@@ -77,7 +77,7 @@ function netmsg.messagebox(pid,type,title,content,attach,buttons,callback)
 		type = type,
 		title = title,
 		content = content,
-		attach = attach,
+		attach = cjson.encode(attach),
 		buttons = buttons,
 	}
 
@@ -95,6 +95,7 @@ function netmsg.messagebox(pid,type,title,content,attach,buttons,callback)
 		id = 0
 	end
 	sendpackage(pid,"msg","messagebox",request)
+	request.attach = attach
 end
 
 function netmsg.bulletin(msg,func)

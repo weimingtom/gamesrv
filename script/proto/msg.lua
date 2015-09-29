@@ -21,7 +21,8 @@ msg_messagebox 101 {
 		id 0 : integer # 0--no callback
 		title 1 : string
 		content 2 : string
-		attach 3 : AttachType
+		# cjson.decode(attach_table)
+		attach 3 : string
 		buttons 4 : *string
 		type 5 : integer
 	}

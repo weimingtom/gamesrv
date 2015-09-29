@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from pyExcelerator import *
-from makescript.parse import *
+from base import *
 import os
 import sys
 
