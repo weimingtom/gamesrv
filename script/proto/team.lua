@@ -72,24 +72,48 @@ proto.s2c = [[
 	state 4 : integer
 }
 
-team_publishteam 800 {
+team_createteam 800 {
 	request {
 		teamid 0 : integer
-		time 1 : integer
-		target 2 : integer
-		taskid 3 : integer
-		members 4 : *MemberType
+		target 1 : integer
+		# 组队目标详情/阶段
+		stage 2 : integer
+		member 3 : MemberType,
 	}
 }
 
-team_member 801 {
+team_addmember 801 {
 	request {
 		teamid 0 : integer
 		member 1 : MemberType
 	}
 }
 
-team_addapplyer 802 {
+team_updatemember 802 {
+	request {
+		teamid 0 : integer
+		member 1 : MemberType
+	}
+}
+
+team_delmember 803 {
+	request {
+		teamid 0 : integer
+		pid 1 : integer
+	}
+}
+
+team_publishteam 804 {
+	request {
+		teamid 0 : integer
+		time 1 : integer
+		target 2 : integer
+		stage 3 : integer
+	}
+}
+
+
+team_addapplyer 805 {
 	.ResumeType {
 		pid 0 : integer
 		name 1 : string
@@ -101,7 +125,7 @@ team_addapplyer 802 {
 	}
 }
 
-team_delapplyer 803 {
+team_delapplyer 806 {
 	request {
 		applyers : *integer
 	}

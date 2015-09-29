@@ -65,11 +65,31 @@ end
 function cteam:onlogoff(player)
 end
 
-function cteam:jointeam(player)
+function cteam:create(player,param)
+	local pid = player.pid
+	self.target = param.target or 0
+	self.stage = param.stage or 0
+	self.captain = pid
+	local scene = scenemgr.getscene(player.sceneid)
+	local state = player:teamstate()
+	scene:sync(pid,{
+		teamid = self.teamid,
+		state = state,
+	})
+	self:broadcast(function (uid)
+		sendpackage(uid,"team","creatteam",{
+			teamid = self.teamid,
+			target = self.target,
+			stage = self.stage,
+			member = self:packmember(player),
+		})
+	end)
+end
+
+function cteam:join(player)
 	local teamid = player.teamid
 	assert(teamid==nil)
 	local pid = player.pid
-	logger.log("info","team",string.format("jointeam,pid=%d teamid=%d",pid,teamid))
 	player.teamid = self.teamid
 	self.leave[pid] = true
 	local scene = scenemgr.getscene(player.sceneid)
@@ -79,19 +99,15 @@ function cteam:jointeam(player)
 		state = state,
 	})
 	self:broadcast(function (uid)
-		sendpackage(uid,"team","member",self:packmember(player))
+		sendpackage(uid,"team","addmember",{
+			teamid = self.teamid,
+			member = self:packmember(player),
+		})
 	end)
-	self:onjointeam(player)
 end
 
-function cteam:onjointeam(player)
+function cteam:back(player)
 	local pid = player.pid
-	teammgr:unautomatch(pid,"jointeam")
-end
-
-function cteam:backteam(player)
-	local pid = player.pid
-	logger.log("info","team",string.format("backteam,pid=%d",player.pid))
 	local captain = playermgr.getplayer(self.captain)
 	local scene = scenemgr.getscene(captain.sceneid)
 	if self.leave[pid] then
@@ -99,6 +115,7 @@ function cteam:backteam(player)
 	end
 	self.follow[pid] = true
 	local state = player:teamstate()
+	-- TODO: modify
 	scene:sync(pid,{
 		sceneid = captain.sceneid,
 		x = captian.x,
@@ -108,14 +125,19 @@ function cteam:backteam(player)
 		state = state,
 	})
 	self:broadcast(function (uid)
-		sendpackage(uid,"team","member",self:packmember(player))
+		sendpackage(uid,"team","updatemember",{
+			teamid = self.teamid,
+			member = {
+				pid = pid,
+				state = state,
+			}
+		})
 	end)
 end
 
-function cteam:leaveteam(player)
+function cteam:leave(player)
 	local pid = player.pid
 	assert(self.captain ~= pid)
-	logger.log("info","team",string.format("leaveteam,pid=%d teamid=%d",pid,self.teamid))
 	self.follow[pid] = nil
 	self.leave[pid] = true
 	local scene = scenemgr.getscene(player.sceneid)
@@ -125,18 +147,24 @@ function cteam:leaveteam(player)
 		state = state,
 	})
 	self:broadcast(function (uid)
-		sendpackage(uid,"team","member",self:packmember(player))
+		sendpackage(uid,"team","updatemember",{
+			teamid = self.teamid,
+			member = {
+				pid = pid,
+				state = state,
+			}
+		})
 	end)
 	return true
 end
 
-function cteam:quitteam(player)
+function cteam:quit(player)
 	local pid = player.pid
-	logger.log("info","team",string.format("quitteam,pid=%d teamid=%d",pid,self.teamid))
 	player.teamid = nil
 	self.follow[pid] = nil
 	self.leave[pid] = nil
-	if self.captain == pid then
+	local oldcaptain = self.captain
+	if oldcaptain == pid then
 		if next(self.follow) then
 			local newcaptain = randlist(keys(self.follow))
 			self.follow[newcaptain] = nil
@@ -145,16 +173,30 @@ function cteam:quitteam(player)
 			local newcaptain = randlist(keys(self.leave))
 			self.leave[newcaptain] = nil
 			self.captain = newcaptain
+		else
+			self.captain = nil
 		end
 	end
 	local scene = scenemgr.getscene(player.sceneid)
-	local state = player:teamstate()
+	local state = player:teamstate() -- NO_TEAM
 	scene:sync(pid,{
 		teamid = 0,
 		state = state,
 	})
 	self:broadcast(function (uid)
-		sendpackage(uid,"team","member",self:packmember(player))
+		sendpackage(uid,"team","quitteam",{
+			teamid = self.teamid,
+			pid = oldcaptain,
+		})
+		if self.captain then
+			sendpackage(uid,"team","updatemember",{
+				teamid = self.teamid,
+				member = {
+					pid = self.captain,
+					state = TEAM_CAPTAIN,
+				}
+			})
+		end
 	end)
 end
 
@@ -166,7 +208,6 @@ function cteam:changecaptain(pid)
 	assert(oldcaptain)
 	local captain = playermgr.getplayer(pid)
 	assert(captain)
-	logger.log("info","team",string.format("changecaptain,teamid=%d captain=%d->%d",self.teamid,oldcaptain_pid,pid))
 	self.captain = pid
 	self.follow[oldcaptain_pid] = true
 	self:broadcast(function (uid)

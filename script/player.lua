@@ -462,7 +462,6 @@ function cplayer:port()
 end
 
 function cplayer:teamstate()
-	local teamid = self.teamid
 	if not teamid then
 		return NO_TEAM
 	end
@@ -485,7 +484,10 @@ function cplayer:getteamid()
 	if self.teamid then
 		local team = teammgr:getteam(self.teamid)
 		if not team then
-			sendpackage(self.pid,"team","member",self:packmember())
+			sendpackage(self.pid,"team","delmember",{
+				teamid = self.teamid,
+				pid = self.pid,
+			})
 			self.teamid = nil
 		end
 	end
@@ -495,14 +497,11 @@ end
 -- 组对成员
 function cplayer:packmember()
 	return {
-		teamid = self.teamid or 0,
-		member = {
-			pid = self.pid,
-			name = self.name,
-			lv = self.lv,
-			roletype = self.roletype,
-			state = self:teamstate(),
-		}
+		pid = self.pid,
+		name = self.name,
+		lv = self.lv,
+		roletype = self.roletype,
+		state = self:teamstate(),
 	}
 end
 

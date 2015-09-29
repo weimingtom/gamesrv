@@ -14,13 +14,18 @@ function cteammgr:genid()
 	return self.teamid
 end
 
-function cteammgr:createteam(player)
+function cteammgr:createteam(player,param)
 	local pid = player.pid
 	assert(player.teamid==nil)
+	if not self:before_createteam(player,param) then
+		return
+	end
 	local teamid = self:genid()
-	local team = cteam.new(teamid)
 	logger.log("info","team",string.format("createteam,pid=%d teamid=%d",pid,teamid))
+	local team = cteam.new(teamid,{})
+	team:create(param)
 	self.teams[teamid] = team
+	self:after_createteam(player,teamid)
 	return teamid,team
 end
 
@@ -30,9 +35,79 @@ function cteammgr:dismissteam(player)
 	local teamid = player.teamid
 	local team = self:getteam(teamid)
 	assert(team.captain==pid)
+	if not self:before_dismissteam(player,teamid) then
+		return
+	end
 	logger.log("info","team",string.format("dismissteam,pid=%d teamid=%d",pid,teamid))
 	team:dismissteam()
 	self.teams[teamid] = nil
+	self:after_dismissteam(player,teamid)
+end
+
+function cteammgr:jointeam(player,teamid)
+	assert(player.teamid==nil)
+	local pid = player.pid
+	local team = self:getteam(teamid)
+	if not self:before_jointeam(player,teamid) then
+		return
+	end
+	logger.log("info","team",string.format("jointeam,pid=%d teamid=%d",pid,teamid))
+	team:join(player)
+	self:unautomatch(pid,"jointeam")
+	self:after_jointeam(player,teamid)
+end
+
+function cteammgr:quitteam(player)
+	local teamid = player.teamid
+	assert(teamid)
+	local pid = player.pid
+	local team = self:getteam(teamid)
+	if not self:before_quitteam(player,teamid) then
+		return
+	end
+	logger.log("info","team",string.format("quitteam,pid=%d teamid=%d",pid,teamid))
+	team:quit(player)
+	self:after_quitteam(player,teamid)
+end
+
+function cteammgr:leaveteam(player)
+	local teamid = player.teamid
+	assert(teamid)
+	local pid = player.pid
+	local team = self:getteam(teamid)
+	if not self:before_leaveteam(player,teamid) then
+		return
+	end
+	logger.log("info","team",string.format("leaveteam,pid=%d teamid=%d",pid,teamid))
+	team:leave(player)
+	self:after_leaveteam(player,teamid)
+end
+
+function cteammgr:backteam(player)
+	local teamid = player.teamid
+	assert(teamid)
+	local pid = player.pid
+	local team = self:getteam(teamid)
+	if not self:before_backteam(player,teamid) then
+		return
+	end
+	logger.log("info","team",string.format("backteam,pid=%d teamid=%d",pid,teamid))
+	team:back(player)
+	self:after_backteam(player,teamid)
+end
+
+function cteammgr:changecaptain(player,tid)
+	local teamid = player.teamid
+	assert(teamid)
+	local team = self:getteam(teamid)
+	local pid = player.pid
+	assert(team.captain == pid)
+	if not self:before_changecaptain(player,tid) then
+		return
+	end
+	logger.log("info","team",string.format("changecaptain,teamid=%d captain=%d->%d",teamid,pid,tid))
+	team:changecaptain(tid)
+	self:after_changecaptain(player,tid)
 end
 
 function cteammgr:publishteam(player,publish)
@@ -169,5 +244,32 @@ function cteammgr:check_match_team(player)
 	team:jointeam(player)
 end
 
+function teammgr:before_createteam(player,param)
+	return true
+end
+
+function teammgr:after_createteam(player,teamid)
+end
+
+function teammmgr:before_jointeam(player,teamid)
+	return true
+end
+
+function teammmgr:after_jointeam(player,teamid)
+end
+
+function teammgr:before_leaveteam(player,teamid)
+	return true
+end
+
+function teammgr:after_leaveteam(player,teamid)
+end
+
+function teammgr:before_backteam(player,teamid)
+	return true
+end
+
+function teammgr:after_backteam(player,teamid)
+end
 
 return teammgr

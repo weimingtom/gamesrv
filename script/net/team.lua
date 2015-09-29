@@ -28,11 +28,15 @@ function REQUEST.jointeam(player,request)
 		return
 	end
 	local teamid = request.teamid
-	local team = teammgr:getteam(teamid)
-	if not team then
+	teammgr:jointeam(player,teamid)
+end
+
+function REQUEST.quitteam(player,request)
+	local teamid = player:getteamid()
+	if not teamid then
 		return
 	end
-	team:jointeam(player)
+	teammgr:quitteam(player,teamid)
 end
 
 function REQUEST.publishsteam(player,request)
@@ -70,17 +74,7 @@ function REQUEST.leaveteam(player,request)
 	team:leaveteam(player)
 end
 
-function REQUEST.quitteam(player,request)
-	local teamid = player:getteamid()
-	if not teamid then
-		return
-	end
-	local team = teammgr:getteam(teamid)
-	if not team then
-		return
-	end
-	team:quitteam(player)
-end
+
 
 function REQUEST.backteam(player,request)
 	local pid = player.pid
