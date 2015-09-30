@@ -147,31 +147,40 @@ function REQUEST.apply_become_captain(player,request)
 	if team.captain == pid then
 		return
 	end
-	if team.leave[pid] then
+	if not team.follow[pid] then
 		return
 	end
-	net.msg.messagebox(team.captain,
-		MB_APPLY_BECOME_CAPTAIN,
-		"申请队长",
-		string.format("队员#<red>%s#(等级:%d级)申请成为队长",player.name,player.lv),
-		{},
-		{"同意","拒绝"},
-		function (obj,request,buttonid)
-			if not buttonid ~= 1 then
-				return
-			end
-			if obj.teamid ~= teamid then
-				return
-			end
-			local team = teammgr:gettam(teamid)
-			if not team then
-				return
-			end
-			if not team.follow[obj.pid] then
-				return
-			end
-			team:changecaptain(obj.pid)
-		end)
+	local captain = playermgr.getplayer(team.captain)
+	if not captain then
+		teammgr:changecaptain(teamid,player.pid)
+	else
+		net.msg.messagebox(team.captain,
+			MB_APPLY_BECOME_CAPTAIN,
+			"申请队长",
+			string.format("队员#<red>%s#(等级:%d级)申请成为队长",player.name,player.lv),
+			{},
+			{"同意","拒绝"},
+			function (obj,request,buttonid)
+				if not buttonid ~= 1 then
+					return
+				end
+				if obj.teamid ~= teamid then
+					return
+				end
+				local team = teammgr:gettam(teamid)
+				if not team then
+					return
+				end
+				if team.captain == obj.pid then
+					return
+				end
+				if not team.follow[obj.pid] then
+					return
+				end
+				teammgr:changecaptain(teamid,obj.pid)
+			end)
+	end
+
 end
 
 function REQUEST.changecaptain(player,request)
@@ -194,19 +203,20 @@ function REQUEST.changecaptain(player,request)
 end
 
 function REQUEST.invite_jointeam(player,request)
-	local pid = request.pid
+	local pid = player.pid
+	local tid = request.pid
 	local teamid = player:getteamid()
 	if not teamid then
-		return
+		teamid = teammgr:createteam(player,{})
 	end
 	local team = teammgr:getteam(teamid)
 	if not team then
 		return
 	end
-	if team:ismember(pid) then
+	if team:ismember(tid) then
 		return
 	end
-	net.msg.messagebox(pid,
+	net.msg.messagebox(tid,
 		MB_INVITE_JOINTEAM,
 		"邀请入队",
 		string.format("#<red>%s#(等级:%d级)邀请你加入他的队伍",player.name,player.lv),
@@ -223,17 +233,70 @@ function REQUEST.invite_jointeam(player,request)
 			if team:ismember(obj.pid) then
 				return
 			end
-			team:addapplyer(obj)
+			if team.captain == pid then
+				teammgr:jointeam(obj,teamid)
+			else
+				team:addapplyer(obj)
+			end
 		end)
+end
+
+function REQUEST.syncteam(player,request)
+	local teamid = request.teamid
+	local team = teammgr:getteam(teamid)	
+	local package
+	if not team then
+		package = {}
+	else
+		package = team:packteam()
+	end
+	return {team = package}
+	--sendpackage(player.pid,"team","syncteam",package)
+end
+
+function REQUEST.openui_team(player,request)
+	local teams = {}
+	local targets = {}
+	for i,target in ipairs(request.target) do
+		targets[target] = true
+	end
+	local stages = {}
+	for i,stage in ipairs(request.stage) do
+		stages[stage] = true
+	end
+	for teamid,publish in pairs(teammgr.publish_teams) do
+		local team = teammgr:getteam(teamid)
+		if team and team.target and team.stage then
+			if targets[ANY_TARGET] or targets[team.target] then
+				if stages[ANY_STAGE] or stages[team.stage] then
+					table.insert(teams,team:pack())
+				end
+			end
+		end
+	end
+	return teams
+end
+
+function REQUEST.automatch(player,request)
+	player:set("switch.automatch",true)
+	sendpackage(player.pid,"player","switch",{
+		automatch = player:query("switch.automatch",false),
+	})
+	local teamid = player:getteamid()
+	if not teamid then
+			
+	end
+end
+
+function REQUEST.unautomatch(player,request)
+	player:set("switch.automatch",false)
+	sendpackage(player.pid,"player","switch",{
+		automatch = player:query("switch.automatch",false),
+	})
 end
 
 local RESPONSE = {}
 netteam.RESPONSE = RESPONSE
-function RESPONSE.handshake(player,request,response)
-end
-
-function RESPONSE.get(player,request,response)
-end
 
 -- s2c
 return netteam

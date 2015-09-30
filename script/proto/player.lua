@@ -32,6 +32,7 @@ player_switch 202 {
 	request {
 		gm 0 : boolean
 		friend 1 : boolean
+		automatch 2 : boolean
 	}
 }
 

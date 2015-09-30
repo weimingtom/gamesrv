@@ -1,3 +1,12 @@
+function starttimer_check_messagebox()
+	timer.timeout("timer.check_messagebox",300,starttimer_check_messagebox)	
+	local now = os.time()
+	for id,session in pairs(messagebox.sessions) do
+		if session.exceedtime and session.exceedtime <= now then
+			messagebox.sessions[id] = nil
+		end
+	end
+end
 
 
 if not messagebox then
@@ -5,6 +14,7 @@ if not messagebox then
 		id = 0,
 		sessions = {},
 	}
+	starttimer_check_messagebox()
 end
 
 netmsg = netmsg or {}
@@ -21,8 +31,11 @@ function REQUEST.onmessagebox(player,request)
 	if not session then
 		return
 	end
+	messagebox.sessions[id] = nil
 	local callback = session.callback
-	callback(player,session.request,request.buttonid)	
+	if callback then
+		callback(player,session.request,request.buttonid)	
+	end
 end
 
 local RESPONSE = {}
@@ -89,6 +102,7 @@ function netmsg.messagebox(pid,type,title,content,attach,buttons,callback)
 		messagebox.sessions[messagebox.id] = {
 			request = request,
 			callback = callback,
+			exceedtime = os.time() + 300,
 		}
 		id = messagebox.id
 	else
@@ -97,6 +111,7 @@ function netmsg.messagebox(pid,type,title,content,attach,buttons,callback)
 	sendpackage(pid,"msg","messagebox",request)
 	request.attach = attach
 end
+
 
 function netmsg.bulletin(msg,func)
 	for pid,_ in ipairs(playermgr.allplayer()) do

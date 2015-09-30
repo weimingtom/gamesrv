@@ -4,6 +4,10 @@ function cteammgr:init()
 	self.teams = {}
 	self.teamid = 0
 	self.publish_teams = {}
+	-- 内存数据
+	self.automatch_pids = {}
+	self.automatch_teams = {}
+	self:starttimer_check_publishteam()
 end
 
 function cteammgr:genid()
@@ -15,6 +19,7 @@ function cteammgr:genid()
 end
 
 function cteammgr:createteam(player,param)
+	param = param or {}
 	local pid = player.pid
 	assert(player.teamid==nil)
 	if not self:before_createteam(player,param) then
@@ -36,12 +41,13 @@ function cteammgr:dismissteam(player)
 	local team = self:getteam(teamid)
 	assert(team.captain==pid)
 	if not self:before_dismissteam(player,teamid) then
-		return
+		return false
 	end
 	logger.log("info","team",string.format("dismissteam,pid=%d teamid=%d",pid,teamid))
 	team:dismissteam()
 	self.teams[teamid] = nil
 	self:after_dismissteam(player,teamid)
+	return true
 end
 
 function cteammgr:jointeam(player,teamid)
@@ -49,12 +55,13 @@ function cteammgr:jointeam(player,teamid)
 	local pid = player.pid
 	local team = self:getteam(teamid)
 	if not self:before_jointeam(player,teamid) then
-		return
+		return false
 	end
 	logger.log("info","team",string.format("jointeam,pid=%d teamid=%d",pid,teamid))
 	team:join(player)
 	self:unautomatch(pid,"jointeam")
 	self:after_jointeam(player,teamid)
+	return true
 end
 
 function cteammgr:quitteam(player)
@@ -63,11 +70,12 @@ function cteammgr:quitteam(player)
 	local pid = player.pid
 	local team = self:getteam(teamid)
 	if not self:before_quitteam(player,teamid) then
-		return
+		return false
 	end
 	logger.log("info","team",string.format("quitteam,pid=%d teamid=%d",pid,teamid))
 	team:quit(player)
 	self:after_quitteam(player,teamid)
+	return true
 end
 
 function cteammgr:leaveteam(player)
@@ -76,11 +84,12 @@ function cteammgr:leaveteam(player)
 	local pid = player.pid
 	local team = self:getteam(teamid)
 	if not self:before_leaveteam(player,teamid) then
-		return
+		return false
 	end
 	logger.log("info","team",string.format("leaveteam,pid=%d teamid=%d",pid,teamid))
 	team:leave(player)
 	self:after_leaveteam(player,teamid)
+	return true
 end
 
 function cteammgr:backteam(player)
@@ -89,25 +98,24 @@ function cteammgr:backteam(player)
 	local pid = player.pid
 	local team = self:getteam(teamid)
 	if not self:before_backteam(player,teamid) then
-		return
+		return false
 	end
 	logger.log("info","team",string.format("backteam,pid=%d teamid=%d",pid,teamid))
 	team:back(player)
 	self:after_backteam(player,teamid)
+	return true
 end
 
-function cteammgr:changecaptain(player,tid)
-	local teamid = player.teamid
-	assert(teamid)
+function cteammgr:changecaptain(teamid,tid)
 	local team = self:getteam(teamid)
 	local pid = player.pid
-	assert(team.captain == pid)
-	if not self:before_changecaptain(player,tid) then
-		return
+	if not self:before_changecaptain(teamid,tid) then
+		return false
 	end
-	logger.log("info","team",string.format("changecaptain,teamid=%d captain=%d->%d",teamid,pid,tid))
+	logger.log("info","team",string.format("changecaptain,teamid=%d captain=%d->%d",teamid,team.captain,tid))
 	team:changecaptain(tid)
-	self:after_changecaptain(player,tid)
+	self:after_changecaptain(teamid,tid)
+	return true
 end
 
 function cteammgr:publishteam(player,publish)
@@ -119,15 +127,21 @@ function cteammgr:publishteam(player,publish)
 	logger.log("info","team",format("publishteam,pid=%d publish=%s",pid,publish))
 	team.target = publish.target
 	team.stage = publish.stage
+	local now = os.time()
 	teammgr.publish_teams[teamid] = {
-		time = os.time(),
+		time = now,
+		lifecircle = 300,
 	}
 	local package = {
-		target = 
+		teamid = teamid,
+		time = now,
+		target = publish.target,
+		stage = publish.stage,
+		captain = player:packmember(),
 	}
 	broadcast(function (obj)
 		if obj.lv > data.limit then
-			sendpackage(uid,"team","publishteam",)
+			sendpackage(uid,"team","publishteam",package)
 		end
 	end)
 end
@@ -136,7 +150,7 @@ function cteammgr:getpublishteam(teamid)
 	local team = self:getteam(teamid)
 	local publish
 	if team then
-		publish = team.publish
+		publish = self.publish_teams[teamid]
 		if publish and publish.lifecircle and publish.lifecircle + publish.time <= now then
 			self:delpublishteam(teamid)
 		end
@@ -149,10 +163,13 @@ function cteammgr:delpublishteam(teamid)
 	if publish then
 		logger.log("info","team",string.format("delpublishteam,teamid=%d",teamid))
 		self.publish_teams[teamid] = nil
-		local team = self:getteam(teamid)
-		if team then
-			team.publish = false
-		end
+	end
+end
+
+function cteammgr:starttimer_check_publishteam()
+	timer.timeout("timer.check_publishteam",60,functor(self.starttimer_check_publishteam,self))
+	for teamid,publish in pairs(self.publish_team) do
+		self:getpublishteam(teamid)
 	end
 end
 
@@ -270,6 +287,13 @@ function teammgr:before_backteam(player,teamid)
 end
 
 function teammgr:after_backteam(player,teamid)
+end
+
+function teammgr:before_changecaptain(teamid,pid)
+	return true
+end
+
+function teammgr:after_changecaptain(teamid,pid)
 end
 
 return teammgr
