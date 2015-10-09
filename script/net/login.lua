@@ -133,7 +133,7 @@ function REQUEST.entergame(obj,request)
 		netlogin.kick(oldplayer.pid)
 		playermgr.delobject(oldplayer.pid,"replace")
 	end
-	player = playermgr.recoverplayer(roleid)
+	local player = playermgr.recoverplayer(roleid)
 	playermgr.transfer_mark(obj,player)
 	playermgr.nettransfer(obj,player)
 	player:entergame()
