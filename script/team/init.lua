@@ -8,7 +8,6 @@ function cteam:init(teamid,param)
 	self.applyers = {}
 	self.target = param.target or 0
 	self.stage = param.stage or 0
-	self.publish = false
 end
 
 function cteam:load(data)
@@ -77,7 +76,7 @@ function cteam:create(player,param)
 		state = state,
 	})
 	self:broadcast(function (uid)
-		sendpackage(uid,"team","creatteam",{
+		sendpackage(uid,"team","selfteam",{
 			teamid = self.teamid,
 			target = self.target,
 			stage = self.stage,
@@ -99,11 +98,16 @@ function cteam:join(player)
 		state = state,
 	})
 	self:broadcast(function (uid)
-		sendpackage(uid,"team","addmember",{
-			teamid = self.teamid,
-			member = self:packmember(player),
-		})
+		if uid ~= pid then
+			sendpackage(uid,"team","addmember",{
+				teamid = self.teamid,
+				member = self:packmember(player),
+			})
+		end
 	end)
+	sendpackage(pid,"team","selfteam",{
+		team = self:pack(),
+	})
 end
 
 function cteam:back(player)
@@ -245,8 +249,58 @@ function cteam:delapplyer(pid)
 	end
 end
 
+function cteam:teamstate(pid)
+	if self.captain == pid then
+		return TEAM_CAPTAIN
+	elseif self.follow[pid] then
+		return TEAM_STATE_FOLLOW
+	elseif self.leave[pid] then
+		return TEAM_STATE_LEAVE
+	end
+	return NO_TEAM
+end
+
 function cteam:packmember(player)
-	return player:packmember()
+	return {
+		pid = player.pid,
+		name = player.name,
+		lv = player.lv,
+		roletype = player.roletype,
+		state = self:teamstate(pid),
+	}
+end
+
+function cteam:packmembers()
+	local captain = playermgr.getplayer(self.captain)
+	if not captain then
+		captain = resumemgr.getresume(self.captain)
+	end
+	local members = {}
+	table.insert(members,self:packmember(captain))
+	for i,pid in ipairs(self.follow) do
+		local member = playermgr.getplayer(pid)
+		if not member then
+			member = resumemgr.getresume(pid)
+			table.insert(members,self:packmember(member))
+		end
+	end
+	for i,pid in ipairs(self.leave) do
+		local member = playermgr.getplayer(pid)
+		if not member then
+			member = resumemgr.getresume(pid)
+			table.insert(members,self:packmember(member))
+		end
+	end
+	return members
+end
+
+function cteam:pack()
+	return {
+		teamid = self.teamid,
+		target = self.target,
+		stage = self.stage,
+		members = self:packmembers(),
+	}
 end
 
 function cteam:broadcast(func)

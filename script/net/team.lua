@@ -227,6 +227,24 @@ function REQUEST.invite_jointeam(player,request)
 		end)
 end
 
+function REQUEST.syncteam(player,request)
+	local teamid = request.teamid
+	local team = teammgr:getteam(teamid)
+	local package = {}
+	if team then
+		package = team:pack()
+	end
+	sendpackage(player.pid,"team","syncteam",package)
+end
+
+function REQUEST.openui_team(player,request)
+	local teams = {}
+	for teamid,team in pairs(self.teams) do
+		table.insert(teams,team:pack())
+	end
+	return teams
+end
+
 local RESPONSE = {}
 netteam.RESPONSE = RESPONSE
 function RESPONSE.handshake(player,request,response)

@@ -470,14 +470,8 @@ function cplayer:teamstate()
 		self.teamid = nil
 		return NO_TEAM 
 	end
-	if team.captain == self.pid then
-		return TEAM_CAPTAIN
-	elseif team.follow[self.pid] then
-		return TEAM_STATE_FOLLOW
-	elseif team.leave[self.pid] then
-		return TEAM_STATE_LEAVE
-	end
-	return NO_TEAM
+	return team:teamstate(player.pid)
+
 end
 
 function cplayer:getteamid()

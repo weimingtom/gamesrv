@@ -60,6 +60,37 @@ team_invite_jointeam 811 {
 		pid 0 : integer
 	}
 }
+
+team_syncteam 812 {
+	request {
+		teamid 0 : integer
+	}
+}
+
+.MemberType {
+	pid 0 : integer
+	name 1 : string
+	lv 2 : integer
+	roletype 3 : integer
+	# 1--captain,2--follow member,3--leave member,  4--offline member
+	state 4 : integer
+}
+
+.TeamType {
+	teamid 0 : integer
+	target 1 : integer
+	# 组队目标详情/阶段
+	stage 2 : integer
+	member 3 : MemberType,
+}
+
+team_openui_team 813 {
+	request {
+	}
+	response {
+		teams 0 : *TeamType
+	}
+}
 ]]
 
 proto.s2c = [[
@@ -72,13 +103,17 @@ proto.s2c = [[
 	state 4 : integer
 }
 
-team_createteam 800 {
+.TeamType {
+	teamid 0 : integer
+	target 1 : integer
+	# 组队目标详情/阶段
+	stage 2 : integer
+	member 3 : MemberType,
+}
+
+team_selfteam 800 {
 	request {
-		teamid 0 : integer
-		target 1 : integer
-		# 组队目标详情/阶段
-		stage 2 : integer
-		member 3 : MemberType,
+		team 0 : TeamType
 	}
 }
 
@@ -109,6 +144,12 @@ team_publishteam 804 {
 		time 1 : integer
 		target 2 : integer
 		stage 3 : integer
+	}
+}
+
+team_syncteam 805 {
+	request {
+		team 0 : TeamType
 	}
 }
 

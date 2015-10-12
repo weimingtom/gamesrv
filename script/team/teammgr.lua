@@ -4,6 +4,8 @@ function cteammgr:init()
 	self.teams = {}
 	self.teamid = 0
 	self.publish_teams = {}
+	self.automatch_pids = {}
+	self.automatch_teams = {}
 end
 
 function cteammgr:genid()
@@ -157,44 +159,27 @@ function cteammgr:delpublishteam(teamid)
 end
 
 function cteammgr:team_automatch(teamid)
-	local team = teammgr:getteam(teami)
-	if team and team.publish then
-		team.publish.automatch = true
+	local team = teammgr:getteam(teamid)
+	if not team then
+		return
 	end
+	self.automatch_teams[teamid] = {
+		time = os.time(),
+	}
 end
 
-function cteammgr:automatch(player)
-	
-end
-
-function cteammgr:automatch(player)
-	local pid = player.pid
-	local teamid = player:getteamid()
-	if teamid then
-		local team = self:getteam(teamid)
-		if not team then
-			return
-		end
-		if team.captain ~= pid then
-			return
-		end
-		local publish = self.publish_teams[teamid]
-		if not publish then
-			return
-		end
-		team.automatch = true
-	else
-		local matchdata = self.automatch_pids[pid]
-		self.automatch_pids[pid] = {
-			time = os.time(),
-			name = player.name,
-			lv = player.lv,
-			roletype = player.roletype,
-			target = target,
-		}
-		if not matchdata or matchdata.target ~= target then
-			self:check_match_team(player)
-		end
+function cteammgr:automatch(player,target,stage)
+	local matchdata = self.automatch_pids[pid]
+	self.automatch_pids[pid] = {
+		time = os.time(),
+		name = player.name,
+		lv = player.lv,
+		roletype = player.roletype,
+		target = target,
+		stage = stage,
+	}
+	if not matchdata or matchdata.target ~= target or matchdata.stage ~= stage then
+		self:check_match_team(player)
 	end
 end
 
@@ -242,6 +227,35 @@ function cteammgr:check_match_team(player)
 	local teamid = match_teams[1]
 	local team = teammgr:getteam(teamid)
 	team:jointeam(player)
+end
+
+function teammgr:get_automatch_team(teamid)
+	local automatch = self.automatch_teams[teamid]
+	if not automatch then
+		return
+	end
+	local team = self:getteam(teamid)
+	if not team then
+		self.automatch_teams[teamid]
+		return
+	end
+	local data = data_team[team.target] or {}
+	local limit = data.limit or 5
+	if team:len(TEAM_STATE_ALL) >= limit then
+		self.automatch_teams[teamid] = nil
+		return
+	end
+	return team
+end
+
+function teammgr:starttimer_automatch()
+	timer.timeout("timer.automatch",10,functor(self.starttimer_automatch,self))
+	for teamid,_ in pairs(self.automatch_teams) do
+		team = self:get_automatch_team(teamid)
+		if team then
+			
+		end
+	end
 end
 
 function teammgr:before_createteam(player,param)
