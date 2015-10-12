@@ -2,8 +2,8 @@
 
 
 local function docmd(srvname,methodname,...)
-	local modname,funcname = string.match(methodname,"(.*)([.:].+)$")	
-	if not (modname and funcname) then
+	local modname,sep,funcname = string.match(methodname,"^(.*)([.:])(.+)$")	
+	if not (modname and sep and funcname) then
 		error("[modmethod] Invalid methodname:" .. tostring(methodname))
 	end
 	local mod
@@ -13,13 +13,13 @@ local function docmd(srvname,methodname,...)
 		modname = "script." .. modname
 		mod = require (modname)
 	end
-	local typ = funcname:sub(1,1)
-	funcname = funcname:sub(2)
 	local func = assert(mod[funcname],"[modmethod] Unknow methodname:" .. tostring(methodname))
-	if typ == "." then
+	if sep == "." then
 		return func(...)
-	else
+	elseif sep == ":":
 		return func(mod,...)
+	else
+		error("Invalid function seperator:" .. tostring(typ))
 	end
 end
 

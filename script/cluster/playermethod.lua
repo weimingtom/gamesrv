@@ -7,8 +7,8 @@ local function docmd(srvname,pid,methodname,...)
 		player = playermgr.loadofflineplayer(pid,"all")
 	end
 	assert(player,"Not found pid:" .. tostring(pid))
-	local modname,funcname = string.match(methodname,"(.*)([.:].+)$")	
-	if not (modname and funcname) then
+	local modname,sep,funcname = string.match(methodname,"(.*)([.:].+)$")	
+	if not (modname and sep and funcname) then
 		error("[modmethod] Invalid methodname:" .. tostring(methodname))
 	end
 	local mod = player
@@ -18,12 +18,10 @@ local function docmd(srvname,pid,methodname,...)
 			mod = mod[attr]
 		end
 	end
-	local typ = funcname:sub(1,1)
-	funcname = funcname:sub(2)
 	local func = assert(mod[funcname],"[modmethod] Unknow methodname:" .. tostring(methodname))
-	if typ == "." then
+	if sep == "." then
 		return func(...)
-	elseif typ == ":" then
+	elseif sep == ":" then
 		return func(mod,...)
 	else
 		error("Invalid function seperator:" .. tostring(typ))
