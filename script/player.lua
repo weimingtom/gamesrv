@@ -471,13 +471,20 @@ function cplayer:teamstate()
 		return NO_TEAM 
 	end
 	return team:teamstate(player.pid)
-
 end
 
 function cplayer:getteamid()
 	if self.teamid then
 		local team = teammgr:getteam(self.teamid)
 		if not team then
+			logger.log("error","team",string.format("getteamid [no team],pid=%d teamid=%d",self.pid,self.teamid))
+			sendpackage(self.pid,"team","delmember",{
+				teamid = self.teamid,
+				pid = self.pid,
+			})
+			self.teamid = nil
+		elseif not team:ismember(self.pid) then
+			logger.log("error","team",string.format("getteamid [not a member],pid=%d teamid=%d",self.pid,self.teamid))
 			sendpackage(self.pid,"team","delmember",{
 				teamid = self.teamid,
 				pid = self.pid,

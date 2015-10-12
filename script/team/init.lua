@@ -77,10 +77,7 @@ function cteam:create(player,param)
 	})
 	self:broadcast(function (uid)
 		sendpackage(uid,"team","selfteam",{
-			teamid = self.teamid,
-			target = self.target,
-			stage = self.stage,
-			member = self:packmember(player),
+			team = self:pack(),
 		})
 	end)
 end
@@ -97,6 +94,7 @@ function cteam:join(player)
 		teamid = self.teamid,
 		state = state,
 	})
+	
 	self:broadcast(function (uid)
 		if uid ~= pid then
 			sendpackage(uid,"team","addmember",{
@@ -162,25 +160,30 @@ function cteam:leave(player)
 	return true
 end
 
+function cteam:choose_newcaptain()
+	local newcaptain
+	if next(self.follow) then
+		newcaptain = randlist(keys(self.follow))
+	elseif next(self.leave) then
+		newcaptain = randlist(keys(self.leave))
+	end
+	return newcaptain
+end
+
 function cteam:quit(player)
 	local pid = player.pid
-	player.teamid = nil
-	self.follow[pid] = nil
-	self.leave[pid] = nil
 	local oldcaptain = self.captain
 	if oldcaptain == pid then
-		if next(self.follow) then
-			local newcaptain = randlist(keys(self.follow))
-			self.follow[newcaptain] = nil
-			self.captain = newcaptain
-		elseif next(self.leave) then
-			local newcaptain = randlist(keys(self.leave))
-			self.leave[newcaptain] = nil
-			self.captain = newcaptain
+		local newcaptain = self:choose_newcaptain()
+		if newcaptain then
+			teammgr:changecaptain(player.teamid,newcaptain)
 		else
 			self.captain = nil
 		end
 	end
+	player.teamid = nil
+	self.follow[pid] = nil
+	self.leave[pid] = nil
 	local scene = scenemgr.getscene(player.sceneid)
 	local state = player:teamstate() -- NO_TEAM
 	scene:sync(pid,{
@@ -206,17 +209,30 @@ end
 
 function cteam:changecaptain(pid)
 	assert(self.captain~=pid)
-	assert(self.leave[pid]==nil)
 	local oldcaptain_pid = self.captain
-	local oldcaptain = playermgr.getplayer(oldcaptain_pid)
-	assert(oldcaptain)
-	local captain = playermgr.getplayer(pid)
-	assert(captain)
+	if playermgr.getplayer(oldcaptain_pid) then
+		self.follow[oldcaptain_pid] = true
+	else
+		self.leave[oldcaptain_pid] = true
+	end
 	self.captain = pid
-	self.follow[oldcaptain_pid] = true
+	self.follow[pid] = nil
+	self.leave[pid] = nil
 	self:broadcast(function (uid)
-		sendpackage(uid,"team","member",self:packmember(oldcaptain))
-		sendpackage(uid,"team","member",self:packmember(captain))
+		sendpackage(uid,"team","updatemember",{
+			teamid = self.teamid,
+			member = {
+				pid = oldcaptain_pid,
+				state = self.follow[oldcaptain_pid] and TEAM_STATE_FOLLOW or TEAM_STATE_LEAVE,
+			}
+		})
+		sendpackage(uid,"team","updatemember",{
+			teamid = self.teamid,
+			member = {
+				pid = self.captain,
+				state = TEAM_CAPTAIN,
+			}
+		})
 	end)
 end
 
@@ -260,13 +276,14 @@ function cteam:teamstate(pid)
 	return NO_TEAM
 end
 
+-- player : 1--player object,2 -- resume object
 function cteam:packmember(player)
 	return {
 		pid = player.pid,
 		name = player.name,
 		lv = player.lv,
 		roletype = player.roletype,
-		state = self:teamstate(pid),
+		state = self:teamstate(player.pid),	
 	}
 end
 

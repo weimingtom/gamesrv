@@ -1,6 +1,23 @@
 -- [800,900)
 local proto = {}
 proto.c2s = [[
+.MemberType {
+	pid 0 : integer
+	name 1 : string
+	lv 2 : integer
+	roletype 3 : integer
+	# 1--captain,2--follow member,3--leave member,  4--offline member
+	state 4 : integer
+}
+
+.TeamType {
+	teamid 0 : integer
+	target 1 : integer
+	# 组队目标详情/阶段
+	stage 2 : integer
+	members 3 : *MemberType
+}
+
 team_createteam 800 {
 	request {
 		target 0 : integer
@@ -15,7 +32,6 @@ team_publishteam 802 {
 	request {
 		target 0 : integer
 		stage 1 : integer
-		automatch 2 : boolean
 	}
 }
 
@@ -61,6 +77,8 @@ team_invite_jointeam 811 {
 	}
 }
 
+
+# 同步/请求一个队伍数据
 team_syncteam 812 {
 	request {
 		teamid 0 : integer
@@ -91,6 +109,13 @@ team_openui_team 813 {
 		teams 0 : *TeamType
 	}
 }
+
+team_automatch 814 {
+	request {
+		# 0--取消自动匹配，1--自动匹配
+		choose 0 : integer
+	}
+}
 ]]
 
 proto.s2c = [[
@@ -108,7 +133,7 @@ proto.s2c = [[
 	target 1 : integer
 	# 组队目标详情/阶段
 	stage 2 : integer
-	member 3 : MemberType,
+	members 3 : *MemberType,
 }
 
 team_selfteam 800 {
@@ -144,6 +169,7 @@ team_publishteam 804 {
 		time 1 : integer
 		target 2 : integer
 		stage 3 : integer
+		captain 4 : MemberType
 	}
 }
 
@@ -171,6 +197,7 @@ team_delapplyer 806 {
 		applyers : *integer
 	}
 }
+
 ]]
 
 return proto

@@ -10,6 +10,7 @@ function clustermgr.loadconfig()
 	assert(load(source, "@"..config_name, "t", tmp))()
 	clustermgr.srvlist = tmp
 	pprintf("srvlist:%s",clustermgr.srvlist)
+	skynet_cluster.reload()
 end
 
 function clustermgr.checkserver()
@@ -34,7 +35,7 @@ end
 function clustermgr.onconnect(srvname)
 	local oldstate = clustermgr.connection[srvname]
 	clustermgr.connection[srvname] = true
-	if oldstate ~= true then
+	if not oldstate then
 		logger.log("info","cluster",string.format("server(%s->%s) connected",cserver.srvname,srvname))
 		if cserver.isresumesrv(srvname) then
 			broadcast(function (player)
@@ -50,9 +51,9 @@ end
 function clustermgr.disconnect(srvname)
 	local oldstate = clustermgr.connection[srvname]
 	clustermgr.connection[srvname] = nil
-	if oldstate == true then
+	if oldstate then
 		logger.log("critical","cluster",string.format("server(%s->%s) lost connect",cserver.srvname,srvname))
-		if cserver.isfrdsrv(srvname) then
+		if cserver.isresumesrv(srvname) then
 			broadcast(function (player)
 				sendpackage(player.pid,"player","switch",{
 					friend = false,

@@ -662,11 +662,24 @@ function onerror(msg)
 	end)
 end
 
+HEX_MAP = {}
+for i=0,15 do
+	local char
+	if i >= 10 then
+		char = string.char(97+i-10)
+	else
+		char = tostring(i)
+	end
+	tostring(i)
+	HEX_MAP[i] = char
+	HEX_MAP[char] = i
+end
+
 
 function uuid()
 	local ret = {}
 	for i=1,32 do
-		table.insert(ret,math.random(0,0xf))
+		table.insert(ret,HEX_MAP[math.random(0,0xf)])
 	end
 	return table.concat(ret,"")
 end

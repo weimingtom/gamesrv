@@ -4,8 +4,8 @@ require "script.cluster.netcluster"
 cluster = cluster or {}
 
 function cluster.init()
-	cluster.srvname = skynet.getenv("srvname")
-	skynet_cluster.open(cluster.srvname)
+	local srvname = skynet.getenv("srvname")
+	skynet_cluster.open(srvname)
 	require "script.cluster.route"
 	require "script.cluster.clustermgr"
 	require "script.cluster.netcluster"
@@ -41,9 +41,10 @@ function cluster.dispatch (session,source,srvname,cmd,...)
 end
 
 function cluster.call(srvname,protoname,cmd,...)
-	assert(srvname ~= cluster.srvname,"cluster call self,srvname:" .. tostring(srvname))
+	local self_srvname = skynet.getenv("srvname")
+	assert(srvname ~= self_srvname,"cluster call self,srvname:" .. tostring(srvname))
 	logger.log("debug","netcluster",format("[send] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,{...}))
-	return skynet_cluster.call(srvname,".mainservice","cluster",cluster.srvname,protoname,cmd,...)
+	return skynet_cluster.call(srvname,".mainservice","cluster",self_srvname,protoname,cmd,...)
 end
 
 return cluster
