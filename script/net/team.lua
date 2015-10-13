@@ -248,27 +248,42 @@ function REQUEST.syncteam(player,request)
 	if not team then
 		package = {}
 	else
-		package = team:packteam()
+		package = team:pack()
 	end
-	return {team = package}
+	sendpackage(player.pid,"team","syncteam",{
+		team = package,
+	})
 end
 
 function REQUEST.openui_team(player,request)
-	local teams = {}
-	for teamid,team in pairs(self.teams) do
-		table.insert(teams,team:pack())
+	local pid = player.pid
+	local teamid = player:getteamid()
+	if teamid then
+		local teams = {}
+		for teamid,team in pairs(self.teams) do
+			table.insert(teams,team:pack())
+		end
+		sendpackage(pid,"team","openui_team",{
+			teams = teams,
+		})
+	else
+		local team = teammgr:getteam(teamid)
+		if team then
+			sendpackage(player.pid,"team","syncteam",{
+				team = team:pack(),
+			})
+		end
 	end
-	return teams
 end
 
 function REQUEST.automatch(player,request)
-	player:set("switch.automatch",true)
-	sendpackage(player.pid,"player","switch",{
-		automatch = player:query("switch.automatch",false),
-	})
+	local target = request.target
+	local stage = request.stage
 	local teamid = player:getteamid()
 	if not teamid then
-			
+		teammgr:automatch(player,target,stage)
+	else
+		teammgr:team_automatch(player,target,stage)
 	end
 end
 

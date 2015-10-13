@@ -251,7 +251,7 @@ function teammgr:get_automatch_team(teamid)
 	end
 	local team = self:getteam(teamid)
 	if not team then
-		self.automatch_teams[teamid]
+		self.automatch_teams[teamid] = nil
 		return
 	end
 	local data = data_team[team.target] or {}

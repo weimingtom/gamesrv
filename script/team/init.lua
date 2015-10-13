@@ -317,6 +317,7 @@ function cteam:pack()
 		target = self.target,
 		stage = self.stage,
 		members = self:packmembers(),
+		automatch = teammgr.automatch_teams[self.teamid] and true or false,
 	}
 end
 
