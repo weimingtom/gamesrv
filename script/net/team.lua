@@ -265,6 +265,7 @@ function REQUEST.openui_team(player,request)
 		end
 		sendpackage(pid,"team","openui_team",{
 			teams = teams,
+			automatch = teammgr.automatch_pids[pid] and true or false,
 		})
 	else
 		local team = teammgr:getteam(teamid)
@@ -292,6 +293,23 @@ function REQUEST.unautomatch(player,request)
 	sendpackage(player.pid,"player","switch",{
 		automatch = player:query("switch.automatch",false),
 	})
+end
+
+function REQUEST.changetarget(player,request)
+	local target = request.target
+	local stage = request.stage
+	local teamid = player:getteamid()
+	if teamid then
+		local team = teammgr:getteam(teamid)
+		if team then
+			if target then
+				team.target = target
+			end
+			if stage then
+				team.stage = stage
+			end
+		end
+	end
 end
 
 local RESPONSE = {}

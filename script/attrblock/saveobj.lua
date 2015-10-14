@@ -66,6 +66,7 @@ function csaveobj:init(conf)
 	self.pid = conf.pid
 	self.mergelist = setmetatable({},{__mode = "kv"})
 	self.saveflag = false
+	self.loadstate = "unload"
 	if not self.__temp then
 		add_saveobj(self)
 		starttimer(self)
@@ -75,7 +76,7 @@ end
 function csaveobj:autosave()
 	assert(self.saveflag ~= "oncesave","autosave conflict with oncesave")
 	logger.log("info","saveobj",string.format(" %s autosave",self:uniqueflag()))
-	self.saveflag = "autosave"	
+	self.saveflag = "autosave"
 end
 
 function csaveobj:merge(obj)
@@ -93,19 +94,18 @@ end
 
 function csaveobj:savetodatabase()
 	logger.log("info","saveobj",string.format("%s savetodatabase",self:uniqueflag()))
---	if not self.loadstate ~= "loaded" then
---		return
+--	if self.loadstate == "loaded" then
+--		--TODO:
 --	end
 end
 
 function csaveobj:loadfromdatabase()
 	logger("info","saveobj",string.format("%s loadfromdatabase",self:uniqueflag()))
-	--if self.loadstate ~= "unload" then
-	--	return
-	--end
-	--self.loadstate = "loading"
-	---- XXX
-	--self.loadstate = "loaded"
+--	if self.loadstate == "unload" then
+--		self.loadstate = "loading"
+--		--TODO:
+--		self.loadstate = "loaded"
+--	end
 end
 
 function csaveobj:nowsave()

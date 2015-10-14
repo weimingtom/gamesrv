@@ -100,7 +100,8 @@ team_syncteam 812 {
 	target 1 : integer
 	# 组队目标详情/阶段
 	stage 2 : integer
-	member 3 : MemberType,
+	member 3 : MemberType
+	automatch 4 : boolean
 }
 
 team_openui_team 813 {
@@ -117,6 +118,13 @@ team_automatch 814 {
 
 team_unautomatch 815 {
 	request {
+	}
+}
+
+team_changetarget 816 {
+	request {
+		target 0 : integer
+		stage 1 : integer
 	}
 }
 ]]
@@ -137,6 +145,7 @@ proto.s2c = [[
 	# 组队目标详情/阶段
 	stage 2 : integer
 	members 3 : *MemberType,
+	automatch 4 : boolean,
 }
 
 team_selfteam 800 {
@@ -204,6 +213,7 @@ team_delapplyer 807 {
 team_openui_team 808 {
 	request {
 		teams 0 : *TeamType
+		automatch 1 : boolean
 	}
 }
 

@@ -1,19 +1,27 @@
-cteam = class("cteam")
+cteam = class("cteam",csaveobj)
 
 function cteam:init(teamid,param)
 	self.teamid = teamid
+	self.createtime = os.time()
 	self.follow = {}
 	self.leave = {}
 	self.captain = 0
 	self.applyers = {}
 	self.target = param.target or 0
 	self.stage = param.stage or 0
+
+	csaveobj.init(self,{
+		pid = 0,
+		flag = "cteam"
+	})
+	self:autosave()
 end
 
 function cteam:load(data)
 	if not data or not next(data) then
 		return
 	end
+	self.createtime = data.createtime
 	local tmp = {}
 	for pid,v in pairs(data.follow) do
 		pid = tonumber(pid)
@@ -37,6 +45,7 @@ end
 
 function cteam:save()
 	local data = {}
+	data.createtime = self.createtime
 	local tmp = {}
 	for pid,v in pairs(self.follow) do
 		tmp[tostring(pid)]=v
@@ -54,6 +63,34 @@ function cteam:save()
 	end
 	data.applyers = tmp
 	return data
+end
+
+function cteam:loadfromdatabase()
+	if self.loadstate == "unload" then
+		self.loadstate = "loading"
+		local db = dbmgr.getdb()
+		local data = db:get(db:key("team",self.teamid))
+		self:load(data)
+		self.loadstate = "loaded"
+		local now = os.time()
+		if now - self.createtime > DAY_SECS then
+			teammgr.teams[self.teamid] = nil
+			self:delfromdatabase()
+		end
+	end
+end
+
+function cteam:savetodatabase()
+	if self.loadstate == "loaded" then
+		local data = self:save()
+		local db = dbmgr.getdb()
+		db:set(db:key("team",self.teamid),data)
+	end
+end
+
+function cteam:delfromdatabase()
+	local db = dbmgr.getdb()
+	db:del(db:key("team",self.teamid))
 end
 
 function cteam:onlogin(player)
@@ -362,5 +399,14 @@ function cteam:len(state,include_captain)
 	else
 		assert("invalid team state:" .. tostring(state))
 	end
+end
+
+-- 最大人数
+function cteam:maxlen()
+	local target = self.target
+	if not target or target == 0 then
+		return 5
+	end
+	return data_team[target].limit
 end
 return cteam

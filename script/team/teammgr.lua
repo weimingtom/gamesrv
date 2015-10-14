@@ -8,6 +8,52 @@ function cteammgr:init()
 	self.automatch_pids = {}
 	self.automatch_teams = {}
 	self:starttimer_check_publishteam()
+	self:starttimer_automatch()
+	self:autosave()
+end
+
+function cteammgr:load(data)
+	if not data or not next(data) then
+		return
+	end
+	for i,teamid in ipairs(data.teams) do
+		local team = cteam.new(teamid)
+		self.teams[teamid] = team
+		team:loadfromdatabase()
+	end
+	local tmp = {}
+	for teamid,v in pairs(data.publish_teams) do
+		tmp[tonumber(teamid)] = v
+	end
+	self.publish_teams = tmp
+end
+
+function cteammgr:save()
+	local data = {}
+	data.teams = keys(self.teams)
+	local tmp = {}
+	for teamid,v in pairs(self.publish_teams) do
+		tmp[tostring(teamid)] = v
+	end
+	data.publish_teams = tmp
+end
+
+function cteammgr:loadfromdatabase()
+	if self.loadstate == "unload" then
+		self.loadstate = "loading"
+		local db = dbmgr.getdb()
+		local data = db:get(db:key("team","mgr"))
+		self:load(data)
+		self.loadstate = "loaded"
+	end
+end
+
+function cteammgr:savetodatabase()
+	if self.loadstate == "loaded" then
+		local data = self:save()
+		local db = dbmgr.getdb()
+		db:set(db:key("team","mgr"),data)
+	end
 end
 
 function cteammgr:genid()
@@ -193,9 +239,6 @@ function cteammgr:automatch(player,target,stage)
 		target = target,
 		stage = stage,
 	}
-	if not matchdata or matchdata.target ~= target or matchdata.stage ~= stage then
-		self:check_match_team(player)
-	end
 end
 
 function cteammgr:unautomatch(pid,reason)
@@ -213,10 +256,11 @@ function cteammgr:check_match_team(player)
 		return
 	end
 	local match_teams = {}
-	for teamid,publish in pairs(self.publish_team) do
-		if matchdata.target == 0 or publish.target == matchdata.target then
-			local team = teammgr:getteam(teamid)
-			if team and team:len(TEAM_STATE_ALL) < 5 then
+	for teamid,v in pairs(self.automatch_teams) do
+		local team = teammgr:getteam(teamid)
+		if team and team:len(TEAM_STATE_ALL) < team:maxlen() then
+
+			if matchdata.target == 0 or team.target == matchdata.target then
 				table.insert(match_teams,teamid)
 			end
 		end
@@ -225,8 +269,8 @@ function cteammgr:check_match_team(player)
 		return
 	end
 	table.sort(match_teams,function (teamid1,teamid2)
-		local publish1 = self.publish_team[teamid1]
-		local publish2 = self.publish_team[teamid2]
+		local match1 = teammgr.match_teams[teamid1]
+		local match2 = teammgr.match_teams[teamid2]
 		local team1 = teammgr:getteam(teamid1)
 		local team2 = teammgr:getteam(teamid2)
 		local len1 = team1:len(TEAM_STATE_ALL)
@@ -234,14 +278,13 @@ function cteammgr:check_match_team(player)
 		if len1 < len2 then
 			return true
 		end
-		if len1 == len2 and publish1.time < publish2.time then
+		if len1 == len2 and match1.time < match2.time then
 			return true
 		end
 		return false
 	end)
 	local teamid = match_teams[1]
-	local team = teammgr:getteam(teamid)
-	team:jointeam(player)
+	teammgr:jointeam(player,teamid)
 end
 
 function teammgr:get_automatch_team(teamid)
@@ -254,9 +297,7 @@ function teammgr:get_automatch_team(teamid)
 		self.automatch_teams[teamid] = nil
 		return
 	end
-	local data = data_team[team.target] or {}
-	local limit = data.limit or 5
-	if team:len(TEAM_STATE_ALL) >= limit then
+	if team:len(TEAM_STATE_ALL) >= team:maxlen() then
 		self.automatch_teams[teamid] = nil
 		return
 	end
@@ -265,10 +306,15 @@ end
 
 function teammgr:starttimer_automatch()
 	timer.timeout("timer.automatch",10,functor(self.starttimer_automatch,self))
-	for teamid,_ in pairs(self.automatch_teams) do
-		team = self:get_automatch_team(teamid)
-		if team then
-			
+	local cnt = 0
+	for pid,v in pairs(teammgr.automatch_pids) do
+		local player = playermgr.getplayer(pid)
+		if player then
+			cnt = cnt + 1
+			teammgr:check_match_team(player)
+			if cnt >= 20 then
+				break
+			end
 		end
 	end
 end
