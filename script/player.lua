@@ -84,6 +84,12 @@ function cplayer:save()
 	local data = {}
 	data.data = self.data
 	data.resume = self:packresume()
+	data.basic = {
+		teamid = self.teamid
+		sceneid = self.sceneid,
+		pos = self.pos,
+		warstate = self.warstate,
+	}
 	return data
 end
 
@@ -95,6 +101,10 @@ function cplayer:load(data)
 	end
 	self.data = data.data
 	self:unpackresume(data.resume)
+	self.teamid = data.basic.teamid
+	self.sceneid = data.basic.sceneid
+	self.pos = data.basic.pos
+	self.warstate = data.basic.warstate
 end
 
 function cplayer:packresume()
@@ -198,6 +208,8 @@ function cplayer:create(obj,conf)
 	self.lv = 25
 	self.chip = 0
 	self.viplv = 0
+	self.sceneid = BORN_SCENEID
+	self.pos = deepcopy(randlist(ALL_BORN_LOCS))
 	self.createtime = getsecond()
 	local db = dbmgr.getdb()
     db:hset(db:key("role","list"),self.pid,1)
@@ -511,7 +523,7 @@ function cplayer:packscene()
 	return {
 		pid = self.pid,
 		name = self.name,
-		lv = self.lv
+		lv = self.lv,
 		roletype = self.roletype,
 		teamid = self:getteamid(),
 		state = self:teamstate(),	
