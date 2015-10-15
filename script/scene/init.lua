@@ -7,10 +7,9 @@ function cscene:init(sceneid)
 	self.scenesrv = skynet.newservice(string.format("scene%d",sceneid))
 end
 
-function cscene:enter(player)
+function cscene:quit()
+	skynet.send(self.scenesrv,"scene","quit")
 end
 
-function cscene:exit(player)
-end
 
 return cscene

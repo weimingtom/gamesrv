@@ -23,3 +23,9 @@ POLICE_SEE_ALL			= 1 -- 看到所有人
 POLICE_SEE_CAPTAIN		= 2 -- 只能看到队长/暂离玩家/散人
 POLICE_SEE_SELF			= 3 -- 只能看到自身队伍/自己
 
+DEFAULT_SCENEID			= 1 -- 默认场景
+DEFAULT_POS				= { -- 默认位置
+	x = 100,
+	y = 100,
+	dir = 1,
+}

@@ -16,7 +16,7 @@ local function docmd(srvname,methodname,...)
 	local func = assert(mod[funcname],"[modmethod] Unknow methodname:" .. tostring(methodname))
 	if sep == "." then
 		return func(...)
-	elseif sep == ":":
+	elseif sep == ":" then
 		return func(mod,...)
 	else
 		error("Invalid function seperator:" .. tostring(typ))

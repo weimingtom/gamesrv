@@ -168,6 +168,9 @@ local function dispatch (session,source,typ,...)
 		local cmd = ...
 		local f = proto.CMD[cmd]
 		xpcall(f,onerror,source,select(2,...))
+	elseif typ == "service" then
+		logger.log("debug","netservice",format("[rcv] source=%s session=%d type=%s package=%s",source,session,typ,{...}))
+		xpcall(service.dispatch,onerror,session,source,...)
 	elseif typ == "cluster" then
 		logger.log("debug","netcluster",format("[recv] source=%s session=%d type=%s package=%s",source,session,typ,{...}))
 		xpcall(cluster.dispatch,onerror,session,source,...)

@@ -8,17 +8,23 @@ function scene.init()
 		value:{
 			pid 玩家ID
 			teamid	 队伍ID
-			teamstate 队伍状态
+			state 队伍状态
 			warstate 战斗状态
-			x
-			y
-			dir
-			seen	视觉范围
+			pos {
+				x
+				y
+				dir
+			}
+			seen { 视觉范围
+				wedith
+				height
+			}
 			police	同步策略(1--显示所有，2--只显示队长(包括暂离玩家和散人)，3--只显示自己队伍/自身)
 			agent 
 		}
 	]]
 	scene.players = {}
+	scene.address = skynet.self()
 end
 
 function scene.getplayer(pid)
@@ -39,33 +45,35 @@ function scene.canmove(pid)
 	return true
 end
 
-function scene.canseen(pid,tid)
-	local player = scene.getplayer(pid)
-	local target = scene.getplayer(pid)
-	if not player or not target then
-		return false
-	end
-end
 
-local command = {}
-function command.set(pid,key,val)
+function scene.set(pid,key,val)
 	local player = scene.getplayer(pid)
 	if player then
 		player[key] = val
+		local package = {
+			pid = pid,
+			{[key] = val,},
+		}
+		scene.broadcast(function (obj)
+			if obj then
+				proto.sendpackage(obj.agent,"scene","update",package)
+			end
+		end)
 	end
 end
 
 function scene.canseen(obj,player)
-	local x1,y1 = obj.x,obj.y	
-	local width,height = obj.width,obj.height
-	if x1-width <= player.x and player.x <= x1+width and
-	   y1-height <= player.y and player.y <= y1+height then
+	local x1,y1 = obj.pos.x,obj.pos.y	
+	local width,height = obj.seen.width,obj.seen.height
+	if x1-width <= player.pos.x and player.pos.x <= x1+width and
+	   y1-height <= player.pos.y and player.pos.y <= y1+height then
 	   return true
    end
    return false
 end
 
-function scene.spread_move(uid,package)
+-- 受限发包
+function scene.sendpackage(uid,protoname,cmd,package)
 	local pid = pacakge.pid
 	local obj = scene.getplayer(uid)
 	local player = scene.getplayer(pid)
@@ -77,16 +85,16 @@ function scene.spread_move(uid,package)
 			if obj.police then
 				if obj.police == POLICE_SEE_SELF then
 				elseif obj.police == POLICE_SEE_CAPTAIN then
-					proto.sendpackage(obj.agent,package)
+					proto.sendpackage(obj.agent,protoname,cmd,package)
 				elseif obj.police == POLICE_SEE_ALL then
-					proto.sendpackage(obj.agent,package)
+					proto.sendpackage(obj.agent,protoname,cmd,package)
 				end
 			end
 		end
 	end
 end
 
-function command.move(pid,package)
+function scene.move(pid,package)
 	local player = scene.getplayer(pid)
 	if not player then
 		return
@@ -96,34 +104,165 @@ function command.move(pid,package)
 	end
 	local srcpos = package.srcpos	
 	local dstpos = package.dstpos
-	player.x = srcpos.x
-	player.y = srcpos.y
-	player.dir = srcpos.dir
+	player.pos = {
+		x = srcpos.x,
+		y = srcpos.y,
+		dir = srcpos.dir,
+	}
 	package.pid = pid
 	for uid,obj in pairs(scene.players) do
 		if player.teamid then
 			if obj.teamid == player.teamid then
 				if player.teamstate == TEAM_STATE_CAPTAIN then
-					obj.x = player.x
-					obj.y = player.y
-					obj.dir = player.dir
+					obj.pos = {
+						x = player.x,
+						y = player.y,
+						dir = player.dir,
+					}
 					if obj.agent then
-						proto.sendpackage(obj.agent,package)
+						proto.sendpackage(obj.agent,"scene","move",package)
 					end
 				else -- TEAM_STATE_LEAVE
-					scene.spread_move(uid,package)
+					scene.sendpackage(uid,"scene","move",package)
 				end
 			else
-				scene.spread_move(uid,package)
+				scene.sendpackage(uid,"scene","move",package)
 			end
 		else
-			scene.spread_move(uid,package)
+			scene.sendpackage(uid,"scene","move",package)
 		end
 	end
 end
 
+function scene.stop(pid)
+	local player = scene.getplayer(pid)
+	if not player then
+		return
+	end
+	if not scene.canmove(pid) then
+		return
+	end
+	local package = {
+		pid = pid,
+	}
+	for uid,obj in pairs(scene.players) do
+		if player.teamid then
+			if obj.teamid == player.teamid then
+				if player.teamstate == TEAM_STATE_CAPTAIN then
+					if obj.agent then
+						proto.sendpackage(obj.agent,"scene","stop",package)
+					end
+				else -- TEAM_STATE_LEAVE
+					scene.sendpackage(uid,"scene","stop",package)
+				end
+			else
+				scene.sendpackage(uid,"scene","stop",package)
+			end
+		else
+			scene.sendpackage(uid,"scene","stop",package)
+		end
+	end
+end
+
+function scene.setpos(pid,pos)
+	local player = scene.getplayer(pid)
+	if not player then
+		return
+	end
+	if not scene.canmove(pid) then
+		return
+	end
+	player.pos = pos
+	local package = {
+		pid = pid,
+		pos = pos,
+	}
+	for uid,obj in pairs(scene.players) do
+		if player.teamid then
+			if obj.teamid == player.teamid then
+				if player.teamstate == TEAM_STATE_CAPTAIN then
+					obj.pos = player.pos
+					if obj.agent then
+						proto.sendpackage(obj.agent,"scene","setpos",package)
+					end
+				else -- TEAM_STATE_LEAVE
+					scene.sendpackage(uid,"scene","setpos",package)
+				end
+			else
+				scene.sendpackage(uid,"scene","setpos",package)
+			end
+		else
+			scene.sendpackage(uid,"scene","setpos",package)
+		end
+	end
+end
+
+function scene.enter(player)
+	local pid = player.pid
+	if scene.players[pid] then
+		logger.log("warnning","scene",string.format("[%s] reenter,sceneid=%d pid=%d player=%s",scene.address,pid,self.sceneid,pid,player))
+
+	end
+	logger.log("warnning","scene",string.format("[%s] enter,sceneid=%d pid=%d player=%s",scene.address,pid,self.sceneid,pid,player))
+	scene.players[pid] = player
+	local package = {
+		pid = pid,
+		resume = player,
+	}
+	scene.broadcast(function (obj)
+		if obj.agent then
+			proto.sendpackage(obj.agent,"scene","enter",package)
+		end
+	end)
+end
+
+function scene.exit(pid)
+	local player = scene.players[pid]
+	if player then
+		logger.log("info","scene",string.format("[%s] exit,sceneid=%d pid=%d",scene.address,self.sceneid,pid))
+		scene.players[pid] = nil
+	end
+	local package = {
+		pid = pid,
+	}
+	scene.broadcast(function (obj)
+		if obj.agent then
+			proto.sendpackage(obj.agent,"scene","exit",package)
+		end
+	end)
+end
+
+-- 退出服务
+function scene.quit()
+	for pid,player in pairs(scene.players) do
+		scene.exit(pid)
+		skynet.send(".mainservice","data","service","scene","quit",pid)
+	end
+	skynet.exit()
+end
+
+function scene.broadcast(func)
+	for pid,player in pairs(scene.players) do
+		func(obj)
+	end
+end
+
+local command = {
+	move = scene.move,
+	stop = scene.stop,
+	setpos = scene.setpos,
+	set = scene.set,
+	enter = scene.enter,
+	exit = scene.exit,
+}
+
 skynet.init(function ()
 	skynet.dispatch("lua",function (session,source,cmd,...)
-
+		local func = command[cmd]
+		if not func then
+			logger.log("warnning","error",string.format("[scene] invalid cmd:%s",cmd))
+			return
+		end
+		func(...)
 	end)
 end)

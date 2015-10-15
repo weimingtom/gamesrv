@@ -506,9 +506,68 @@ function cplayer:packmember()
 	}
 end
 
+-- 场景信息
+function cplayer:packscene()
+	return {
+		pid = self.pid,
+		name = self.name,
+		lv = self.lv
+		roletype = self.roletype,
+		teamid = self:getteamid(),
+		state = self:teamstate(),	
+		warstate = self.warstate,
+		pos = self.pos,
+		seen = self.seen,
+		police = self.police,
+		agent = self.__agent,
+	}
+end
+
 -- setter
 function cplayer:setauthority(auth)
 	self:set("auth",auth)
 end
 
+function cplayer:move(package)
+	local pid = self.pid
+	local scene = scenemgr.getscene(self.sceneid)
+	if scene then
+		if request.srcpos then
+			self:setpos(request.srcpos)
+		end
+		skynet.send(scene.scenesrv,"move",pid,request)	
+	end
+end
 
+function cplayer:stop()
+	local pid = self.pid
+	local scene = scenemgr.getscene(self.sceneid)
+	if scene then
+		skynet.send(scene.scenesrv,"stop",pid)	
+	end
+end
+
+function cplayer:setpos(pos)
+	local pid = self.m_ID
+	local scene = scenemgr.getscene(self.sceneid)
+	if scene then
+		self.pos = deepcopy(pos)
+		skynet.send(scene.scenesrv,"setpos",pid,pos)
+	end
+end
+
+function cplayer:enterscene(sceneid,pos)
+	local pid = self.m_ID
+	local newscene = scenemgr.getscene(sceneid)
+	if not newscene then
+		return
+	end
+	local oldscene = scenemgr.getscene(self.sceneid)
+	if oldscene then
+		skynet.send(oldscene.scenesrv,"exit",pid)
+	end
+	self:setpos(pos)
+	skynet.send(newscene.scenesrv,"enter",self:packscene())
+end
+
+return cplayer
