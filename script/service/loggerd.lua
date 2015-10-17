@@ -173,5 +173,5 @@ skynet.start(function ()
 			skynet.error(skynet.pack(result))
 		end
 	end)
-end)
+end
 return logger
