@@ -32,19 +32,18 @@ function REQUEST.login(obj,request)
 	obj.account = account
 	obj.passwd = passwd
 	local url = string.format("/login?acct=%s&passwd=%s",account,passwd)
-	logger.log("debug","test","start login")
 	local status,body = httpc.get(cserver.accountcenter.host,url)
-	logger.log("debug","test","after http request")
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then
 			url = string.format("/rolelist?gameflag=%s&srvname=%s&acct=%s",cserver.gameflag,cserver.srvname,account)
 			local status2,body2 = httpc.get(cserver.accountcenter.host,url)
+			logger.log("debug","test",status2,body2)
 			if status2 == 200 then
-				local result2,body2 = unpackbody(body2)
-				if result2 == 0 then
+				local result2,roles = unpackbody(body2)
+				if result2 == STATUS_OK then
 					obj.passlogin = true
-					return {result=0,roles=body2.roles,}
+					return {result=STATUS_OK,roles=values(roles),}
 				else
 					return {result=result2}
 				end

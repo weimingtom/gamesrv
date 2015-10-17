@@ -44,7 +44,7 @@ function cluster.call(srvname,protoname,cmd,...)
 	local self_srvname = skynet.getenv("srvname")
 	assert(srvname ~= self_srvname,"cluster call self,srvname:" .. tostring(srvname))
 	logger.log("debug","netcluster",format("[send] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,{...}))
-	return skynet_cluster.call(srvname,".mainservice","cluster",self_srvname,protoname,cmd,...)
+	return skynet_cluster.call(srvname,".MAINSRV","cluster",self_srvname,protoname,cmd,...)
 end
 
 return cluster

@@ -139,23 +139,27 @@ function gm.setauthority(args)
 	player:setauthority(authority)
 end
 
-
+gm.CMD = {
+	[AUTH_SUPERADMIN] = {
+	},
+	[AUTH_ADMIN] = {
+	},
+	[AUTH_PROGRAMER] = {
+	},
+	[AUTH_DESIGNER] = {
+	},
+	[AUTH_NORMAL] = {
+		setauthority = true,
+		buildgmdoc = true,
+	},
+}
 
 function gm.init()
-	gm.CMD = {
-		[AUTH_SUPERADMIN] = {
-		},
-		[AUTH_ADMIN] = {
-		},
-		[AUTH_PROGRAMER] = {
-		},
-		[AUTH_DESIGNER] = {
-		},
-		[AUTH_NORMAL] = {
-			setauthority = true,
-			buildgmdoc = true,
-		},
-	}
+	require "script.gm.sys"
+	require "script.gm.helper"
+	require "script.gm.card"
+	require "script.gm.test"
+	require "script.gm.other"
 end
 
 

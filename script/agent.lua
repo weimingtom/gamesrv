@@ -25,14 +25,14 @@ skynet.register_protocol {
 	dispatch = function(session,source,typ,...)
 		if typ == "REQUEST" then
 			local cmd,request,response = ...
-			local result = skynet.call(".mainservice","lua","client","data",typ,cmd,request)
+			local result = skynet.call(".MAINSRV","lua","client","data",typ,cmd,request)
 			if response then
 				local result = response(result)
 				agent.sendpackage(result)	
 			end
 		else
 			assert(typ == "RESPONSE")
-			skynet.send(".mainservice","lua","client","data",typ,...)
+			skynet.send(".MAINSRV","lua","client","data",typ,...)
 		end
 	end,
 }
@@ -45,14 +45,14 @@ function CMD.start(gate, fd,addr)
 	agent.host = sproto.parse(proto.c2s):host "package"
 	agent.send_request = agent.host:attach(sproto.parse(proto.s2c))
 	skynet.call(gate, "lua", "forward", fd)
-	skynet.send(".mainservice","lua","client","start",fd,addr)
+	skynet.send(".MAINSRV","lua","client","start",fd,addr)
 end
 
 function CMD.close()
 	agent.fd = nil
 	agent.ip = nil
 	agent.gate = nil
-	skynet.send(".mainservice","lua","client","close")
+	skynet.send(".MAINSRV","lua","client","close")
 end
 
 function CMD.kick(fd)

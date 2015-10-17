@@ -18,6 +18,7 @@ require "script.loginqueue"
 require "script.huodong.huodongmgr"
 require "script.object"
 require "script.hotfix.init"
+require "script.scene.scenemgr"
 
 game = game or {}
 function game.startgame()
@@ -41,6 +42,7 @@ function game.startgame()
 	oscmd.init()
 	loginqueue.init()
 	mailmgr.init()
+	scenemgr.init()
 	huodongmgr.startgame()
 	game.initall = true
 	print("Startgame ok")

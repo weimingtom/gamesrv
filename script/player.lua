@@ -85,7 +85,7 @@ function cplayer:save()
 	data.data = self.data
 	data.resume = self:packresume()
 	data.basic = {
-		teamid = self.teamid
+		teamid = self.teamid,
 		sceneid = self.sceneid,
 		pos = self.pos,
 		warstate = self.warstate,

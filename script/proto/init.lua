@@ -76,7 +76,7 @@ local function onrequest(agent,cmd,request)
 	local REQUEST = net[protoname].REQUEST
     local func = REQUEST[subprotoname]
     if not func then
-        logger.log("warnning","error",format("unknow cmd,pid=%s,cmd=%s request=%s",pid,cmd,request))
+        logger.log("warning","error",format("unknow cmd,pid=%s,cmd=%s request=%s",pid,cmd,request))
         return
     end
 
