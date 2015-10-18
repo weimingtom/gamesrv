@@ -306,6 +306,7 @@ end
 
 
 function deepcopy(o,seen)
+	print(o,seen)
 	local typ = type(o)
 	if typ ~= "table" then return o end
 	seen = seen or {}
@@ -613,6 +614,7 @@ end
 
 -- error
 local function collect_localvar(level)
+	level = level + 1 -- skip self function 'collect_localval'
 	local function dumptable(tbl) 
 		local attrs = {"pid","id","name","sid","warid","flag",}
 		local tips = {}
@@ -649,9 +651,9 @@ function onerror(msg)
 	pcall(function ()
 		-- assert/error触发(需要搜集level+1层--调用assert/error函数所在层)
 		-- 代码逻辑直接触发搜集level层即可
-		local vars = collect_localvar(level+1)
+		local vars = collect_localvar(level)
 		table.insert(vars,"================")
-		local vars2 = collect_localvar(level+2)
+		local vars2 = collect_localvar(level+1)
 		for _,s in ipairs(vars2) do
 			table.insert(vars,s)
 		end

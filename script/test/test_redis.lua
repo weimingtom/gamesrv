@@ -1,4 +1,4 @@
-cdb = cdb or {}
+local cdb = cdb or {}
 
 function cdb.new(conf)
 	local self = {}
@@ -75,4 +75,33 @@ function cdb:hvals(key)
 	return r
 end
 
+function main()
+	local conf = {
+		host = "127.0.0.1",
+		port = 6800,
+		db = 15,
+		auth = "sundream",
+	}
+	local conn = cdb.new(conf)
+	print(conn:set(conn:key("key",1),1))
+	print(conn:get(conn:key("key",1)))
+	print(conn:hset(conn:key("hkey",1),"one",1))
+	print(conn:hget(conn:key("hkey",1),"one"))
+	if conn:exists(conn:key("list",1)) then
+		conn:del(conn:key("list",1))
+	end
+	print(conn:rpush(conn:key("list",1),1))
+	print(conn:rpush(conn:key("list",1),2))
+	local list = conn:lrange(conn:key("list",1),0,-1)
+	for i,v in ipairs(list) do
+		print(i,v)
+	end
+	conn:disconnect()
+end
+
+skynet.start(function ()
+	main()
+	print("second")
+	main()
+end)
 return cdb

@@ -101,10 +101,12 @@ function cplayer:load(data)
 	end
 	self.data = data.data
 	self:unpackresume(data.resume)
-	self.teamid = data.basic.teamid
-	self.sceneid = data.basic.sceneid
-	self.pos = data.basic.pos
-	self.warstate = data.basic.warstate
+	if data.basic then
+		self.teamid = data.basic.teamid
+		self.sceneid = data.basic.sceneid
+		self.pos = data.basic.pos
+		self.warstate = data.basic.warstate
+	end
 end
 
 function cplayer:packresume()
@@ -209,7 +211,7 @@ function cplayer:create(obj,conf)
 	self.chip = 0
 	self.viplv = 0
 	self.sceneid = BORN_SCENEID
-	self.pos = deepcopy(randlist(ALL_BORN_LOCS))
+	self.pos = randlist(ALL_BORN_LOCS)
 	self.createtime = getsecond()
 	local db = dbmgr.getdb()
     db:hset(db:key("role","list"),self.pid,1)
@@ -290,6 +292,7 @@ function cplayer:onlogin()
 	end
 	resumemgr.onlogin(self)
 	self:doing("login")
+	self:enterscene(self.sceneid,self.pos,true)
 end
 
 function cplayer:onlogoff()
@@ -302,6 +305,7 @@ function cplayer:onlogoff()
 	end
 	resumemgr.onlogoff(self)
 	self:doing("logoff")
+	self:exitscene(self.sceneid)
 end
 
 function cplayer:ondisconnect(reason)
@@ -547,7 +551,7 @@ function cplayer:move(package)
 		if request.srcpos then
 			self:setpos(request.srcpos)
 		end
-		skynet.send(scene.scenesrv,"move",pid,request)	
+		skynet.send(scene.scenesrv,"lua","move",pid,request)	
 	end
 end
 
@@ -555,7 +559,7 @@ function cplayer:stop()
 	local pid = self.pid
 	local scene = scenemgr.getscene(self.sceneid)
 	if scene then
-		skynet.send(scene.scenesrv,"stop",pid)	
+		skynet.send(scene.scenesrv,"lua","stop",pid)	
 	end
 end
 
@@ -564,22 +568,35 @@ function cplayer:setpos(pos)
 	local scene = scenemgr.getscene(self.sceneid)
 	if scene then
 		self.pos = deepcopy(pos)
-		skynet.send(scene.scenesrv,"setpos",pid,pos)
+		print(">>>",self.pos)
+		skynet.send(scene.scenesrv,"lua","setpos",pid,pos)
 	end
 end
 
-function cplayer:enterscene(sceneid,pos)
+function cplayer:exitscene(sceneid)
+	sceneid = sceneid or self.sceneid
+	if sceneid then
+		local scene = scenemgr.getscene(sceneid)
+		if scene then
+			skynet.send(oldscene.scenesrv,"lua","exit",pid)
+		end
+	end
+end
+
+function cplayer:enterscene(sceneid,pos,noexit)
+	assert(sceneid)
+	assert(pos)
 	local pid = self.m_ID
 	local newscene = scenemgr.getscene(sceneid)
 	if not newscene then
 		return
 	end
-	local oldscene = scenemgr.getscene(self.sceneid)
-	if oldscene then
-		skynet.send(oldscene.scenesrv,"exit",pid)
+	if not noexit then
+		self:exitscene(self.sceneid)
 	end
+	skynet.send(newscene.scenesrv,"lua","enter",self:packscene())
+	self.sceneid = sceneid
 	self:setpos(pos)
-	skynet.send(newscene.scenesrv,"enter",self:packscene())
 end
 
 return cplayer

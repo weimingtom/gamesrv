@@ -166,12 +166,8 @@ skynet.start(function ()
 		if not func then
 			logger.log("warning","error",string.format("[logger] invalid cmd:%s",cmd))
 		end
-		local isok,result = xpcall(func,onerror,...)
-		if isok then
-			skynet.ret(skynet.pack(result))
-		else
-			skynet.error(skynet.pack(result))
-		end
+		func(...)
 	end)
-end
+end)
+
 return logger

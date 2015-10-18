@@ -19,4 +19,8 @@ function gm.shutdown(args)
 	game.shutdown(reason)
 end
 
+function gm.saveall()
+	game.saveall()
+end
+
 return gm

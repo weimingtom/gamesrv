@@ -1,4 +1,5 @@
 require "script.base.constant"
+require "script.logger.init"
 local skynet = require "script.skynet"
 
 local function sendpackage(agent,protoname,cmd,request)
@@ -261,7 +262,7 @@ local command = {
 	exit = scene.exit,
 }
 
-skynet.init(function ()
+skynet.start(function ()
 	skynet.dispatch("lua",function (session,source,cmd,...)
 		local func = command[cmd]
 		if not func then

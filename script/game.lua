@@ -54,15 +54,16 @@ function game.shutdown(reason)
 	print("Shutdown")
 	logger.log("info","game",string.format("shutdown,reason=%s",reason))
 	game.saveall()
-	db.shutdown()
+	dbmgr.shutdown()
+	logger.shutdown()
 	skynet.sleep(2000) --20s
 	os.execute(string.format("cd ../shell/ && sh killserver.sh %s",skynet.getenv("srvname")))
 end
 
 function game.saveall()
 	logger.log("info","game","saveall")
+	huodongmgr.savetodatabase()
 	saveall()
-	huodongmgr.savetodatabase()	
 end
 
 return game

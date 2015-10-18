@@ -10,7 +10,7 @@ function cscene:init(sceneid)
 end
 
 function cscene:quit()
-	skynet.send(self.scenesrv,"scene","quit")
+	skynet.send(self.scenesrv,"lua","scene","quit")
 end
 
 

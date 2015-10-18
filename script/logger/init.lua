@@ -51,8 +51,7 @@ end
 function logger.init()
 	LOGGERSRV = skynet.newservice("script/service/loggerd")
 	skynet.name(".LOGGERSRV",LOGGERSRV)
-	skynet.call(LOGGERSRV,"lua","init")
-	print("logger,after call init")
+	skynet.send(LOGGERSRV,"lua","init")
 end
 
 function logger.shutdown()
