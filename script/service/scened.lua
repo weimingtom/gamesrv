@@ -8,7 +8,7 @@ end
 
 local scene = {}
 
-function scene.init()
+function scene.init(sceneid)
 	--[[
 		key: pid
 		value:{
@@ -29,6 +29,7 @@ function scene.init()
 			agent 
 		}
 	]]
+	scene.sceneid = sceneid
 	scene.players = {}
 	scene.address = skynet.self()
 end
@@ -178,6 +179,7 @@ function scene.setpos(pid,pos)
 	if not scene.canmove(pid) then
 		return
 	end
+	logger.log("debug","scene",string.format("setpos,address=%s sceneid=%d pid=%d pos(x=%s,y=%s,dir=%s)",scene.address,scene.sceneid,pid,pos.x,pos.y,pos.dir))
 	player.pos = pos
 	local package = {
 		pid = pid,
@@ -206,10 +208,10 @@ end
 function scene.enter(player)
 	local pid = player.pid
 	if scene.players[pid] then
-		logger.log("warning","scene",string.format("[%s] reenter,sceneid=%d pid=%d player=%s",scene.address,pid,self.sceneid,pid,player))
+		logger.log("warning","scene",string.format("[%s] reenter,address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
 
 	end
-	logger.log("warning","scene",string.format("[%s] enter,sceneid=%d pid=%d player=%s",scene.address,pid,self.sceneid,pid,player))
+	logger.log("warning","scene",string.format("[%s] enter,address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
 	scene.players[pid] = player
 	local package = {
 		pid = pid,
@@ -225,7 +227,7 @@ end
 function scene.exit(pid)
 	local player = scene.players[pid]
 	if player then
-		logger.log("info","scene",string.format("[%s] exit,sceneid=%d pid=%d",scene.address,self.sceneid,pid))
+		logger.log("info","scene",string.format("[%s] exit,address=%s sceneid=%d pid=%d",scene.address,scene.sceneid,scene.sceneid,pid))
 		scene.players[pid] = nil
 	end
 	local package = {
@@ -249,11 +251,12 @@ end
 
 function scene.broadcast(func)
 	for pid,player in pairs(scene.players) do
-		func(obj)
+		func(player)
 	end
 end
 
 local command = {
+	init = scene.init,
 	move = scene.move,
 	stop = scene.stop,
 	setpos = scene.setpos,

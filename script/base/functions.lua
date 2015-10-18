@@ -306,7 +306,6 @@ end
 
 
 function deepcopy(o,seen)
-	print(o,seen)
 	local typ = type(o)
 	if typ ~= "table" then return o end
 	seen = seen or {}

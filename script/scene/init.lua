@@ -7,6 +7,7 @@ function cscene:init(sceneid)
 	self.npcs = {}
 	self.items = {}
 	self.scenesrv = skynet.newservice("script/service/scened")
+	skynet.send(self.scenesrv,"lua","init",self.sceneid)
 end
 
 function cscene:quit()

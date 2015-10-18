@@ -292,6 +292,10 @@ function cplayer:onlogin()
 	end
 	resumemgr.onlogin(self)
 	self:doing("login")
+	if not self.sceneid then
+		self.sceneid = BORN_SCENEID
+		self.pos = randlist(ALL_BORN_LOCS)
+	end
 	self:enterscene(self.sceneid,self.pos,true)
 end
 
@@ -563,13 +567,14 @@ function cplayer:stop()
 	end
 end
 
-function cplayer:setpos(pos)
+function cplayer:setpos(pos,nosnyc)
 	local pid = self.m_ID
 	local scene = scenemgr.getscene(self.sceneid)
 	if scene then
 		self.pos = deepcopy(pos)
-		print(">>>",self.pos)
-		skynet.send(scene.scenesrv,"lua","setpos",pid,pos)
+		if not nosync then
+			skynet.send(scene.scenesrv,"lua","setpos",pid,pos)
+		end
 	end
 end
 

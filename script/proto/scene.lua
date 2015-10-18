@@ -27,7 +27,7 @@ scene_setpos 902 {
 	}
 }
 
-scene.enter 903 {
+scene_enter 903 {
 	request {
 		sceneid 0 : integer
 		pos 1 : PosType
@@ -36,6 +36,12 @@ scene.enter 903 {
 ]]
 
 proto.s2c = [[
+.PosType {
+	x 0 : integer
+	y 1 : integer
+	dir 2 : integer
+}
+
 scene_move 900 {
 	request {
 		pid 0 : integer
@@ -58,10 +64,8 @@ scene_stop 901 {
 	teamid 3 : integer
 	state 4 : integer
 	warstate 5 : integer
-	x 6 : integer
-	y 7 : integer
-	dir 8 : integer
-	v 9 : integer # 速度
+	pos 6: PosType
+	v 7 : integer # 速度
 }
 
 scene_enter 902 {
