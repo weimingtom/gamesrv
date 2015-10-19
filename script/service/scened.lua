@@ -81,7 +81,7 @@ end
 
 -- 受限发包
 function scene.sendpackage(uid,protoname,cmd,package)
-	local pid = pacakge.pid
+	local pid = package.pid
 	local obj = scene.getplayer(uid)
 	local player = scene.getplayer(pid)
 	if not obj or not player then

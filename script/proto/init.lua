@@ -1,37 +1,14 @@
 proto = proto or {}
 
-function proto.register(protoname)
-	local protomod = require("script.proto." .. protoname)
-	proto.s2c = proto.s2c .. protomod.s2c
-	proto.c2s = proto.c2s .. protomod.c2s
-end
-
-function proto.dump()
-	local lineno
-	local b,e
-	logger.print("s2c:")
-	lineno = 1
-	b = 1
-	while true do
-		e = string.find(proto.s2c,"\n",b)
-		if not e then
-			break
-		end
-		logger.print(lineno,string.sub(proto.s2c,b,e-1))
-		b = e + 1
-		lineno = lineno + 1
-	end
-	logger.print("c2s:")
-	lineno = 1
-	b = 1
-	while true do
-		e = string.find(proto.c2s,"\n",b)
-		if not e then
-			break
-		end
-		logger.print(lineno,string.sub(proto.c2s,b,e-1))
-		b = e + 1
-		lineno = lineno + 1
+function proto.kick(agent,fd)
+	local connect = proto.connection[agent]
+	if connect then
+		connect.sessions = nil
+		local pid = assert(connect.pid,"invalid pid:" .. tostring(connect.pid))
+		playermgr.delobject(pid,"kick")
+		proto.connection[agent] = nil
+		fd = fd or connect.fd
+		skynet.send(agent,"lua","kick",fd)
 	end
 end
 
@@ -73,6 +50,10 @@ local function onrequest(agent,cmd,request)
 		request = request,
 	})
 	local protoname,subprotoname = string.match(cmd,"([^_]-)%_(.+)") 
+	if not net[protoname] then
+		logger.log("warning","error",format("unknow proto,pid=%s cmd=%s request=%s",pid,cmd,request))
+		return
+	end
 	local REQUEST = net[protoname].REQUEST
     local func = REQUEST[subprotoname]
     if not func then
@@ -141,6 +122,7 @@ function CMD.start(agent,fd,ip)
 	playermgr.addobject(obj)
 	proto.connection[agent] = {
 		pid = obj.pid,
+		fd = fd,
 		session = 0,
 		sessions = {},
 	}
@@ -178,11 +160,6 @@ local function dispatch (session,source,typ,...)
 end
 
 function proto.init()
-	local data = require "script.proto.proto"
-	proto.s2c = data.s2c
-	proto.c2s = data.c2s
-	--proto.dump()
-
 	proto.connection = {}
 	skynet.dispatch("lua",dispatch)
 end

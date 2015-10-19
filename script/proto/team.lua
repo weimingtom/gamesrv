@@ -1,28 +1,12 @@
 -- [800,900)
+
 local proto = {}
 proto.c2s = [[
-.MemberType {
-	pid 0 : integer
-	name 1 : string
-	lv 2 : integer
-	roletype 3 : integer
-	# 1--captain,2--follow member,3--leave member,  4--offline member
-	state 4 : integer
-}
-
-.TeamType {
-	teamid 0 : integer
-	target 1 : integer
-	# 组队目标详情/阶段
-	stage 2 : integer
-	members 3 : *MemberType
-	automatch 4 : boolean
-}
 
 team_createteam 800 {
 	request {
 		target 0 : integer
-		stage 1 : integer	# 阶段（目标详情)
+		stage 1 : integer # 阶段(目标详情)
 	}
 }
 
@@ -52,9 +36,6 @@ team_backteam 806 {
 }
 
 team_recallmember 807 {
-	request {
-		pids 0 : *integer
-	}
 }
 
 team_apply_become_captain 808 {
@@ -86,23 +67,7 @@ team_syncteam 812 {
 	}
 }
 
-.MemberType {
-	pid 0 : integer
-	name 1 : string
-	lv 2 : integer
-	roletype 3 : integer
-	# 1--captain,2--follow member,3--leave member,  4--offline member
-	state 4 : integer
-}
 
-.TeamType {
-	teamid 0 : integer
-	target 1 : integer
-	# 组队目标详情/阶段
-	stage 2 : integer
-	member 3 : MemberType
-	automatch 4 : boolean
-}
 
 team_openui_team 813 {
 	request {
@@ -130,30 +95,6 @@ team_changetarget 816 {
 ]]
 
 proto.s2c = [[
-.MemberType {
-	pid 0 : integer
-	name 1 : string
-	lv 2 : integer
-	roletype 3 : integer
-	# 1--captain,2--follow member,3--leave member,  4--offline member
-	state 4 : integer
-}
-
-.TeamType {
-	teamid 0 : integer
-	target 1 : integer
-	# 组队目标详情/阶段
-	stage 2 : integer
-	members 3 : *MemberType,
-	automatch 4 : boolean,
-}
-
-team_selfteam 800 {
-	request {
-		team 0 : TeamType
-	}
-}
-
 team_addmember 801 {
 	request {
 		teamid 0 : integer
@@ -191,22 +132,21 @@ team_syncteam 805 {
 	}
 }
 
-
 team_addapplyer 806 {
-	.ResumeType {
-		pid 0 : integer
-		name 1 : string
-		lv 2 : integer
-		roletype 3 : integer
-	}
 	request {
-		applyers 0 *Resumetype
+		.TeamApplyerType {
+			pid 0 : integer
+			name 1 : string
+			lv 2 : integer
+			roletype 3 : integer
+		}
+		applyers 0 : *TeamApplyerType
 	}
 }
 
 team_delapplyer 807 {
 	request {
-		applyers : *integer
+		applyers 0 : *integer
 	}
 }
 
@@ -216,6 +156,7 @@ team_openui_team 808 {
 		automatch 1 : boolean
 	}
 }
+
 
 ]]
 

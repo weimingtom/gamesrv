@@ -30,6 +30,11 @@ DEFAULT_POS				= { -- 默认位置
 	dir = 1,
 }
 
+DEFAULT_SEEN = {
+	width = 920,
+	height = 860,
+}
+
 BORN_SCENEID = 1 -- 出生场景
 ALL_BORN_LOCS = { -- 出生位置
 	{x=10,y=10,dir=1},

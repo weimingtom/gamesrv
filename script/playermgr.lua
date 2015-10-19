@@ -89,10 +89,11 @@ function playermgr.addobject(obj)
 end
 
 function playermgr.delobject(pid,reason)
-	logger.log("info","playermgr",string.format("delobject,pid=%d reason=%s",pid,reason))
 	obj = playermgr.id_obj[pid]
-	playermgr.id_obj[pid] = nil
 	if obj then
+
+		logger.log("info","playermgr",string.format("delobject,pid=%d reason=%s",pid,reason))
+		playermgr.id_obj[pid] = nil
 		playermgr.num = playermgr.num - 1
 		if obj.__type and obj.__type.__name == "cplayer" then
 			playermgr.onlinenum = playermgr.onlinenum - 1
@@ -109,6 +110,14 @@ function playermgr.delobject(pid,reason)
 	end
 	require "script.loginqueue"
 	loginqueue.remove(pid)
+end
+
+-- 服务端主动踢下线
+function playermgr.kick(pid)
+	local obj = playermgr.getobject(pid)
+	if obj then
+		proto.kick(obj.__agent,obj.__fd)
+	end
 end
 
 function playermgr.newplayer(pid,istemp)
@@ -181,11 +190,11 @@ function playermgr.gosrv(player,srvname)
 	logger.log("info","kuafu",string.format("gosrv,pid=%d srvname=%s->%s token=%s",pid,self_srvname,srvname,token))
 	cluster.call(srvname,"modmethod","playermgr.addtoken",token,{pid=pid,})
 	player:ongosrv(srvname)
-	player:exitgame()
 	net.login.reentergame(pid,{
 		srvname = srvname,
 		token = token,
 	})	
+	playermgr.kick(pid)
 end
 
 function playermgr.gohome(player)
@@ -195,11 +204,11 @@ function playermgr.gohome(player)
 	local token = uuid()
 	logger.log("info","kuafu",string.format("gohome,pid=%d,srvname=%s->%s token=%s",pid,self_srvname,srvname,token))
 	player:ongohome()
-	player:exitgame()
 	net.login.reentergame(pid,{
 		srvname = srvname,
 		token = token,
 	})
+	playermgr.kick(pid)
 end
 
 -- token auth

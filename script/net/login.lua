@@ -130,7 +130,8 @@ function REQUEST.entergame(obj,request)
 		net.msg.notify(oldplayer.pid,string.format("您的帐号被%s替换下线",gethideip(obj.__ip)))
 		net.msg.notify(obj.pid,string.format("%s的帐号已被你替换下线",gethideip(oldplayer.__ip)))
 		netlogin.kick(oldplayer.pid)
-		playermgr.delobject(oldplayer.pid,"replace")
+		-- kick will delobject
+		--playermgr.delobject(oldplayer.pid,"replace")
 	end
 	local player = playermgr.recoverplayer(roleid)
 	playermgr.transfer_mark(obj,player)
@@ -155,7 +156,7 @@ function netlogin.kick(pid)
 	local player = playermgr.getplayer(pid)
 	if player then
 		sendpackage(pid,"login","kick")
-		skynet.send(player.__agent,"lua","kick",player.__fd)
+		playermgr.kick(pid)
 	end	
 end
 

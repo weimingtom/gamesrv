@@ -1,8 +1,10 @@
 local workdir = skynet.getenv("workdir")
 local patten = workdir .. "/?.lua"
+
 local ignore_module = {
-	["script.agent"] = true,
-	["script.watchdog"] = true,
+	"script%.agent",
+	"script%.watchdob",
+	"script%.service%..+d",
 }
 
 print("chunk()",hotfix)
@@ -17,8 +19,10 @@ function hotfix.hotfix(modname)
 	if modname:sub(-4,-1) == ".lua" then
 		modname = modname:sub(1,-5)
 	end
-	if ignore_module[modname] then
-		return
+	for i,patten in ipairs(ignore_module) do
+		if modname == string.match(modname,patten) then
+			return
+		end
 	end
 	modname = string.gsub(modname,"/",".")
 	modname = string.gsub(modname,"\\",".")

@@ -210,8 +210,12 @@ function cplayer:create(obj,conf)
 	self.lv = 25
 	self.chip = 0
 	self.viplv = 0
+	-- scene
 	self.sceneid = BORN_SCENEID
 	self.pos = randlist(ALL_BORN_LOCS)
+	self.warstate = NOWAR
+	self.police = POLICE_SEE_ALL
+	self.seen = DEFAULT_SEEN
 	self.createtime = getsecond()
 	local db = dbmgr.getdb()
     db:hset(db:key("role","list"),self.pid,1)
@@ -220,16 +224,23 @@ function cplayer:create(obj,conf)
 end
 
 function cplayer:entergame()
-	self:onlogin()
-	self:synctoac()
+	xpcall(self.onlogin,onerror,self)
 end
 
 
 -- 正常退出游戏
 function cplayer:exitgame()
-	self:onlogoff()
-	playermgr.delobject(self.pid,"exitgame")
+	xpcall(self.onlogoff,onerror,self)
+	self:savetodatabase()
 end
+
+
+-- 客户端主动掉线处理
+function cplayer:disconnect(reason)
+	self:exitgame()
+	xpcall(self.ondisconnect,onerror,self,reason)
+end
+
 
 -- 跨服前处理流程
 function cplayer:ongosrv(srvname)
@@ -239,12 +250,6 @@ end
 function cplayer:ongohome()
 end
 
--- 掉线处理(正常退出游戏也会走该接口)
-function cplayer:disconnect(reason)
-	self:savetodatabase()
-	self:ondisconnect(reason)
-	self:synctoac()
-end
 
 function cplayer:synctoac()
 	local role = {
@@ -275,8 +280,22 @@ function cplayer:oncreate()
 	resumemgr.oncreate(self)
 end
 
+function cplayer:comptible_process()
+	if not self.warstate then
+		self.warstate = NOWAR
+	end
+	if not self.police then
+		self.police = POLICE_SEE_ALL
+	end
+	if not self.seen then
+		self.seen = DEFAULT_SEEN
+	end
+
+end
+
 function cplayer:onlogin()
 	logger.log("info","login",string.format("login,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
+	self:comptible_process()
 	local srvobj = globalmgr.getserver()
 	heartbeat(self.pid)
 	sendpackage(self.pid,"player","resource",{
@@ -297,6 +316,7 @@ function cplayer:onlogin()
 		self.pos = randlist(ALL_BORN_LOCS)
 	end
 	self:enterscene(self.sceneid,self.pos,true)
+	self:synctoac()
 end
 
 function cplayer:onlogoff()
@@ -310,6 +330,7 @@ function cplayer:onlogoff()
 	resumemgr.onlogoff(self)
 	self:doing("logoff")
 	self:exitscene(self.sceneid)
+	self:synctoac()
 end
 
 function cplayer:ondisconnect(reason)
@@ -533,7 +554,7 @@ function cplayer:packscene()
 		name = self.name,
 		lv = self.lv,
 		roletype = self.roletype,
-		teamid = self:getteamid(),
+		teamid = self:getteamid() or 0,
 		state = self:teamstate(),	
 		warstate = self.warstate,
 		pos = self.pos,
@@ -568,7 +589,7 @@ function cplayer:stop()
 end
 
 function cplayer:setpos(pos,nosnyc)
-	local pid = self.m_ID
+	local pid = self.pid
 	local scene = scenemgr.getscene(self.sceneid)
 	if scene then
 		self.pos = deepcopy(pos)
@@ -583,7 +604,7 @@ function cplayer:exitscene(sceneid)
 	if sceneid then
 		local scene = scenemgr.getscene(sceneid)
 		if scene then
-			skynet.send(oldscene.scenesrv,"lua","exit",pid)
+			skynet.send(scene.scenesrv,"lua","exit",self.pid)
 		end
 	end
 end
@@ -591,7 +612,7 @@ end
 function cplayer:enterscene(sceneid,pos,noexit)
 	assert(sceneid)
 	assert(pos)
-	local pid = self.m_ID
+	local pid = self.pid
 	local newscene = scenemgr.getscene(sceneid)
 	if not newscene then
 		return

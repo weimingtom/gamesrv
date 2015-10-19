@@ -7,13 +7,14 @@ local CMD = {}
 local agent = {}
 
 function agent.sendpackage(pack)
-	local size = #pack
-	assert(size <= 65535)
-	local package = string.char(math.floor(size/256))..
-					string.char(size%256) ..
-					pack
-	assert(agent.fd)
-	socket.write(agent.fd, package)
+	if agent.fd then
+		local size = #pack
+		assert(size <= 65535)
+		local package = string.char(math.floor(size/256))..
+						string.char(size%256) ..
+						pack
+		socket.write(agent.fd, package)
+	end
 end
 
 skynet.register_protocol { 
@@ -41,9 +42,13 @@ function CMD.start(gate, fd,addr)
 	agent.fd = fd
 	agent.ip = addr
 	agent.gate = gate
-	local proto = require "script.proto.proto"
-	agent.host = sproto.parse(proto.c2s):host "package"
-	agent.send_request = agent.host:attach(sproto.parse(proto.s2c))
+	--local proto = require "script.proto.proto"
+	--agent.host = sproto.parse(proto.c2s):host "package"
+	--agent.send_request = agent.host:attach(sproto.parse(proto.s2c))
+	-- slot 1,2 set at main.lua
+	local sprotoloader = require "sprotoloader"
+	agent.host = sprotoloader.load(1):host "package"
+	agent.send_request = agent.host:attach(sprotoloader.load(2))
 	skynet.call(gate, "lua", "forward", fd)
 	skynet.send(".MAINSRV","lua","client","start",fd,addr)
 end

@@ -13,12 +13,6 @@ login_register 1 {
 	}
 }
 
-.RoleType {
-	roleid 0 : integer
-	roletype 1 : integer
-	name 2 : string
-	lv 3 : integer
-}
 
 login_createrole 2 {
 	request {

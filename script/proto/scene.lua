@@ -1,12 +1,6 @@
 -- [900,1000)
 local proto = {}
 proto.c2s = [[
-.PosType {
-	x 0 : integer
-	y 1 : integer
-	dir 2 : integer
-}
-
 scene_move 900 {
 	request {
 		srcpos 0 : PosType
@@ -15,7 +9,7 @@ scene_move 900 {
 	}
 }
 
-scene.stop 901 {
+scene_stop 901 {
 	request {
 	}
 }
@@ -36,12 +30,6 @@ scene_enter 903 {
 ]]
 
 proto.s2c = [[
-.PosType {
-	x 0 : integer
-	y 1 : integer
-	dir 2 : integer
-}
-
 scene_move 900 {
 	request {
 		pid 0 : integer
@@ -57,16 +45,6 @@ scene_stop 901 {
 	}
 }
 
-.ResumeType {
-	name 0 : string
-	roletype 1 : integer
-	lv 2 : integer
-	teamid 3 : integer
-	state 4 : integer
-	warstate 5 : integer
-	pos 6: PosType
-	v 7 : integer # 速度
-}
 
 scene_enter 902 {
 	request {
