@@ -7,88 +7,33 @@ local REQUEST = {}
 netteam.REQUEST = REQUEST
 
 function REQUEST.createteam(player,request)
-	local teamid = player:getteamid()
-	if teamid then
-		return
-	end
 	teammgr:createteam(player,request)
 end
 
 function REQUEST.dismissteam(player,request)
-	local teamid = player:getteamid()
-	if not teamid then
-		return
-	end
 	teammgr:dismissteam(player)
 end
 
 function REQUEST.jointeam(player,request)
-	local teamid = player:getteamid()
-	if teamid then
-		return
-	end
 	local teamid = request.teamid
 	teammgr:jointeam(player,teamid)
 end
 
 function REQUEST.quitteam(player,request)
-	local teamid = player:getteamid()
-	if not teamid then
-		return
-	end
-	teammgr:quitteam(player,teamid)
+	teammgr:quitteam(player)
 end
 
 function REQUEST.publishsteam(player,request)
-	local teamid = player:getteamid()
-	if not teamid then
-		return
-	end
-	local team = teammgr:getteam(teamid)
-	if not team then
-		return
-	end
-	local pid = player.pid
-	if team.captain ~= pid then
-		return
-	end
 	teammgr:publishteam(player,request)
 end
 
 function REQUEST.leaveteam(player,request)
-	local pid = player.pid
-	local teamid = player:getteamid()
-	if not teamid then
-		return
-	end
-	local team = teammgr:getteam(teamid)
-	if not team then
-		return
-	end
-	if team.captain == pid then
-		return
-	end
-	if team.leave[pid] then
-		return
-	end
-	team:leaveteam(player)
+	teammgr:leaveteam(player)
 end
 
 
 
 function REQUEST.backteam(player,request)
-	local pid = player.pid
-	local teamid = player:getteamid()
-	if not teamid then
-		return
-	end
-	local team = teammgr:getteam(teamid)
-	if not team then
-		return
-	end
-	if not team.leave[pid] then
-		return
-	end
 	team:backteam(player)
 end
 
@@ -199,7 +144,7 @@ function REQUEST.changecaptain(player,request)
 	if not team.follow[pid] then
 		return
 	end
-	team:changecaptain(pid)
+	teammgr:changecaptain(teamid,pid)
 end
 
 function REQUEST.invite_jointeam(player,request)
@@ -284,15 +229,25 @@ function REQUEST.automatch(player,request)
 	if not teamid then
 		teammgr:automatch(player,target,stage)
 	else
-		teammgr:team_automatch(player,target,stage)
+		local team = teammgr:getteam(teamid)
+		if team.captain ~= player.pid then
+			return
+		end
+		teammgr:team_automatch(teamid)
 	end
 end
 
 function REQUEST.unautomatch(player,request)
-	player:set("switch.automatch",false)
-	sendpackage(player.pid,"player","switch",{
-		automatch = player:query("switch.automatch",false),
-	})
+	local teamid = player:getteamid()
+	if not teamid then
+		teammgr:unautomatch(player.pid,"cacel")
+	else
+		local team = teammgr:getteam(teamid)
+		if team.captain ~= player.pid then
+			return
+		end
+		teammgr:team_unautomatch(teamid,"cacel")
+	end
 end
 
 function REQUEST.changetarget(player,request)
@@ -310,6 +265,64 @@ function REQUEST.changetarget(player,request)
 			end
 		end
 	end
+end
+
+function REQUEST.apply_jointeam(player,request)
+	local teamid = player:getteamid()
+	if teamid then
+		return
+	end
+	local teamid = request.teamid
+	local team = teammgr:getteam(teamid)
+	if not team then
+		return
+	end
+	team:addapplyer(player)
+end
+
+function REQUEST.delapplyers(player,request)
+	local pids = request.pids
+	local teamid = player:getteamid()
+	if not teamid then
+		return
+	end
+	local team = teammgr:getteam(teamid)
+	if team.captain ~= player.pid then
+		return
+	end
+	if pids then
+		for i,pid in ipairs(pids) do
+			team:delapplyer(pid)
+		end
+	else
+		team:clearapplyer()
+	end
+end
+
+function REQUEST.agree_jointeam(player,request)
+	local pid = request.pid
+	local teamid = player:getteamid()
+	if not teamid then
+		return
+	end
+	local team = teammgr:getteam(teamid)
+	if team.captain ~= player.pid then
+		return
+	end
+	local applyer = team:getapplyer(pid)
+	if not applyer then
+		return
+	end
+	local target = playermgr.getplayer(pid)
+	if not target then
+		net.msg.notify(player,"对方已离线")
+		return
+	end
+	if target:getteamid() then
+		net.msg.notify(player,"对方已经有队伍了")
+		return
+	end
+	teammgr:jointeam(target,teamid)
 end
 
 local RESPONSE = {}

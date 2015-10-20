@@ -41,7 +41,7 @@ team_recallmember 807 {
 team_apply_become_captain 808 {
 }
 
-team_agree_become_captain 809 {
+team_agree_jointeam 809 {
 	request {
 		pid 0 : integer
 	}
@@ -67,8 +67,6 @@ team_syncteam 812 {
 	}
 }
 
-
-
 team_openui_team 813 {
 	request {
 	}
@@ -90,6 +88,18 @@ team_changetarget 816 {
 	request {
 		target 0 : integer
 		stage 1 : integer
+	}
+}
+
+team_apply_jointeam 817 {
+	request {
+		teamid 0 : integer
+	}
+}
+
+team_delapplyers 818 {
+	request {
+		pids 0 : *integer # 发空表示清空所有申请者
 	}
 }
 ]]

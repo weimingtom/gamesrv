@@ -96,7 +96,7 @@ end
 
 function cplayer:load(data)
 	if not data or not next(data) then
-		logger.log("error","err",string.format("cplayer:load null,pid=%d",self.pid))
+		logger.log("error","error",string.format("cplayer:load null,pid=%d",self.pid))
 		return
 	end
 	self.data = data.data

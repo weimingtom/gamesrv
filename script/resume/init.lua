@@ -82,7 +82,7 @@ function cresume:create(player)
 	if cserver.isgamesrv() then
 		print("resume:create",route.getsrvname(self.pid),skynet.getenv("srvname"),self.pid)
 		if route.getsrvname(self.pid) ~= skynet.getenv("srvname") then
-			logger.log("error","err",string.format("from resumesrv loadnull,srvname=%s pid=%s",route.getsrvname(self.pid),self.pid))
+			logger.log("error","error",string.format("from resumesrv loadnull,srvname=%s pid=%s",route.getsrvname(self.pid),self.pid))
 			return
 		end
 		self.loadnull = nil

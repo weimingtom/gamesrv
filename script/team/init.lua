@@ -1,6 +1,7 @@
 cteam = class("cteam",csaveobj)
 
 function cteam:init(teamid,param)
+	param = param or {}
 	self.teamid = teamid
 	self.createtime = os.time()
 	self.follow = {}
@@ -35,12 +36,7 @@ function cteam:load(data)
 	end
 	self.leave = tmp
 	self.captain = data.pid
-	tmp = {}
-	for pid,applyer in pairs(data.applyers) do
-		pid = tonumber(pid)
-		tmp[pid] = applyer
-	end
-	self.applyers = tmp
+	self.applyers = data.applyers
 end
 
 function cteam:save()
@@ -57,11 +53,7 @@ function cteam:save()
 	end
 	data.leave = tmp
 	data.captain = self.captain
-	tmp = {}
-	for pid,applyer in pairs(self.applyers) do
-		tmp[tostring(pid)] = applyer
-	end
-	data.applyers = tmp
+	data.applyers = self.applyers
 	return data
 end
 
@@ -102,13 +94,15 @@ function cteam:onlogoff(player)
 end
 
 function cteam:create(player,param)
+	param = param or {}
 	local pid = player.pid
 	self.target = param.target or 0
 	self.stage = param.stage or 0
 	self.captain = pid
+	player.teamid = self.teamid
 	local scene = scenemgr.getscene(player.sceneid)
 	local state = player:teamstate()
-	scene:sync(pid,{
+	scene:set(pid,{
 		teamid = self.teamid,
 		state = state,
 	})
@@ -123,11 +117,12 @@ function cteam:join(player)
 	local teamid = player.teamid
 	assert(teamid==nil)
 	local pid = player.pid
+	self:delapplyer(pid)
 	player.teamid = self.teamid
 	self.leave[pid] = true
 	local scene = scenemgr.getscene(player.sceneid)
 	local state = player:teamstate()
-	scene:sync(pid,{
+	scene:set(pid,{
 		teamid = self.teamid,
 		state = state,
 	})
@@ -148,18 +143,14 @@ end
 function cteam:back(player)
 	local pid = player.pid
 	local captain = playermgr.getplayer(self.captain)
+	player:enterscene(captain.sceneid,captain.pos)
 	local scene = scenemgr.getscene(captain.sceneid)
 	if self.leave[pid] then
 		self.leave[pid] = nil
 	end
 	self.follow[pid] = true
 	local state = player:teamstate()
-	-- TODO: modify
-	scene:sync(pid,{
-		sceneid = captain.sceneid,
-		x = captian.x,
-		y = captain.y,
-		dir = captain.dir,
+	scene:set(pid,{
 		teamid = self.teamid,
 		state = state,
 	})
@@ -181,7 +172,7 @@ function cteam:leave(player)
 	self.leave[pid] = true
 	local scene = scenemgr.getscene(player.sceneid)
 	local state = player:teamstate()
-	scene:sync(pid,{
+	scene:set(pid,{
 		teamid = self.teamid,
 		state = state,
 	})
@@ -223,7 +214,7 @@ function cteam:quit(player)
 	self.leave[pid] = nil
 	local scene = scenemgr.getscene(player.sceneid)
 	local state = player:teamstate() -- NO_TEAM
-	scene:sync(pid,{
+	scene:set(pid,{
 		teamid = 0,
 		state = state,
 	})
@@ -273,12 +264,25 @@ function cteam:changecaptain(pid)
 	end)
 end
 
+function cteam:getapplyer(pid,ispos)
+	if ispos then
+		local pos = pid
+		return self.applyers[pos],pos
+	else
+		for i,applyer in ipairs(self.applyers) do
+			if applyer.pid == pid then
+				return applyer,i
+			end
+		end
+	end
+end
+
 function cteam:addapplyer(player)
-	local pid = player
-	if self.applyers[pid] then
+	local pid = player.pid
+	local applyer = self:getapplyer(pid)
+	if applyer then
 		return
 	end
-	logger.log("info","team",string.format("addapplyer,pid=%d teamid=%d",pid,self.teamid))
 	local applyer = {
 		pid = pid,
 		name = player.name,
@@ -286,19 +290,30 @@ function cteam:addapplyer(player)
 		roletype = player.roletype,
 		time = os.time(),
 	}
-	self.applyers[pid] = applyer
+	logger.log("info","team",format("addapplyer,teamid=%d applyer=%s",self.teamid,applyer))
+	if #self.applyers >= 10 then
+		self:delapplyer(1,true)
+	end
+	table.insert(self.applyers,applyer)
 	self:broadcast(function (uid)
 		sendpackage(uid,"team","addapplyer",{applyer,})
 	end)
 end
 
-function cteam:delapplyer(pid)
-	local applyer = self.applyers[pid]
+function cteam:delapplyer(pid,ispos)
+	local applyer = self:getapplyer(pid,ispos)
 	if applyer then
-		logger.log("info","team",string.format("delapplyer,pid=%d teamid=%d",pid,self.teamid))
+		pid = applyer.pid
+		logger.log("info","team",string.format("delapplyer,teamid=%d pid=%d",self.teamid,pid))
 		self:broadcast(function (uid)
-			sendpackage(uid,"team","delapplyer",{applyer,})
+			sendpackage(uid,"team","delapplyer",{pid,})
 		end)
+	end
+end
+
+function cteam:clearapplyer()
+	for pos = #self.applyers,1,-1 do
+		self:delapplyer(pos,true)
 	end
 end
 

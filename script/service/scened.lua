@@ -54,12 +54,21 @@ end
 
 
 function scene.set(pid,key,val)
+	local attrs
+	if not val then
+		assert(type(key) == "table")
+		attrs = key
+	else
+		attrs = {[key]=val,}
+	end
 	local player = scene.getplayer(pid)
 	if player then
-		player[key] = val
+		for k,v in pairs(attrs) do
+			player[k] = v
+		end
 		local package = {
 			pid = pid,
-			{[key] = val,},
+			attrs,
 		}
 		scene.broadcast(function (obj)
 			if obj then
@@ -263,6 +272,7 @@ local command = {
 	set = scene.set,
 	enter = scene.enter,
 	exit = scene.exit,
+	quit = scene.quit,
 }
 
 skynet.start(function ()
