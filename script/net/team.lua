@@ -34,7 +34,7 @@ end
 
 
 function REQUEST.backteam(player,request)
-	team:backteam(player)
+	teammgr:backteam(player)
 end
 
 function REQUEST.recallmember(player,request)
@@ -203,9 +203,9 @@ end
 function REQUEST.openui_team(player,request)
 	local pid = player.pid
 	local teamid = player:getteamid()
-	if teamid then
+	if not teamid then
 		local teams = {}
-		for teamid,team in pairs(self.teams) do
+		for teamid,team in pairs(teammgr.teams) do
 			table.insert(teams,team:pack())
 		end
 		sendpackage(pid,"team","openui_team",{
@@ -253,18 +253,7 @@ end
 function REQUEST.changetarget(player,request)
 	local target = request.target
 	local stage = request.stage
-	local teamid = player:getteamid()
-	if teamid then
-		local team = teammgr:getteam(teamid)
-		if team then
-			if target then
-				team.target = target
-			end
-			if stage then
-				team.stage = stage
-			end
-		end
-	end
+	teammgr:changetarget(player,target,stage)
 end
 
 function REQUEST.apply_jointeam(player,request)

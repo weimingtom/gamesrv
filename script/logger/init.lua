@@ -1,6 +1,6 @@
 
 logger = logger or {}
-local LOGGERSRV=".LOGGER"
+LOGGERSRV=".LOGGER"
 function logger.write(filename,msg)
 	skynet.send(LOGGERSRV,"lua","write",filename,msg)
 end
@@ -50,7 +50,7 @@ end
 
 function logger.init()
 	LOGGERSRV = skynet.newservice("script/service/loggerd")
-	skynet.name(".LOGGERSRV",LOGGERSRV)
+	skynet.name(".LOGGER",LOGGERSRV)
 	skynet.send(LOGGERSRV,"lua","init")
 end
 

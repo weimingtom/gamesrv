@@ -120,6 +120,13 @@ function cteam:join(player)
 	self:delapplyer(pid)
 	player.teamid = self.teamid
 	self.leave[pid] = true
+	local captain = playermgr.getplayer(self.captain)
+	-- captain is online
+	if player.sceneid == captain.sceneid then
+		player:setpos(captain.pos)
+		self.leave[pid] = nil
+		self.follow[pid] = true
+	end
 	local scene = scenemgr.getscene(player.sceneid)
 	local state = player:teamstate()
 	scene:set(pid,{
@@ -165,7 +172,7 @@ function cteam:back(player)
 	end)
 end
 
-function cteam:leave(player)
+function cteam:leaveteam(player)
 	local pid = player.pid
 	assert(self.captain ~= pid)
 	self.follow[pid] = nil
@@ -219,7 +226,7 @@ function cteam:quit(player)
 		state = state,
 	})
 	self:broadcast(function (uid)
-		sendpackage(uid,"team","quitteam",{
+		sendpackage(uid,"team","delmember",{
 			teamid = self.teamid,
 			pid = oldcaptain,
 		})
@@ -301,10 +308,10 @@ function cteam:addapplyer(player)
 end
 
 function cteam:delapplyer(pid,ispos)
-	local applyer = self:getapplyer(pid,ispos)
+	local applyer,pos = self:getapplyer(pid,ispos)
 	if applyer then
-		pid = applyer.pid
-		logger.log("info","team",string.format("delapplyer,teamid=%d pid=%d",self.teamid,pid))
+		logger.log("info","team",string.format("delapplyer,teamid=%d pid=%d",self.teamid,applyer.pid))
+		table.remove(self.applyers,pos)
 		self:broadcast(function (uid)
 			sendpackage(uid,"team","delapplyer",{pid,})
 		end)
@@ -346,14 +353,14 @@ function cteam:packmembers()
 	end
 	local members = {}
 	table.insert(members,self:packmember(captain))
-	for i,pid in ipairs(self.follow) do
+	for pid,_ in pairs(self.follow) do
 		local member = playermgr.getplayer(pid)
 		if not member then
 			member = resumemgr.getresume(pid)
 			table.insert(members,self:packmember(member))
 		end
 	end
-	for i,pid in ipairs(self.leave) do
+	for pid,_ in pairs(self.leave) do
 		local member = playermgr.getplayer(pid)
 		if not member then
 			member = resumemgr.getresume(pid)

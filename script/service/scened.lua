@@ -217,10 +217,10 @@ end
 function scene.enter(player)
 	local pid = player.pid
 	if scene.players[pid] then
-		logger.log("warning","scene",string.format("[%s] reenter,address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
+		logger.log("warning","scene",string.format("reenter,address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
 
 	end
-	logger.log("warning","scene",string.format("[%s] enter,address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
+	logger.log("info","scene",string.format("enter,address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
 	scene.players[pid] = player
 	local package = {
 		pid = pid,

@@ -105,6 +105,12 @@ team_delapplyers 818 {
 ]]
 
 proto.s2c = [[
+team_selfteam 800 {
+	request {
+		team 0 : TeamType
+	}
+}
+
 team_addmember 801 {
 	request {
 		teamid 0 : integer

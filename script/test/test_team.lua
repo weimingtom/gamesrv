@@ -1,5 +1,5 @@
 local function test(pid1,pid2,pid3)
-	print(pid1,pid2,pid3,type(pid1))
+	--print(pid1,pid2,pid3,type(pid1))
 	local player1 = playermgr.getplayer(pid1)
 	local player2 = playermgr.getplayer(pid2)
 	local player3 = playermgr.getplayer(pid3)
@@ -10,6 +10,7 @@ local function test(pid1,pid2,pid3)
 	request.quitteam(player1,{})	
 	request.quitteam(player2,{})
 	request.quitteam(player3,{})
+	teammgr:clear()
 
 	request.createteam(player1,{target=1,stage=1})
 	local teamid = player1.teamid
@@ -32,24 +33,26 @@ local function test(pid1,pid2,pid3)
 	-- ignore repeat addapplyer
 	request.apply_jointeam(player2,{teamid=teamid})
 	assert(#team.applyers==1)
-	
+
+	request.agree_jointeam(player1,{pid=pid2})
+	--pprintf("applyers:%s",team.applyers)
+	assert(#team.applyers==0)
+	assert(team.follow[pid2]==true)
+	assert(player2.teamid==teamid)
 	request.invite_jointeam(player2,{pid=pid3})
 	net.msg.REQUEST.onmessagebox(player3,{
 		id=messagebox.id,
 		buttonid = 1, -- agree
 	})	
-	assert(#team.applyers==2)
-	assert(team.applyers[2].pid==pid3)
-	request.agree_jointeam(player1,{pid=pid2})
 	assert(#team.applyers==1)
-	assert(team.follow[pid2]==true)
+	assert(team.applyers[1].pid==pid3)
 	request.agree_jointeam(player1,{pid=pid3})
 	assert(#team.applyers==0)
 	assert(team.follow[pid3]==true)
 	request.leaveteam(player2)
 	assert(team.follow[pid2]==nil)
 	assert(team.leave[pid2]==true)
-	player2:setpos({x=player2.x+5,y=player2.y+5,dir=player2.dir})
+	player2:setpos({x=player2.pos.x+5,y=player2.pos.y+5,dir=player2.pos.dir})
 	request.backteam(player2)
 	assert(team.follow[pid2]==true)
 	assert(team.leave[pid2]==nil)
@@ -70,8 +73,8 @@ local function test(pid1,pid2,pid3)
 	assert(team.target==2)
 	assert(team.stage==2)
 	--
-	request.syncteam(player,{})
-	request.openui_team(player,{})
+	request.syncteam(player1,{})
+	request.openui_team(player1,{})
 end
 
 return test

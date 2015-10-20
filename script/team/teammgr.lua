@@ -19,6 +19,13 @@ function cteammgr:init()
 	self:autosave()
 end
 
+function cteammgr:clear()
+	self.teams = {}
+	self.publish_teams = {}
+	self.automatch_pids = {}
+	self.automatch_teams = {}
+end
+
 function cteammgr:load(data)
 	if not data or not next(data) then
 		return
@@ -157,7 +164,7 @@ function cteammgr:leaveteam(player)
 		return false
 	end
 	logger.log("info","team",string.format("leaveteam,pid=%d teamid=%d",pid,teamid))
-	team:leave(player)
+	team:leaveteam(player)
 	self:after_leaveteam(player,teamid)
 	return true
 end
@@ -183,7 +190,6 @@ end
 
 function cteammgr:changecaptain(teamid,tid)
 	local team = self:getteam(teamid)
-	local pid = player.pid
 	if not self:before_changecaptain(teamid,tid) then
 		return false
 	end
@@ -345,6 +351,23 @@ function cteammgr:starttimer_automatch()
 				break
 			end
 		end
+	end
+end
+
+function cteammgr:changetarget(player,target,stage)
+	local teamid = player:getteamid()
+	if not teamid then
+		return
+	end
+	local team = self:getteam(teamid)
+	if team.captain ~= player.pid then
+		return
+	end
+	if target then
+		team.target = target
+	end
+	if stage then
+		team.stage = stage
 	end
 end
 
