@@ -21,7 +21,7 @@ local function init()
 	local watchdog = skynet.newservice("script/watchdog")
 	skynet.call(watchdog,"lua","start",conf)
 	-- script init
-	game.startgame()	
+	game.init()
 end
 
 skynet.start(init)

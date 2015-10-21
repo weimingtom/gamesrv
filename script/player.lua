@@ -268,7 +268,8 @@ end
 local function heartbeat(pid)
 	local player = playermgr.getplayer(pid)
 	if player then
-		timer.timeout("player.heartbeat",120,functor(heartbeat,pid))
+		local interval = 120
+		timer.timeout("player.heartbeat",interval,functor(heartbeat,pid))
 		sendpackage(pid,"player","heartbeat")
 	end
 end
@@ -573,10 +574,10 @@ function cplayer:move(package)
 	local pid = self.pid
 	local scene = scenemgr.getscene(self.sceneid)
 	if scene then
-		if request.srcpos then
-			self:setpos(request.srcpos)
+		if package.srcpos then
+			self:setpos(package.srcpos)
 		end
-		skynet.send(scene.scenesrv,"lua","move",pid,request)	
+		skynet.send(scene.scenesrv,"lua","move",pid,package)	
 	end
 end
 

@@ -6,6 +6,7 @@ netscene = netscene or {}
 local REQUEST = {} 
 netscene.REQUEST = REQUEST
 function REQUEST.move(player,request)
+	request.srcpos = request.srcpos or player.pos
 	player:move(request)
 end
 

