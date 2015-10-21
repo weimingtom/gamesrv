@@ -120,7 +120,7 @@ function REQUEST.entergame(obj,request)
 	if obj == oldplayer then
 		return {result = STATUS_REPEAT_LOGIN,}
 	end
-	local server = globalmgr.getserver()	
+	local server = globalmgr.server
 	if playermgr.onlinenum >= server.onlinelimit then
 		loginqueue.push({pid=obj.pid,roleid=roleid})
 		netlogin.queue(obj.pid,{waitnum=loginqueue.len()})

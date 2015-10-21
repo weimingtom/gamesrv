@@ -20,6 +20,7 @@ function cserver:init()
 	self.loadstate = "unload"
 	self.data = {}
 	self.onlinelimit = 20000	
+
 	self:autosave()
 	logger.log("info","server","init")
 end
@@ -92,6 +93,11 @@ function cserver:isopen(typ)
 		end
 		return true
 	end
+end
+
+function cserver.starttimer_logstatus()
+	timer.timeout("timer.logstatus",60,cserver.starttimer_logstatus)
+	logger.log("info","status",string.format("onlinenum=%s task=%s mqlen=%s",playermgr.onlinenum,skynet.task(),skynet.mqlen()))
 end
 
 -- class method

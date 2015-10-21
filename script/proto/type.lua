@@ -20,14 +20,13 @@ proto.c2s = [[
 
 .MailType {
 	mailid 0 : integer
-	pid 1 : integer
-	sendtime 2 : integer
-	author 3 : string
-	title 4 : string
-	content 5 : string
-	attach 6 : AttachType
-	readtime 7 : integer
-	srcid 8 : integer
+	sendtime 1 : integer
+	author 2 : string
+	title 3 : string
+	content 4 : string
+	attach 5 : AttachType
+	readtime 6 : integer
+	srcid 7 : integer
 }
 
 .PosType {

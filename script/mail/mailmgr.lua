@@ -40,7 +40,7 @@ end
 
 -- 支持跨服邮件
 function mailmgr.sendmail(pid,amail)
-	local server = globalmgr.getserver()
+	local server = globalmgr.server
 	local srvname = route.getsrvname(pid)
 	if not srvname then -- non-exist pid
 		return false
@@ -51,8 +51,7 @@ function mailmgr.sendmail(pid,amail)
 	end
 	amail = deepcopy(amail)
 	amail.sendtime = amail.sendtime or os.time()
-	amail.pid = amail.pid or pid
-	local mailbox = mailmgr.getmailbox(amail.pid)
+	local mailbox = mailmgr.getmailbox(pid)
 	amail.mailid = amail.mailid or mailbox:genid()
 	local mail = cmail.new(amail)
 	mail = mailbox:addmail(mail)

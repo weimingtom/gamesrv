@@ -156,6 +156,8 @@ local function dispatch (session,source,typ,...)
 	elseif typ == "cluster" then
 		logger.log("debug","netcluster",format("[recv] source=%s session=%d type=%s package=%s",source,session,typ,{...}))
 		xpcall(cluster.dispatch,onerror,session,source,...)
+	elseif typ == "echo" then
+		--skynet.ret(skynet.pack(...))
 	end
 end
 

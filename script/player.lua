@@ -296,17 +296,17 @@ end
 function cplayer:onlogin()
 	logger.log("info","login",string.format("login,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
 	self:comptible_process()
-	local srvobj = globalmgr.getserver()
+	local server = globalmgr.server
 	heartbeat(self.pid)
 	sendpackage(self.pid,"player","resource",{
 		gold = self.gold,
 	})
 	sendpackage(self.pid,"player","switch",self:query("switch",{
 		gm = self:authority() > 0,
-		friend = srvobj:isopen("friend"),
+		friend = server:isopen("friend"),
 	}))
 	mailmgr.onlogin(self)
-	if srvobj:isopen("friend")	then
+	if server:isopen("friend")	then
 		self.frienddb:onlogin(self)
 	end
 	resumemgr.onlogin(self)
@@ -323,8 +323,8 @@ function cplayer:onlogoff()
 
 	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
 	mailmgr.onlogoff(self)
-	local srvobj = globalmgr.getserver()
-	if srvobj:isopen("friend")	then
+	local server = globalmgr.server
+	if server:isopen("friend")	then
 		self.frienddb:onlogoff(self)
 	end
 	resumemgr.onlogoff(self)

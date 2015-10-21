@@ -22,8 +22,7 @@ require "script.team.teammgr"
 require "script.scene.scenemgr"
 
 game = game or {}
-function game.startgame()
-	print("Startgame...")
+function game.init()
 	local fd = io.open("/dev/urandom","r")
 	if fd then
 		local d = fd:read(4)
@@ -47,8 +46,14 @@ function game.startgame()
 	cteammgr.startgame()
 	huodongmgr.startgame()
 	game.initall = true
-	print("Startgame ok")
+	game.startgame() -- 初始化完后启动的逻辑
 	logger.log("info","game","startgame")
+end
+
+function game.startgame()
+	print("Startgame...")
+	cserver.starttimer_logstatus()
+	print("Startgame ok")
 end
 
 function game.shutdown(reason)

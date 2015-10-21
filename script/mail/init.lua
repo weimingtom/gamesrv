@@ -5,7 +5,6 @@ cmail = class("cmail")
 function cmail:init(conf)
 	conf = conf or {}
 	self.mailid = conf.mailid or 0
-	self.pid = conf.pid or 0
 	self.sendtime = conf.sendtime or 0
 	self.author = conf.author or ""
 	self.title = conf.title or ""
@@ -20,7 +19,6 @@ function cmail:load(data)
 		return
 	end
 	self.mailid = data.mailid
-	self.pid = data.pid
 	self.sendtime = data.sendtime
 	self.author = data.author
 	self.title = data.title
@@ -33,7 +31,6 @@ end
 function cmail:save()
 	local data = {}
 	data.mailid = self.mailid
-	data.pid = self.pid
 	data.sendtime = self.sendtime
 	data.author = self.author
 	data.title = self.title

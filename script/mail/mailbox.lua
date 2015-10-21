@@ -102,7 +102,6 @@ function cmailbox:getattach(mailid)
 	if not mail then
 		return
 	end
-	assert(mail.pid == pid)
 	logger.log("info","mail",format("getattach,pid=%d srcid=%d mailid=%d attach=%s",pid,mail.srcid,mailid,mail.attach))
 	if next(mail.attach) then
 		local attach = mail.attach
