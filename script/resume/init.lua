@@ -93,7 +93,8 @@ end
 
 function cresume:create(resume)
 	assert(resume)
-	logger.log("info","resume",string.format("create,pid=%d resume=%s",self.pid,resume))
+	logger.log("info","resume",format("create,pid=%d resume=%s",self.pid,resume))
+	self.loadstate = "loaded"
 	self.loadnull = nil
 	self.data = resume
 	if cserver.isgamesrv() then
