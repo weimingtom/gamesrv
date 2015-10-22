@@ -196,11 +196,11 @@ function cplayer:isloaded()
 	return false
 end
 
-function cplayer:create(obj,conf)
+function cplayer:create(conf)
 	local name = assert(conf.name)
 	local roletype =assert(conf.roletype)
 	local account = assert(conf.account)
-	logger.log("info","createrole",string.format("createrole,account=%s pid=%s name=%s roletype=%s ip=%s",account,self.pid,name,roletype,obj.__ip))
+	logger.log("info","createrole",string.format("createrole,account=%s pid=%s name=%s roletype=%s ip=%s:%s",account,self.pid,name,roletype,conf.__ip,conf.__port))
 
 	self.loadstate = "loaded"
 	self.account = account
@@ -295,7 +295,7 @@ function cplayer:comptible_process()
 end
 
 function cplayer:onlogin()
-	logger.log("info","login",string.format("login,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
+	logger.log("info","login",string.format("login,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port()))
 	self:comptible_process()
 	local server = globalmgr.server
 	heartbeat(self.pid)
@@ -322,7 +322,7 @@ end
 
 function cplayer:onlogoff()
 
-	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
+	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port()))
 	mailmgr.onlogoff(self)
 	local server = globalmgr.server
 	if server:isopen("friend")	then

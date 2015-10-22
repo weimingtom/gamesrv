@@ -5,11 +5,11 @@ function resumemgr.init()
 	resumemgr.objs = {}
 end
 
-function resumemgr.oncreate(player)
+function resumemgr.create(conf)
 	require "script.resume.init"
-	local pid = player.pid
+	local pid = conf.pid
 	local resume = cresume.newtemp(pid)
-	xpcall(resume.create,onerror,resume,player)
+	xpcall(resume.create,onerror,resume,conf)
 end
 
 function resumemgr.onlogin(player)
@@ -85,19 +85,28 @@ end
 function CMD.delref(srvname,pid)
 	logger.log("debug","resumemgr",string.format("%s delref,pid=%d",srvname,pid))
 	local resume = resumemgr.getresume(pid)
+	if not resume then
+		return
+	end
 	resume:delref(srvname)
+end
+
+-- gamesrv -> resumesrv
+function CMD.create(srvname,pid,data)
+	data.pid = pid
+	resumemgr.create(data)
 end
 
 -- resumesrv <-> gamesrv
 function CMD.sync(srvname,pid,data)
 	logger.log("debug","resumemgr",format("%s sync,pid=%d data=%s",srvname,pid,data))
+	data.pid = pid
 	local resume = resumemgr.getresume(pid)
+	if not resume then
+		return
+	end
 	for k,v in pairs(data) do
 		resume:set(k,v,true)
-	end
-	if resume.loadnull then
-		resume.loadnull = nil
-		resume:nowsave()
 	end
 	if cserver.isresumesrv() then
 		-- syncto gamesrv
@@ -117,8 +126,10 @@ end
 function CMD.delete(srvname,pid)
 	logger.log("debug","resumemgr",string.format("%s delete,pid=%d",srvname,pid))
 	local resume = resumemgr.getresume(pid)
-	resumemgr.delresume(pid)
-	resume:deletefromdatabase()
+	if resume then
+		resumemgr.delresume(pid)
+		resume:deletefromdatabase()
+	end
 end
 
 function resumemgr.dispatch(srvname,cmd,...)

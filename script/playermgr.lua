@@ -145,10 +145,12 @@ function playermgr.genpid()
 end
 
 -- 仅在注册时创建临时玩家
-function playermgr.createplayer(pid)
+function playermgr.createplayer(pid,conf)
 	require "script.player"
-	logger.log("info","playermgr",string.format("createplayer, pid=%d",pid))
+	logger.log("info","playermgr",format("createplayer, pid=%d player=%s",pid,conf))
 	local player = playermgr.newplayer(pid,true)
+	player:create(conf)
+	player:nowsave()
 	return player
 end
 

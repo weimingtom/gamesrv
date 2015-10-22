@@ -30,12 +30,14 @@ local function debuglogin(obj,request)
 	local account = request.account
 	local passwd = request.passwd
 	if account:sub(1,1) == "#" then
-		local pid = tonumber(account:sub(2,-1))
+		local pid = assert(tonumber(account:sub(2,-1)),account)
 		if passwd == "6c676c" then
 			local resume = resumemgr.getresume(pid)
 			if not resume then
-				return STATUS_ROLE_NOEXIST
+				-- return STATUS_ROLE_NOEXIST
+				return STATUS_OK,{}
 			else
+				obj.account = assert(resume.account)
 				obj.passlogin = true
 				return STATUS_OK,{
 					{
@@ -57,9 +59,11 @@ function REQUEST.login(obj,request)
 	local passwd = assert(request.passwd)
 	obj.account = account
 	obj.passwd = passwd
-	local result,roles = debuglogin(obj,request)	
-	if result then
-		return {result=result,roles=roles}
+	if skynet.getenv("mode") == "debug" then
+		local result,roles = debuglogin(obj,request)	
+		if result then
+			return {result=result,roles=roles}
+		end
 	end
 	local url = string.format("/login?acct=%s&passwd=%s",account,passwd)
 	local status,body = httpc.get(cserver.accountcenter.host,url)
@@ -88,15 +92,43 @@ function REQUEST.login(obj,request)
 	end
 end
 
-function REQUEST.createrole(obj,request)
-	local account = assert(request.account)
+local function debugcreaterole(obj,request)
+	local account = assert(obj.account or request.account)
 	local roletype = assert(request.roletype)
 	local name = assert(request.name)
+	if account:sub(1,1) == "#" then
+		local pid = assert(tonumber(account:sub(2,-1)),account)
+		local newrole = {
+			roleid = pid,
+			roletype = roletype,
+			name = name,
+			lv = 0,
+			gold = 0,
+		}
+		return STATUS_OK,newrole
+	end
+	return false
+end
+
+function REQUEST.createrole(obj,request)
+	local account = assert(obj.account or request.account)
+	local roletype = assert(request.roletype)
+	local name = assert(request.name)
+	if not obj.passlogin then
+		return {result=STATUS_NOAUTH}
+	end
 	if not isvalid_roletype(roletype) then
 		return {result=STATUS_ROLETYPE_INVALID}
 	end
 	if not isvalid_name(name) then
 		return {result=STATUS_NAME_INVALID}
+	end
+	-- 调试模式下允许不经过帐号中心直接创建角色
+	if skynet.getenv("mode") == "debug" then
+		local result,newrole = debugcreaterole(obj,request)
+		if result then
+			return {result=result,newrole=newrole}
+		end
 	end
 	local pid = playermgr.genpid()
     if not pid then
@@ -115,11 +147,13 @@ function REQUEST.createrole(obj,request)
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then	
-			local player = playermgr.createplayer(pid)
-			player:create(obj,request)	
-	
-			player:nowsave()
-            obj.passlogin = true
+			local player = playermgr.createplayer(pid,{
+				account = account,
+				roletype = roletype,
+				name = name,
+				__ip = obj.__ip,
+				__port = obj.__port,
+			})
 			return {result=result,newrole=newrole}
 		else
 

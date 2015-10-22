@@ -81,22 +81,26 @@ function cresume:onloadnull()
 			logger.log("error","error",string.format("from resumesrv loadnull,srvname=%s pid=%s",route.getsrvname(self.pid),self.pid))
 			return
 		end
-		self:create()
-	elseif cserver.isresumesrv() then
-	end
-end
-
-function cresume:create(player)
-	self.loadnull = nil
-	if not player then
 		player = playermgr.getplayer(self.pid)
 		if player then
 		else
 			player = playermgr.loadofflineplayer(self.pid)
 		end
+		self:create(player:packresume())
+	elseif cserver.isresumesrv() then
 	end
-	self.data = player:packresume()
-	self:sync(self:save())
+end
+
+function cresume:create(resume)
+	assert(resume)
+	logger.log("info","resume",string.format("create,pid=%d resume=%s",self.pid,resume))
+	self.loadnull = nil
+	self.data = resume
+	if cserver.isgamesrv() then
+		cluster.call("resumesrv","resumemgr","create",self.pid,self:save())
+	elseif cserver.isresumesrv() then
+		self:nowsave()
+	end
 end
 
 function cresume:addref(pid)
