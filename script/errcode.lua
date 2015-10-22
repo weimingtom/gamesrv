@@ -16,4 +16,5 @@ STATUS_NAME_INVALID = 14			--名字非法
 STATUS_REPEAT_LOGIN = 15			--重复登录
 STATUS_OVERLIMIT = 16				--达到上限
 STATUS_PASSWD_FMT_ERR = 17			--密码格式错误
+STATUS_UNAUTH		 = 18			--认证失败
 

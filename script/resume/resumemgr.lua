@@ -5,16 +5,27 @@ function resumemgr.init()
 	resumemgr.objs = {}
 end
 
-function resumemgr.create(conf)
+function resumemgr.oncreate(player)
 	require "script.resume.init"
-	local pid = conf.pid
+	local pid = player.pid
+	local data = player:packresume()
+	resumemgr.create(pid,data)
+end
+
+function resumemgr.create(pid,data)
 	local resume = cresume.newtemp(pid)
-	xpcall(resume.create,onerror,resume,conf)
+	xpcall(resume.create,onerror,resume,data)
+	return resume
 end
 
 function resumemgr.onlogin(player)
 	local pid = player.pid
 	local resume = resumemgr.getresume(pid)
+	-- 兼容处理
+	if not resume then
+		resumemgr.create(player.pid,player:packresume())
+	end
+	resume = resumemgr.getresume(pid)
 	resume:sync(player:packresume())
 end
 
@@ -94,7 +105,7 @@ end
 -- gamesrv -> resumesrv
 function CMD.create(srvname,pid,data)
 	data.pid = pid
-	resumemgr.create(data)
+	resumemgr.create(pid,data)
 end
 
 -- resumesrv <-> gamesrv

@@ -18,7 +18,7 @@ function REQUEST.register(obj,request)
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then -- register success
-				
+			obj.passlogin = true	
 		end
 		return {result=result,}
 	else
@@ -72,7 +72,6 @@ function REQUEST.login(obj,request)
 		if result == 0 then
 			url = string.format("/rolelist?gameflag=%s&srvname=%s&acct=%s",cserver.gameflag,cserver.srvname,account)
 			local status2,body2 = httpc.get(cserver.accountcenter.host,url)
-			logger.log("debug","test",status2,body2)
 			if status2 == 200 then
 				local result2,roles = unpackbody(body2)
 				if result2 == STATUS_OK then
@@ -115,7 +114,7 @@ function REQUEST.createrole(obj,request)
 	local roletype = assert(request.roletype)
 	local name = assert(request.name)
 	if not obj.passlogin then
-		return {result=STATUS_NOAUTH}
+		return {result=STATUS_UNAUTH}
 	end
 	if not isvalid_roletype(roletype) then
 		return {result=STATUS_ROLETYPE_INVALID}
