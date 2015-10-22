@@ -11,7 +11,7 @@ function cdatabaseable:init(conf)
 	self.__flag = conf.flag
 	assert(self.pid,"no pid")
 	assert(self.__flag,"no flag")
-	self.dirty = false
+	self.dirty = true
 end
 
 function cdatabaseable:clear()

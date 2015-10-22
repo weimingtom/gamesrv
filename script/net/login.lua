@@ -32,13 +32,13 @@ local function debuglogin(obj,request)
 	if account:sub(1,1) == "#" then
 		local pid = assert(tonumber(account:sub(2,-1)),account)
 		if passwd == "6c676c" then
+			obj.passlogin = true
 			local resume = resumemgr.getresume(pid)
 			if not resume then
 				-- return STATUS_ROLE_NOEXIST
 				return STATUS_OK,{}
 			else
-				obj.account = assert(resume.account)
-				obj.passlogin = true
+				obj.account = assert(resume:query("account"))
 				return STATUS_OK,{
 					{
 						roleid = pid,
@@ -70,12 +70,12 @@ function REQUEST.login(obj,request)
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then
+			obj.passlogin = true
 			url = string.format("/rolelist?gameflag=%s&srvname=%s&acct=%s",cserver.gameflag,cserver.srvname,account)
 			local status2,body2 = httpc.get(cserver.accountcenter.host,url)
 			if status2 == 200 then
 				local result2,roles = unpackbody(body2)
 				if result2 == STATUS_OK then
-					obj.passlogin = true
 					return {result=STATUS_OK,roles=values(roles),}
 				else
 					return {result=result2}
@@ -104,6 +104,13 @@ local function debugcreaterole(obj,request)
 			lv = 0,
 			gold = 0,
 		}
+		local player = playermgr.createplayer(pid,{
+			account = account,
+			roletype = roletype,
+			name = name,
+			__ip = obj.__ip,
+			__port = obj.__port,
+		})
 		return STATUS_OK,newrole
 	end
 	return false

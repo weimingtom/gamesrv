@@ -204,12 +204,12 @@ function cplayer:create(conf)
 
 	self.loadstate = "loaded"
 	self.account = account
-	self.name = conf.name
-	self.roletype = conf.roletype
-	self.gold = 0
-	self.lv = 25
-	self.chip = 0
-	self.viplv = 0
+	self.name = name
+	self.roletype = roletype
+	self.gold = conf.gold or 0
+	self.lv = conf.lv or 25
+	self.chip = conf.chip or 0
+	self.viplv = conf.viplv or 0
 	-- scene
 	self.sceneid = BORN_SCENEID
 	self.pos = randlist(ALL_BORN_LOCS)
@@ -336,7 +336,7 @@ end
 
 function cplayer:ondisconnect(reason)
 
-	logger.log("info","login",string.format("disconnect,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s reason=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),reason))
+	logger.log("info","login",string.format("disconnect,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s reason=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port(),reason))
 	loginqueue.pop()
 end
 

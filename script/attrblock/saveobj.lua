@@ -1,6 +1,6 @@
 
 
---local SAVE_DELAY = 300
+local SAVE_DELAY = SAVE_DELAY or 300
 __saveobjs = __saveobjs or setmetatable({},{__mode="kv",})
 print("old saveobj id:",__saveobj_id)
 __saveobj_id = __saveobj_id or 0
@@ -110,9 +110,14 @@ end
 
 function csaveobj:nowsave()
 	if self.saveflag == "oncesave" or self.saveflag == "autosave" then
-		pcall(function ()
+		xpcall(function ()
 			self:savetodatabase()
-			logger.log("info","saveobj",string.format("%s nowsave, mergelist: %s",self:uniqueflag(),isempty(self.mergelist)))
+			local mergeliststr = {}
+			for i,v in ipairs(self.mergelist) do
+				table.insert(mergeliststr,v:uniqueflag())
+			end
+			mergeliststr = table.concat(mergeliststr,"->")
+			logger.log("info","saveobj",string.format("%s nowsave, mergelist=%s",self:uniqueflag(),mergeliststr))
 			local mergelist = self.mergelist
 			self.mergelist = {}
 			for id,mergeobj in pairs(mergelist) do
@@ -135,7 +140,7 @@ function csaveobj:clearsaveflag()
 end
 
 function csaveobj:uniqueflag()
-	return string.format("%s.%s(id=%s)",self.__saveobj_flag,self.__saveobj_id,self.pid)
+	return string.format("%s.%s(id=%s addr=%s)",self.__saveobj_flag,self.__saveobj_id,self.pid,tostring(self))
 end
 
 

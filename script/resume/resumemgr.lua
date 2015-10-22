@@ -6,13 +6,13 @@ function resumemgr.init()
 end
 
 function resumemgr.oncreate(player)
-	require "script.resume.init"
 	local pid = player.pid
 	local data = player:packresume()
 	resumemgr.create(pid,data)
 end
 
 function resumemgr.create(pid,data)
+	require "script.resume.init"
 	local resume = cresume.newtemp(pid)
 	xpcall(resume.create,onerror,resume,data)
 	return resume
@@ -79,7 +79,7 @@ local CMD = {}
 function CMD.query(srvname,pid,key)
 	local resume = resumemgr.getresume(pid)
 	if not resume then
-		logger.log("warning","resume",string.format("query,[no resume],srvname=%s pid=%s key=%s",srvname,pid,key))
+		logger.log("warning","resume",string.format("[no resume] query,srvname=%s pid=%s key=%s",srvname,pid,key))
 		return
 	end
 	resume:addref(srvname)
