@@ -10,7 +10,6 @@ function resumemgr.oncreate(player)
 	local pid = player.pid
 	local resume = cresume.newtemp(pid)
 	xpcall(resume.create,onerror,resume,player)
-	--resume:create(player)
 end
 
 function resumemgr.onlogin(player)
@@ -32,11 +31,12 @@ function resumemgr.loadresume(pid)
 	return resume
 end
 
--- TODO: MAY MODIFY
 function resumemgr.getresume(pid)
 	if not resumemgr.objs[pid] then
 		local resume = resumemgr.loadresume(pid)
-		resumemgr.addresume(pid,resume)
+		if not resume.loadnull then
+			resumemgr.addresume(pid,resume)
+		end
 	end
 	return resumemgr.objs[pid]
 end
@@ -67,6 +67,9 @@ local CMD = {}
 -- gamesrv --> resumesrv
 function CMD.query(srvname,pid,key)
 	local resume = resumemgr.getresume(pid)
+	if not resume then
+		return
+	end
 	resume:addref(srvname)
 	local data = {}
 	if key == "*" then

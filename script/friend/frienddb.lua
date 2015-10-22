@@ -57,7 +57,7 @@ function cfrienddb:onload()
 		if frdblk.loadnull then
 			logger.log("info","friend",string.format("delfrdlist(onload),pid=%d",pid))
 			table.remove(self.frdlist,pos)
-			friendmgr.delfrdblk(pid)
+			self:delfrdblk(pid)
 		end
 	end
 	for pos,pid in ipairs(self.applyerlist) do
@@ -65,7 +65,7 @@ function cfrienddb:onload()
 		if frdblk.loadnull then
 			logger.log("info","friend",string.format("delapplyerlist(onload),pid=%d",pid))
 			table.remove(self.applyerlist,pos)
-			friendmgr.delfrdblk(pid)
+			self:delfrdblk(pid)
 		end
 	end
 
@@ -131,6 +131,10 @@ end
 
 function cfrienddb:getfrdblk(pid)
 	return resumemgr.getresume(pid)
+end
+
+function cfrienddb:delfrdblk(pid)
+	return resumemgr.delresume(pid)
 end
 
 function cfrienddb:addapplyer(pid)

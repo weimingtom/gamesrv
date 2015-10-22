@@ -75,28 +75,28 @@ end
 
 function cresume:onloadnull()
 	self.loadnull = true
-	self:create()
-end
-
-function cresume:create(player)
 	if cserver.isgamesrv() then
 		print("resume:create",route.getsrvname(self.pid),skynet.getenv("srvname"),self.pid)
 		if route.getsrvname(self.pid) ~= skynet.getenv("srvname") then
 			logger.log("error","error",string.format("from resumesrv loadnull,srvname=%s pid=%s",route.getsrvname(self.pid),self.pid))
 			return
 		end
-		self.loadnull = nil
-		if not player then
-			player = playermgr.getplayer(self.pid)
-			if player then
-			else
-				player = playermgr.loadofflineplayer(self.pid)
-			end
-		end
-		self.data = player:packresume()
-		self:sync(self:save())
+		self:create()
 	elseif cserver.isresumesrv() then
 	end
+end
+
+function cresume:create(player)
+	self.loadnull = nil
+	if not player then
+		player = playermgr.getplayer(self.pid)
+		if player then
+		else
+			player = playermgr.loadofflineplayer(self.pid)
+		end
+	end
+	self.data = player:packresume()
+	self:sync(self:save())
 end
 
 function cresume:addref(pid)
@@ -119,7 +119,7 @@ function cresume:delref(pid)
 		self.srvname_ref[srvname] = nil
 	end
 	if not next(self.pid_ref) and not next(self.srvname_ref) then
-		friendmgr.delfrdblk(self.pid)
+		resumemgr.delresume(self.pid)
 	end
 end
 
