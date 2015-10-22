@@ -32,6 +32,7 @@ function resumemgr.loadresume(pid)
 	return resume
 end
 
+-- TODO: MAY MODIFY
 function resumemgr.getresume(pid)
 	if not resumemgr.objs[pid] then
 		local resume = resumemgr.loadresume(pid)
@@ -41,6 +42,7 @@ function resumemgr.getresume(pid)
 end
 
 function resumemgr.addresume(pid,resume)
+	logger.log("info","resume",format("addresume,pid=%d resume=%s",pid,resume))
 	resumemgr.objs[pid] = resume
 end
 
@@ -48,11 +50,13 @@ function resumemgr.delresume(pid)
 	local resume = resumemgr.objs[pid]
 	resumemgr.objs[pid] = nil
 	if resume then
+
+		logger.log("info","resume",format("delresume,pid=%d",pid))
 		del_saveobj(resume)
 		local srvname = cserver.srvname
 		if cserver.isresumesrv(srvname) then
 		else
-			cluster.call("resumesrv","resumemgr","delref",srvname)
+			cluster.call("resumesrv","resumemgr","delref",self.pid)
 		end
 	end
 end
