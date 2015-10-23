@@ -3,12 +3,12 @@ gm = require "script.gm.init"
 
 --- usage: echo msg
 function gm.echo(args)
-	local ok,result = checkargs(args,"string")
-	if not ok then
+	local isok,args = checkargs(args,"string")
+	if not isok then
 		net.msg.notify(master.pid,"usage: echo msg")
 		return
 	end
-	local msg = table.unpack(result)
+	local msg = table.unpack(args)
 	print("length:",#msg,msg)
 	net.msg.notify(master.pid,msg)
 end

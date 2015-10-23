@@ -65,13 +65,7 @@ function playermgr.getobjectbyfd(fd)
 end
 
 function playermgr.allplayer()
-	local ret = {}
-	for pid,_ in pairs(playermgr.id_obj) do
-		if pid > 0 then
-			table.insert(ret,pid)
-		end
-	end
-	return ret
+	return playermgr.id_obj
 end
 
 function playermgr.addobject(obj)

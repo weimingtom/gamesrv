@@ -3,12 +3,12 @@ require "script.oscmd.maintain"
 
 --- usage: maintain shutdown_time
 function gm.maintain(args)
-	local ok,result = checkargs(args,"int")	
-	if not ok then
+	local isok,args = checkargs(args,"int")	
+	if not isok then
 		net.msg.notify(master.pid,"usage: maintain shutdown_time")
 		return
 	end
-	local lefttime = tonumber(args[1])
+	local lefttime = table.unpack(args)
 	lefttime = math.max(0,math.min(lefttime,300))
 	maintain.force_maintain(lefttime)
 end
@@ -19,8 +19,28 @@ function gm.shutdown(args)
 	game.shutdown(reason)
 end
 
-function gm.saveall()
+function gm.saveall(args)
 	game.saveall()
+end
+
+--- usage: kick pid1 pid2,...
+function gm.kick(args)
+	local isok,args = checkargs(args,"int","*")	
+	if not isok then
+		net.msg.notify(master.pid,"usage: kick pid1 pid2 ...")
+		return
+	end
+	for i,v in ipairs(args) do
+		local pid = tonumber(v)
+		playermgr.kick(pid)
+	end
+end
+
+--- usage: kickall
+function gm.kickall(args)
+	for pid,player in pairs(playermgr.allplayer()) do
+		playermgr.kick(pid)
+	end
 end
 
 return gm
