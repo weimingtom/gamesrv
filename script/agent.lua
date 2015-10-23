@@ -13,6 +13,7 @@ function agent.sendpackage(pack)
 		local package = string.char(math.floor(size/256))..
 						string.char(size%256) ..
 						pack
+
 		socket.write(agent.fd, package)
 	end
 end

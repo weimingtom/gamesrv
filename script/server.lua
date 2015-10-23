@@ -96,7 +96,8 @@ function cserver:isopen(typ)
 end
 
 function cserver.starttimer_logstatus()
-	timer.timeout("timer.logstatus",60,cserver.starttimer_logstatus)
+	local interval = skynet.getenv("mode") and 5 or 60
+	timer.timeout("timer.logstatus",interval,cserver.starttimer_logstatus)
 	logger.log("info","status",string.format("onlinenum=%s task=%s mqlen=%s",playermgr.onlinenum,skynet.task(),skynet.mqlen()))
 end
 
