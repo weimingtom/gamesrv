@@ -103,12 +103,12 @@ end
 --- usage: setauthority pid authority
 --- e.g. : setauthority 10001 80 # 将玩家10001权限设置成80(权限范围:[1,100])
 function gm.setauthority(args)
-	local ok,result = pcall(checkargs,args,"int:[10000,]","int:[1,100]")
+	local ok,args = pcall(checkargs,args,"int:[10000,]","int:[1,100]")
 	if not ok then
 		net.msg.notify(master.pid,"usage: setauthority pid authorit")
 		error(result)
 	end
-	local pid,authority = table.unpack(result)	
+	local pid,authority = table.unpack(args)	
 	local player = playermgr.getplayer(pid)
 	if not player then
 		net.msg.notify(master.pid,string.format("玩家(%d)不在线,无法对其进行此项操作",pid))

@@ -568,6 +568,12 @@ function checkargs(args,...)
 		if not args[i] then
 			return nil,string.format("argument not enough(%d < %d)",#args,#typs)
 		end
+		if args[i] == "*" then -- ignore check
+			for j=i,#args do
+				table.insert(ret,args[j])
+			end
+			return true,ret
+		end
 		local typ = typs[i]
 		local range_begin,range_end
 		local val
@@ -596,10 +602,10 @@ function checkargs(args,...)
 			table.insert(ret,val)
 		elseif typ == "boolean" then
 			typ = string.lower(typ)
-			if not (typ == "true" or typ == "false") then
+			if not (typ == "true" or typ == "false" or typ == "1" or typ == "0") then
 				return nil,"invalid boolean:" .. tostring(typ)
 			end
-			val = (typ == "true" and true or false)
+			val = (typ == "true" or typ == "1") and true or false
 			table.insert(ret,val)
 		elseif typ == "string" then
 			val = args[i]

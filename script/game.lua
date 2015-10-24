@@ -47,7 +47,7 @@ function game.init()
 	huodongmgr.startgame()
 	game.initall = true
 	game.startgame() -- 初始化完后启动的逻辑
-	logger.log("info","game","startgame")
+	logger.log("info","game",string.format("startgame,runno=%s",globalmgr.server:query("runno",0)))
 end
 
 function game.startgame()

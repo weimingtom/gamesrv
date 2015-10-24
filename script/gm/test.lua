@@ -3,12 +3,12 @@ gm = require "script.gm.init"
 
 --- usage: test test_filename ...
 function gm.test(args)
-	local ok,result = checkargs(slice(args,1,1),"string")
-	if not ok then
+	local isok,args = checkargs(args,"string","*")
+	if not isok then
 		net.msg.notify(master.pid,"usage: test test_filename ...")
 		return
 	end
-	local test_filename = table.unpack(result)
+	local test_filename = args[1]
 	local func = require ("script.test." .. test_filename)
 	print(string.format("test %s ...",test_filename))
 	for i = 2,#args do

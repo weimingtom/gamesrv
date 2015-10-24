@@ -36,7 +36,7 @@ function connect(srv)
 end
 
 function clear()
-	for i,pid in ipairs(playermgr.allplayer()) do
+	for pid,_ in pairs(playermgr.allplayer()) do
 		playermgr.delobject(pid)
 	end
 end
