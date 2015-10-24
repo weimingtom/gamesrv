@@ -199,7 +199,7 @@ function REQUEST.entergame(obj,request)
 	if oldplayer then	-- 顶号
 		net.msg.notify(oldplayer.pid,string.format("您的帐号被%s替换下线",gethideip(obj.__ip)))
 		net.msg.notify(obj.pid,string.format("%s的帐号已被你替换下线",gethideip(oldplayer.__ip)))
-		netlogin.kick(oldplayer.pid)
+		netlogin.kick(oldplayer.pid,"replace")
 		-- kick will delobject
 		--playermgr.delobject(oldplayer.pid,"replace")
 	end

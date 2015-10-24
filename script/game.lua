@@ -1,3 +1,4 @@
+require "script.skynet"
 require "script.base.init"
 require "script.conf.srvlist"
 require "script.playermgr"
@@ -44,7 +45,8 @@ function game.init()
 	mailmgr.init()
 	scenemgr.init()
 	cteammgr.startgame()
-	huodongmgr.startgame()
+	huodongmgr.init()
+	--huodongmgr.startgame()
 	game.initall = true
 	game.startgame() -- 初始化完后启动的逻辑
 	logger.log("info","game",string.format("startgame,runno=%s",globalmgr.server:query("runno",0)))
@@ -59,17 +61,22 @@ end
 function game.shutdown(reason)
 	game.initall = nil
 	print("Shutdown")
-	logger.log("info","game",string.format("shutdown,reason=%s",reason))
+	logger.log("info","game",string.format("shutdown start,reason=%s",reason))
+	playermgr.kickall("shutdown")
 	game.saveall()
 	dbmgr.shutdown()
-	logger.shutdown()
-	skynet.sleep(2000) --20s
-	os.execute(string.format("cd ../shell/ && sh killserver.sh %s",skynet.getenv("srvname")))
+	timer.timeout("timer.shutdown",20,function ()
+
+		logger.log("info","game",string.format("shutdown success,reason=%s",reason))
+		logger.shutdown()
+		os.execute(string.format("cd ../shell/ && sh killserver.sh %s",skynet.getenv("srvname")))
+	end)
 end
 
 function game.saveall()
 	logger.log("info","game","saveall")
-	huodongmgr.savetodatabase()
+
+	--huodongmgr.savetodatabase()
 	saveall()
 end
 

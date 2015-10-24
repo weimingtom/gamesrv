@@ -3,6 +3,17 @@ huodongmgr = huodongmgr or {}
 function huodongmgr.init()
 	huodongmgr.huodongs = {}
 	huodongmgr.loadstate = "unload"
+	-- autosave
+	setmetatable(huodongmgr,{
+		__index = csaveobj,
+	})
+	csaveobj.init(huodongmgr,{
+		pid = 0,
+		flag = "huodongmgr"
+	})
+	
+	huodongmgr:autosave()
+	huodongmgr.loadfromdatabase()	
 end
 
 
@@ -154,7 +165,7 @@ function huodongmgr.savetodatabase()
 end
 
 function huodongmgr.autosave()
-	timer.timeout("timer.huodongmgr.autosave",SAVE_DELAY)
+	timer.timeout("timer.huodongmgr.autosave",SAVE_DELAY,huodongmgr.autosave)
 	huodongmgr.savetodatabase()
 end
 

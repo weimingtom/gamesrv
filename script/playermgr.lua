@@ -107,10 +107,17 @@ function playermgr.delobject(pid,reason)
 end
 
 -- 服务端主动踢下线
-function playermgr.kick(pid)
+function playermgr.kick(pid,reason)
 	local obj = playermgr.getobject(pid)
 	if obj then
+		logger.log("info","playermgr",string.format("kick,pid=%d,reason=%s",pid,reason))
 		proto.kick(obj.__agent,obj.__fd)
+	end
+end
+
+function playermgr.kickall(reason)
+	for pid,obj in pairs(playermgr.allplayer()) do
+		playermgr.kick(pid,reason)	
 	end
 end
 

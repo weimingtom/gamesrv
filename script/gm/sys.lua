@@ -32,15 +32,13 @@ function gm.kick(args)
 	end
 	for i,v in ipairs(args) do
 		local pid = tonumber(v)
-		playermgr.kick(pid)
+		playermgr.kick(pid,"gm")
 	end
 end
 
 --- usage: kickall
 function gm.kickall(args)
-	for pid,player in pairs(playermgr.allplayer()) do
-		playermgr.kick(pid)
-	end
+	playermgr.kickall(pid,"gm")
 end
 
 return gm
