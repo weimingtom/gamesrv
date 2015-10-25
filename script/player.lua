@@ -224,7 +224,8 @@ function cplayer:create(conf)
 end
 
 function cplayer:entergame()
-	xpcall(self.onlogin,onerror,self)
+	self:onlogin()
+	--xpcall(self.onlogin,onerror,self)
 end
 
 
@@ -277,8 +278,10 @@ end
 function cplayer:oncreate()
 	logger.log("info","register",string.format("register,account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
 
-	self.frienddb:oncreate(self)
-	resumemgr.oncreate(self)
+	if globalmgr.server:isopen("friend") then
+		self.frienddb:oncreate(self)
+		resumemgr.oncreate(self)
+	end
 end
 
 function cplayer:comptible_process()
@@ -309,8 +312,8 @@ function cplayer:onlogin()
 	mailmgr.onlogin(self)
 	if server:isopen("friend")	then
 		self.frienddb:onlogin(self)
+		resumemgr.onlogin(self)
 	end
-	resumemgr.onlogin(self)
 	self:doing("login")
 	if not self.sceneid then
 		self.sceneid = BORN_SCENEID
@@ -327,8 +330,8 @@ function cplayer:onlogoff()
 	local server = globalmgr.server
 	if server:isopen("friend")	then
 		self.frienddb:onlogoff(self)
+		resumemgr.onlogoff(self)
 	end
-	resumemgr.onlogoff(self)
 	self:doing("logoff")
 	self:exitscene(self.sceneid)
 	self:synctoac()
@@ -452,8 +455,10 @@ function cplayer:additems(items,reason)
 end
 
 function cplayer:doing(what)
-	local frdblk = self.frienddb:getfrdblk(self.pid)
-	frdblk:set("doing",what)
+	if globalmgr.server:isopen("friend") then
+		local frdblk = self.frienddb:getfrdblk(self.pid)
+		frdblk:set("doing",what)
+	end
 end
 
 function cplayer:pack_fight_profile()

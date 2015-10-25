@@ -4,7 +4,7 @@
 local function docmd(srvname,pid,methodname,...)
 	local player = playermgr.getplayer(pid)	
 	if not player then
-		player = playermgr.loadofflineplayer(pid,"all")
+		player = playermgr.loadofflineplayer(pid)
 	end
 	assert(player,"Not found pid:" .. tostring(pid))
 	local modname,sep,funcname = string.match(methodname,"(.*)([.:].+)$")	

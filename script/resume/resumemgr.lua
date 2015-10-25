@@ -14,7 +14,7 @@ end
 function resumemgr.create(pid,data)
 	require "script.resume.init"
 	local resume = cresume.newtemp(pid)
-	xpcall(resume.create,onerror,resume,data)
+	resume:create(data)
 	return resume
 end
 

@@ -88,7 +88,7 @@ function cserver:isopen(typ)
 		if not cserver.isgamesrv() then
 			return false
 		end
-		if not clustermgr.isconnect("frdsrv") then	
+		if not clustermgr.isconnect("resumesrv") then	
 			return false
 		end
 		return true

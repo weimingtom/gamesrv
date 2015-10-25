@@ -25,7 +25,7 @@ function REQUEST.register(obj,request)
 		return {result=status,}
 	end
 end
-
+-- 调试登录模式：只允许登录本服角色
 local function debuglogin(obj,request)
 	local account = request.account
 	local passwd = request.passwd
@@ -33,18 +33,21 @@ local function debuglogin(obj,request)
 		local pid = assert(tonumber(account:sub(2,-1)),account)
 		if passwd == "6c676c" then
 			obj.passlogin = true
-			local resume = resumemgr.getresume(pid)
-			if not resume then
+			local player = playermgr.getplayer(pid)
+			if not player then
+				player = playermgr.loadofflineplayer(pid)
+			end
+			if not player then
 				-- return STATUS_ROLE_NOEXIST
 				return STATUS_OK,{}
 			else
-				obj.account = assert(resume:query("account"))
+				obj.account = assert(player.account)
 				return STATUS_OK,{
 					{
-						roleid = pid,
-						name = resume.name,
-						lv = resume.lv,
-						roletype = resume.roletype,
+						roleid = player.pid,
+						name = player.name,
+						lv = player.lv,
+						roletype = player.roletype,
 					}
 				}
 			end

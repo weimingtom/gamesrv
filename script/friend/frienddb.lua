@@ -54,18 +54,16 @@ end
 function cfrienddb:onload()
 	for pos,pid in ipairs(self.frdlist) do
 		local frdblk = self:getfrdblk(pid)
-		if frdblk.loadnull then
-			logger.log("info","friend",string.format("delfrdlist(onload),pid=%d",pid))
+		if not frdblk then
+			logger.log("error","friend",string.format("delfrdlist(onload),pid=%d",pid))
 			table.remove(self.frdlist,pos)
-			self:delfrdblk(pid)
 		end
 	end
 	for pos,pid in ipairs(self.applyerlist) do
 		local frdblk = self:getfrdblk(pid)
-		if frdblk.loadnull then
-			logger.log("info","friend",string.format("delapplyerlist(onload),pid=%d",pid))
+		if not frdblk then
+			logger.log("error","friend",string.format("delapplyerlist(onload),pid=%d",pid))
 			table.remove(self.applyerlist,pos)
-			self:delfrdblk(pid)
 		end
 	end
 
@@ -203,9 +201,11 @@ function cfrienddb:req_delfriend(pid)
 	if srvname == cserver.srvname then
 		local target = playermgr.getplayer(pid)
 		if not target then
-			target = playermgr.loadofflineplayer(pid,"friend")
+			target = playermgr.loadofflineplayer(pid)
 		end
-		target.frienddb:delfriend(self.pid)
+		if target then
+			target.frienddb:delfriend(self.pid)
+		end
 	else
 		cluster.call(srvname,"playermethod",pid,"frienddb:delfriend",player.pid)
 	end
@@ -228,7 +228,9 @@ function cfrienddb:apply_addfriend(pid)
 		if target then
 			target.frienddb:addapplyer(self.pid)
 		else
-			target = playermgr.loadofflineplayer(pid,"friend")
+			target = playermgr.loadofflineplayer(pid)
+		end
+		if target then
 			target.frienddb:addapplyer(self.pid)
 		end
 	else
@@ -265,7 +267,9 @@ function cfrienddb:agree_addfriend(pid)
 		if target then
 			target.frienddb:addfriend(self.pid)
 		else
-			target = playermgr.loadofflineplayer(pid,"friend")
+			target = playermgr.loadofflineplayer(pid)
+		end
+		if target then
 			target.frienddb:addfriend(self.pid)
 		end
 	else

@@ -21,7 +21,24 @@ function playermgr.unloadofflineplayer(pid)
 	end
 end
 
+function playermgr.loadofflineplayer(pid)
+	require "script.player"
+	modname = modname or "all"
+	local player = playermgr.id_offlineplayer[pid]
+	if not player then
+		player = cplayer.new(pid)
+		player:loadfromdatabase(true)
+		player.offline = true
+	end
+	if player:isloaded() then
+		playermgr.id_offlineplayer[pid] = player
+	end
+	return playermgr.id_offlineplayer[pid]
+end
+
+--[[
 function playermgr.loadofflineplayer(pid,modname)
+	require "script.player"
 	modname = modname or "all"
 	local player = playermgr.id_offlineplayer[pid]
 	if player then
@@ -56,9 +73,9 @@ function playermgr.loadofflineplayer(pid,modname)
 			mod.loadstate = "loaded"
 		end
 	end
-	playermgr.id_offlineplayer[player.pid] = player
 	return player
 end
+]]
 
 function playermgr.getobjectbyfd(fd)
 	return playermgr.fd_obj[fd]
@@ -122,6 +139,7 @@ function playermgr.kickall(reason)
 end
 
 function playermgr.newplayer(pid,istemp)
+	require "script.player"
 	playermgr.unloadofflineplayer(pid)
 	if istemp then
 		return cplayer.newtemp(pid)
@@ -149,6 +167,11 @@ end
 function playermgr.createplayer(pid,conf)
 	require "script.player"
 	logger.log("info","playermgr",format("createplayer, pid=%d player=%s",pid,conf))
+	local db = dbmgr.getdb()
+	local maxpid = db:get(db:key("role","maxroleid"),0)
+	if pid > maxpid then
+		db:set(db:key("role","maxroleid"),pid)
+	end
 	local player = playermgr.newplayer(pid,true)
 	player:create(conf)
 	player:nowsave()
