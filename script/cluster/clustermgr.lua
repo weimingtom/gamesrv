@@ -11,6 +11,7 @@ function clustermgr.loadconfig()
 	clustermgr.srvlist = tmp
 	pprintf("srvlist:%s",clustermgr.srvlist)
 	skynet_cluster.reload()
+	print("skynet_cluster.reload ok")
 end
 
 function clustermgr.checkserver()
