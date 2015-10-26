@@ -13,11 +13,11 @@
 	如果git submodule update 失败，则重新初始化一遍子模块，如:
 	rm -rf shell
 	git rm -r shell
-	git add https://github.com/sundream/shell.git shell
+	git submodule add https://github.com/sundream/shell.git shell
 
 	rm -rf skynet
 	git rm -r skynet
-	git add https://github.com/sundream/skynet.git skynet
+	git submodule add https://github.com/sundream/skynet.git skynet
 
 6. 中心节点服（方便做世界服、跨服好友哦，主要保存玩家简介信息）
 	git clone --recursive https://github.com/sundream/gamesrv.git resumesrv
@@ -40,7 +40,7 @@
 	如果git submodule update 失败，则重新初始化一遍子模块，如:
 	rm -rf skynet
 	git rm -r skynet
-	git add https://github.com/sundream/skynet.git skynet
+	git submodule add https://github.com/sundream/skynet.git skynet
 
 	git clone --recursive https://github.com/sundream/robert.git robert
 ```
