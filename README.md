@@ -35,14 +35,29 @@
 	rm -rf skynet
 	git rm -r skynet
 	git submodule add https://github.com/sundream/skynet.git skynet
+	
+	修改配置文件:
+	cd /home/game/servers/gamesrv_100
+	cp /home/game/servers/gamesrv_100/script/conf/template/gamesrv_100.conf script/conf/gamesrv_100.conf
+	将配置文件中的srvname字段改成：srvname = "gamesrv_100"
 
 2. 中心节点服（方便做世界服、跨服好友哦，主要保存玩家简介信息）
 	cd /home/game/servers
 	git clone --recursive https://github.com/sundream/gamesrv.git resumesrv
+	
+	修改配置文件:
+	cd /home/game/servers/resumesrv
+	cp /home/game/servers/gamesrv_100/script/conf/template/resumesrv.conf script/conf/resumesrv.conf
+	将配置文件中的srvname字段改成：srvname = "resumesrv"
 
 3. 账号中心
 	cd /home/game/servers
 	git clone --recursive https://github.com/sundream/accountcenter.git accountcenter
+	
+	修改配置文件:
+	cd /home/game/servers/accountcenter
+	cp /home/game/servers/gamesrv_100/script/conf/template/accountcenter.conf script/conf/accountcenter.conf
+	将配置文件中的srvname字段改成：srvname = "accountcenter"
 
 4. 其他服（不是必须，跟业务逻辑有关）
 	+ cd /home/game/servers
