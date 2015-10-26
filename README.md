@@ -6,13 +6,13 @@
 	+ cd /home/game/ && mkdir servers
 	+ cd /home/game/servers && mkdir -p ds/data/gamesrv_100
 
-2. redis(http://redis.io/download <br />)
+2. [redis](http://redis.io/download)
 	cd /home/game/servers/ds
 	wget http://download.redis.io/releases/redis-3.0.5.tar.gz
 	tar xzf redis-3.0.5.tar.gz
 	cd redis-3.0.5
 	make
-3. skynet(见https://github/cloudwu/skynet.git <br />)
+3. [skynet](https://github/cloudwu/skynet.git)
 	假定skynet安装目录为ROOT_SKYNET
 	cd ROOT_SKYNET
 	make clean
