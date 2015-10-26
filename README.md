@@ -1,10 +1,27 @@
+## 准备
+```
+1. 目录结构
+	+ mkdir /home/game 或者 adduser game
+	+ mkdir /home/upload
+	+ cd /home/game/ && mkdir servers
+	+ cd /home/game/servers && mkdir -p ds/data/gamesrv_100
+
+2. redis(见https://github.com/sundream/gamesrv/edit/master/README.md)
+	cd /home/game/servers/ds
+	wget http://download.redis.io/releases/redis-3.0.5.tar.gz
+	tar xzf redis-3.0.5.tar.gz
+	cd redis-3.0.5
+	make
+3. skynet(见https://github/cloudwu/skynet.git)
+	假定skynet安装目录为ROOT_SKYNET
+	cd ROOT_SKYNET
+	make clean
+	make linux / make macosx(对于苹果)
+```
 ## 安装
 ```
-1. mkdir /home/game 或者 adduser game
-2. mkdir /home/upload
-3. cd /home/game/ && mkdir servers
-4. cd /home/game/servers
-5. 逻辑服
+1. 逻辑服
+	cd /home/game/servers
 	git clone --recursive https://github.com/sundream/gamesrv.git gamesrv_100
 	-- 如果shell、skynet子模块没有初始化，则执行以下操作，后续服务器的检出也类似，不再累述
 	cd /home/game/servers/gamesrv_100
@@ -19,18 +36,21 @@
 	git rm -r skynet
 	git submodule add https://github.com/sundream/skynet.git skynet
 
-6. 中心节点服（方便做世界服、跨服好友哦，主要保存玩家简介信息）
+2. 中心节点服（方便做世界服、跨服好友哦，主要保存玩家简介信息）
+	cd /home/game/servers
 	git clone --recursive https://github.com/sundream/gamesrv.git resumesrv
 
-7. 账号中心
+3. 账号中心
+	cd /home/game/servers
 	git clone --recursive https://github.com/sundream/accountcenter.git accountcenter
 
-8. 其他服（不是必须，跟业务逻辑有关）
-	+第二个逻辑服：git clone --recursive https://github.com/sundream/gamesrv.git gamesrv_101
-	+战斗管理服: git clone --recursive https://github.com/sundream/gamesrv.git warsrvmgr
-	+战斗服：git clone --recursive https://github.com/sundream/gamesrv.git warsrv_1000
+4. 其他服（不是必须，跟业务逻辑有关）
+	+ cd /home/game/servers
+	+ 第二个逻辑服：git clone --recursive https://github.com/sundream/gamesrv.git gamesrv_101
+	+ 战斗管理服: git clone --recursive https://github.com/sundream/gamesrv.git warsrvmgr
+	+ 战斗服：git clone --recursive https://github.com/sundream/gamesrv.git warsrv_1000
 
-9. 客户端
+5. 客户端
 	cd /home/game
 	git clone --recursive https://github.com/sundream/client.git client
 	-- -- 如果skynet子模块没有初始化，则执行以下操作，后续robert的检出也类似，不再累述
@@ -47,6 +67,7 @@
 
 ## 启动服务器
 ```
+cd /home/game/servers/gamesrv_100/shell && sh startredis.sh
 cd /home/game/servers/accountcenter/shell && sh startserver.sh
 cd /home/game/servers/resumesrv/shell && sh startserver.sh
 cd /home/game/servers/gamesrv_100/shell && sh startserver.sh
