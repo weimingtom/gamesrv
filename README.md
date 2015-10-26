@@ -1,4 +1,5 @@
-安装:
+## 安装
+```
 1. mkdir /home/game 或者 adduser game
 2. mkdir /home/upload
 3. cd /home/game/ && mkdir servers
@@ -42,27 +43,30 @@
 	git add https://github.com/sundream/skynet.git skynet
 
 	git clone --recursive https://github.com/sundream/robert.git robert
+```
 
-启动
-1. 启动服务器
-	cd /home/game/servers/accountcenter/shell && sh startserver.sh
-	cd /home/game/servers/resumesrv/shell && sh startserver.sh
-	cd /home/game/servers/gamesrv_100/shell && sh startserver.sh
+## 启动服务器
+```
+cd /home/game/servers/accountcenter/shell && sh startserver.sh
+cd /home/game/servers/resumesrv/shell && sh startserver.sh
+cd /home/game/servers/gamesrv_100/shell && sh startserver.sh
+```
 
-
-2. 启动客户端(客户端自带控制台，可以输入任何lua脚本控制)
+## 启动客户端
+```
+1. 启动客户端(客户端自带控制台，可以输入任何lua脚本控制)
 	cd /home/game/client
 	启动客户端：lua script/init 
 	登陆游戏服gamesrv_100:
 	login = require "script.test.test_login"
 	login("gamesrv_100","lgl@sina.com","123")
 
-3. 机器人压测
+2. 机器人压测
 	cd /home/game/robert/skynet
 	./skynet ../script/conf/robert.conf
 	启动另一个shell,telnet连接控制机器人
 	telent 127.0.0.1 6666
 	start script/service/robertd 数量 起始角色ID
 	如: start script/service/robertd 10 10001  <=> 从10001角色ID开始启动10个机器人连接gamesrv_100服务器
-
+```
 
