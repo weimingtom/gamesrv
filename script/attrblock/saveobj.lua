@@ -1,5 +1,4 @@
 
-
 local SAVE_DELAY = SAVE_DELAY or 300
 __saveobjs = __saveobjs or setmetatable({},{__mode="kv",})
 print("old saveobj id:",__saveobj_id)
