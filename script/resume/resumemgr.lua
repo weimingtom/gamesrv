@@ -61,13 +61,12 @@ function resumemgr.delresume(pid)
 	local resume = resumemgr.objs[pid]
 	resumemgr.objs[pid] = nil
 	if resume then
-
 		logger.log("info","resume",format("delresume,pid=%d",pid))
 		del_saveobj(resume)
 		local srvname = cserver.srvname
 		if cserver.isresumesrv(srvname) then
 		else
-			cluster.call("resumesrv","resumemgr","delref",self.pid)
+			cluster.call("resumesrv","resumemgr","delref",pid)
 		end
 	end
 end

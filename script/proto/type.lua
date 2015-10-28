@@ -7,15 +7,9 @@ proto.c2s = [[
 	lv 3 : integer
 }
 
-.ItemType {
-	itemid 0 : integer
+.ResOrItemType {
+	type 0 : integer #资源类型/物品类型
 	num 1 : integer
-}
-
-.AttachType {
-	gold 0 : integer
-	chip 1 : integer	
-	items 2 : *ItemType
 }
 
 .MailType {
@@ -24,9 +18,10 @@ proto.c2s = [[
 	author 2 : string
 	title 3 : string
 	content 4 : string
-	attach 5 : AttachType
+	attach 5 : *ResOrItemType
 	readtime 6 : integer
-	srcid 7 : integer
+	srcid 7 : integer #邮件来源ID（0--系统，其他--玩家ID)
+	pid 8 : integer  # 邮件拥有者ID(可能没用)
 }
 
 .PosType {

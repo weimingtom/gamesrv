@@ -49,7 +49,7 @@ function mailmgr.sendmail(pid,amail)
 		cluster.call(srvname,"modmethod","mail.mailmgr.sendmail",pid,amail)
 		return true
 	end
-	amail = deepcopy(amail)
+	amail = deepcopy(amail) -- 防止多个玩家修改同一份邮件
 	amail.sendtime = amail.sendtime or os.time()
 	local mailbox = mailmgr.getmailbox(pid)
 	amail.mailid = amail.mailid or mailbox:genid()

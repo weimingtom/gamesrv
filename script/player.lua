@@ -444,7 +444,6 @@ function cplayer:additem(itemid,num,reason)
 		self:addcardbag(itemid,num,reason)
 	else	-- card
 		self:addcard(itemid,num,reason)
-
 	end
 end
 
@@ -452,6 +451,26 @@ function cplayer:additems(items,reason)
 	for i,item in ipairs(items) do
 		self:additem(item.itemid,item.num,reason)
 	end
+end
+
+function cplayer:additem2(itemdata,reason,btip)
+	-- TODO:
+	return itemdata.num
+end
+
+function cplayer:addres(typ,num,reason,btip)
+	if typ == RESTYPE_GOLD then
+		num = self:addgold(num,reason)
+	elseif typ == RESTYPE_CHIP then
+		num = self:addchip(num,reason)
+	else
+		error("Invlid restype:" .. tostring(typ))
+	end
+	if btip then
+		local msg = string.format("%s #<type=%s># X%d",num > 0 and "获取" or "花费",typ,num)
+		net.msg.notify(self.pid,msg)
+	end
+	return num
 end
 
 function cplayer:doing(what)

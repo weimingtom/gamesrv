@@ -25,10 +25,7 @@ function REQUEST.readmail(player,request)
 		return
 	end
 	mail.readtime = os.time()
-	netmail.syncmail(pid,{
-		mailid = mail.mailid,
-		readtime = mail.readtime,
-	})
+	netmail.syncmail(pid,mail:pack())
 end
 
 function REQUEST.delmail(player,request)
@@ -80,6 +77,7 @@ netmail.RESPONSE = RESPONSE
 
 -- s2c
 function netmail.syncmail(pid,maildata)
+	maildata.pid = pid
 	sendpackage(pid,"mail","syncmail",maildata)
 end
 

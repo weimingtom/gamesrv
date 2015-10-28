@@ -13,7 +13,7 @@ function ccard:init(pid)
 		flag = "card",
 	})
 	self.data = {}
-	self.cardid = genid()
+	self.id = genid()
 end
 
 function ccard:save()
@@ -34,7 +34,7 @@ end
 
 -- setter
 function ccard:setamount(amount,reason)
-	logger.log("info","card",string.format("#%d setamount,cardid=%d sid=%d amount=%d reason=%s",self.pid,self.cardid,self.sid,amount,reason))
+	logger.log("info","card",string.format("#%d setamount,id=%d sid=%d amount=%d reason=%s",self.pid,self.id,self.sid,amount,reason))
 	return self:basic_set("amount",amount)
 end
 

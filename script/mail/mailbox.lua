@@ -92,6 +92,22 @@ function cmailbox:delallmail()
 	end
 end
 
+function cmailbox:iscan_getattach(player,mail)
+	-- TODO:
+	return true
+end
+
+--[[
+附件格式:
+{
+	{
+		type = 资源ID/物品ID,
+		num = 数量,
+		#其他字段，如对于物品，bind字段
+	}
+	...
+}
+]]
 function cmailbox:getattach(mailid)
 	local pid = self.pid
 	local player = playermgr.getplayer(pid)
@@ -102,24 +118,18 @@ function cmailbox:getattach(mailid)
 	if not mail then
 		return
 	end
+	if not self:iscan_getattach(player,mail) then
+		return
+	end
 	logger.log("info","mail",format("getattach,pid=%d srcid=%d mailid=%d attach=%s",pid,mail.srcid,mailid,mail.attach))
 	if next(mail.attach) then
 		local attach = mail.attach
 		mail.attach = {}
 		local reason = "getattach"
-		if attach.gold > 0 then
-			player:addgold(attach.gold,reason)
+		for i,bonus in ipairs(attach) do
+			award.__playeraward(pid,bonus,reason,true)	
 		end
-		if attach.chip > 0 then
-			player:addchip(attach.chip,reason)
-		end
-		if #attach.items > 0 then
-			player:additems(attach.items,reason)
-		end
-		netmail.syncmail(pid,{
-			mailid = mail.mailid,
-			attach = mail.attach,
-		})
+		netmail.syncmail(pid,mail:pack())
 	end
 end
 

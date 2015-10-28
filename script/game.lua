@@ -21,6 +21,7 @@ require "script.object"
 require "script.hotfix.init"
 require "script.team.teammgr"
 require "script.scene.scenemgr"
+require "script.award.init"
 
 game = game or {}
 function game.init()

@@ -1,4 +1,4 @@
---<<team 导表开始>>
+--<<data_team 导表开始>>
 data_team = {
 
 	[1] = {
@@ -31,4 +31,4 @@ data_team = {
 
 }
 return data_team
---<<team 导标结束>>
+--<<data_team 导表结束>>

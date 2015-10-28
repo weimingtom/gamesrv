@@ -146,7 +146,9 @@ class CParser(object):
 		s = s1 - s2
 		#print "linefmt",lst
 		if s:
-			raise Exception("over format:%s" % s)
+			#raise Exception("over format:%s" % s)
+			msg = "过多的格式:%s,可能xls文件缺少字段或导标工具有不存在的字段" % s
+			raise Exception(msg)
 		#对None值的默认处理
 		for name,fmt in lst:
 			if line[name] == None:
@@ -210,13 +212,21 @@ class CParser(object):
 		return True
 		
 # 提供一个简洁导表接口，对导表有特殊需求的可自行定制
-def daobiao(sheet,script_filename,cfg):
-	fmt = cfg.get("fmt")
-	if not fmt:
-		raise Exception("use daobiao need 'fmt' configuration")
+def daobiao(sheet,name,cfg,dstpath):
+	script_filename = name + ".lua"
+	script_filename = os.path.join(dstpath,script_filename)
+	cfg["startline"] = cfg.get("startline") or "--<<%s 导表开始>>" % name
+	cfg["endline"] = cfg.get("endline") or "--<<%s 导表结束>>" % name
 	parser = CParser(cfg,sheet)
 	lines = parser.parse()
 	data = "".join(lines)
+	fmt = \
+"""
+%s = {
+%%s
+}
+return %s
+""" % (name,name)
 	data = fmt % data
 	parser.write(script_filename,data)
 	

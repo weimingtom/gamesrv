@@ -5,8 +5,6 @@ import sys
 
 def parse_team(sheet_name,sheet_data,dstpath):
 	cfg = {
-			"startline" : "--<<team 导表开始>>",
-			"endline" : "--<<team 导标结束>>",
 			"linefmt" :
 """
 	[%(type)d] = {
@@ -16,17 +14,9 @@ def parse_team(sheet_name,sheet_data,dstpath):
 		limit = %(limit)d,
 	},
 """,
-			"fmt":
-"""
-data_team = {
-%s
-}
-return data_team
-""",
 	}
 	sheet = CSheet(sheet_name,sheet_data)
-	script_filename = os.path.join(dstpath,"data_team.lua")
-	daobiao(sheet,script_filename,cfg)
+	daobiao(sheet,"data_team",cfg,dstpath)
 parses = {
     "team" : parse_team,
 }

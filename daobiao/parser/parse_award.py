@@ -3,33 +3,21 @@ from base import *
 import os
 import sys
 
-def parse_award_common(sheet_name,sheet_data,dstpath):
+def parse_award_award(sheet_name,sheet_data,dstpath):
 	cfg = {
-			"startline" : "--<<award 导表开始>>",
-			"endline" : "--<<award 导标结束>>",
 			"linefmt" :
 """
 	[%(id)d] = {
-		gold = %(gold)d,
-		chip = %(chip)d,
-		item = %(item)s,
-		desc = [[%(desc)s]],
+		award = %(award)s,
+		name = [[%(name)s]],
 	},
-""",
-			"fmt":
-"""
-data_award = {
-%s
-}
-return data_award
 """,
 	}
 	sheet = CSheet(sheet_name,sheet_data)
-	script_filename = os.path.join(dstpath,"data_award.lua")
-	daobiao(sheet,script_filename,cfg)
+	daobiao(sheet,"data_award",cfg,dstpath)
 
 parses = {
-		"common" : parse_award_common,
+		"award" : parse_award_award,
 }
 
 if __name__ == "__main__":

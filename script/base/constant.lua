@@ -41,3 +41,10 @@ ALL_BORN_LOCS = { -- 出生位置
 	{x=20,y=20,dir=1},
 	{x=30,y=30,dir=1},
 }
+
+-- 资源
+MAX_RESTYPE = 1000 -- 最大资源类型
+
+RESTYPE_GOLD = 1  -- 金币
+RESTYPE_CHIP = 2  -- 粉尘
+

@@ -1,34 +1,26 @@
---<<award 导表开始>>
+--<<data_award 导表开始>>
 data_award = {
 
 	[1] = {
-		gold = 100,
-		chip = 100,
-		item = {{itemid=1,num=1}},
-		desc = [[]],
+		award = {type=1,num=10},
+		name = [[金币*10]],
 	},
 
 	[2] = {
-		gold = 200,
-		chip = 200,
-		item = {{itemid=1,num=2}},
-		desc = [[]],
+		award = {type=1,num=100},
+		name = [[金币*100]],
 	},
 
 	[3] = {
-		gold = 100,
-		chip = 100,
-		item = {{itemid=2,num=1}},
-		desc = [[]],
+		award = {type=2,num=10},
+		name = [[粉尘*10]],
 	},
 
 	[4] = {
-		gold = 200,
-		chip = 200,
-		item = {{itemid=2,num=2}},
-		desc = [[]],
+		award = {type=16101,num=1},
+		name = [[伊瑟拉*1]],
 	},
 
 }
 return data_award
---<<award 导标结束>>
+--<<data_award 导表结束>>

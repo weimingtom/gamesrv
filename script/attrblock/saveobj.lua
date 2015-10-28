@@ -68,7 +68,6 @@ function csaveobj:init(conf)
 	self.loadstate = "unload"
 	if not self.__temp then
 		add_saveobj(self)
-		starttimer(self)
 	end
 end
 
@@ -76,6 +75,11 @@ function csaveobj:autosave()
 	assert(self.saveflag ~= "oncesave","autosave conflict with oncesave")
 	logger.log("info","saveobj",string.format(" %s autosave",self:uniqueflag()))
 	self.saveflag = "autosave"
+	--if not self.bstarttimer then
+	--	self.bstarttimer = true
+	--	starttimer(self)
+	--end
+	starttimer(self)
 end
 
 function csaveobj:merge(obj)
@@ -134,8 +138,10 @@ function csaveobj:nowsave()
 end
 
 function csaveobj:clearsaveflag()
-	logger.log("info","saveobj",string.format("%s clearsaveflag",self:uniqueflag()))
+	local flag = self:uniqueflag()
+	logger.log("info","saveobj",string.format("%s clearsaveflag",flag))
 	self.saveflag = false
+	timer.untimeout(flag)
 end
 
 function csaveobj:uniqueflag()

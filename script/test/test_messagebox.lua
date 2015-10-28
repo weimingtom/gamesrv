@@ -6,7 +6,7 @@ local function onbuysomething(player,request,buttonid)
 		if not player:validpay("gold",costgold,true) then
 			return
 		end
-		doaward(player.pid,request.attach,true,"test")
+		doaward("player",player.pid,request.attach,true,"test")
 	end
 end
 
