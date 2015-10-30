@@ -1,31 +1,33 @@
 ----------------------------------------------------------
 --功能: 给lua oop提供原语class,支持热更新，支持父类热更新直接
 --反应到子类,不支持删除成员函数，需要屏蔽时可以写成空函数
---用例: 参考测试脚本:test_class.lua
+--用例: 参考测试脚本:script/test/test_class/init.lua
 --参考: blog.codingnow.com/cloud/LuaOO
 ----------------------------------------------------------
 __class = __class or {}
 local function reload_class(name)
-	assert(__class[name] ~= nil,"try to reload a empty class")
-	local class_type = __class[name]
+	local class_type = assert(__class[name],"try to reload a non-exist class")
 	local vtb = __class[class_type]
 	assert(vtb ~= nil,"class without vtb")
 	-- 清空类缓存的父类方法
 	for k,v in pairs(vtb) do
 		vtb[k] = nil
 	end
-	print(string.format("reload class,name=%s class_type=%s vtb=%s",name,class_type,vtb))
-	return class_type
-end
-
-local function update_hierarchy(class_type,super)
+	local super = class_type.__super
 	for _,super_class in pairs(super) do
 		if super_class.__child then
 			super_class.__child[class_type.__name] = true
 		end
 	end
+	--print(string.format("reload class,name=%s class_type=%s vtb=%s",name,class_type,vtb))
+	return class_type
+end
+
+local function update_hierarchy(name)
+	local class_type = assert(__class[name],"try to update_hierarchy a non-exist class")
+	reload_class(name)
 	for name,_ in pairs(class_type.__child) do
-		reload_class(name)
+		update_hierarchy(name)
 	end
 end
 
@@ -44,6 +46,7 @@ local function ajust_super(super)
 	return super
 end
 
+-- 保证每个类名不同
 function class(name,...)
 	local super = {...}
 	local class_type
@@ -51,7 +54,7 @@ function class(name,...)
 		class_type = {}
 		class_type.__child = {}
 	else
-		class_type = reload_class(name)
+		class_type = __class[name]
 	end
 	class_type.__name = name
 	class_type.__super = ajust_super(super)
@@ -76,8 +79,6 @@ function class(name,...)
 	end
 	class_type.new = new(false)
 	class_type.newtemp = new(true)
-
-	update_hierarchy(class_type,super)
 	if not __class[name] then -- if not getmetatable(class_type) then
 		local vtb = {}	-- 仅用于缓存父类方法
 		__class[name] = class_type
@@ -85,7 +86,7 @@ function class(name,...)
 		setmetatable(class_type,{__index = vtb,})
 		setmetatable(vtb,{__index =
 			function (t,k)
-				for _,super_type in pairs(class_type.__super) do
+				for _,super_type in ipairs(class_type.__super) do
 					local result = super_type[k]
 					if result then
 						vtb[k] = result
@@ -95,6 +96,7 @@ function class(name,...)
 			end
 		})
 	end
+	update_hierarchy(name)
 	return class_type
 end
 
