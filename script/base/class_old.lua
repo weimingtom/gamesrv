@@ -1,92 +1,100 @@
 ----------------------------------------------------------
---功能: 给lua oop提供原语class
---用例: 参考测试脚本:test_class.lua
+--功能: 给lua oop提供原语class,支持热更新，支持父类热更新直接
+--反应到子类,不支持删除成员函数，需要屏蔽时可以写成空函数
+--用例: 参考测试脚本:script/test/test_class/init.lua
 --参考: blog.codingnow.com/cloud/LuaOO
 ----------------------------------------------------------
-_class = _class or {}
-function class(...)
-	local super = {...}
-	local class_type = {}
-	class_type.init = false		--constructor
-	class_type.super = super
-	class_type.new = function (...)
-		local tmp = ...
-		assert(tmp ~= class_type,"must use class_type.new(...) but not class_type:new(...)")
-		local obj = {}
-		obj.__type__ = class_type
-		setmetatable(obj,{__index = _class[class_type]});
-		do
-			--function create(class_type,...)
-			--	for _,super_type in pairs(class_type.super) do
-			--		create(super_type,...)
-			--	end
-			--	if class_type.init then
-			--		class_type.init(obj,...)
-			--	end
-			--end
-			--create(class_type,...)
-			if class_type.init then
-				class_type.init(obj,...)
-			end
-		end
-		return obj
+__class = __class or {}
+local function reload_class(name)
+	assert(__class[name] ~= nil,"try to reload a empty class")
+	local class_type = __class[name]
+	local vtb = __class[class_type]
+	assert(vtb ~= nil,"class without vtb")
+	-- 清空类缓存的父类方法
+	for k,v in pairs(vtb) do
+		vtb[k] = nil
 	end
-	local vtb = {}
-	_class[class_type] = vtb
-	--print("_class",class_type)
-	setmetatable(class_type,{__index = vtb,__newindex =
-		function (t,k,v)
-			--print("class_type.__newindex",t,k,v)
-			vtb[k] = v
-		end
-	})
-	setmetatable(vtb,{__index =
-		function (t,k)
-			for _,super_type in pairs(class_type.super) do
-				if _class[super_type][k] then
-					--print("vtb.__index",super_type,k)
-					vtb[k] = _class[super_type][k]
-					return _class[super_type][k]
-				end
-			end
-		end
-	})
+	print(string.format("reload class,name=%s class_type=%s vtb=%s",name,class_type,vtb))
 	return class_type
 end
 
--- 必须保证类定义完整被begin_declare,end_declare包含
-_oldclass_cache = _oldclass_cache or {}
-
-function begin_declare(flag,cls)
-	--print("begin_declare",flag,cls)
-	if cls then
-		if not _oldclass_cache[flag] then
-			_oldclass_cache[flag] = {}
+local function update_hierarchy(class_type,super)
+	for _,super_class in pairs(super) do
+		if super_class.__child then
+			super_class.__child[class_type.__name] = true
 		end
-		table.insert(_oldclass_cache[flag],cls)
+	end
+	for name,_ in pairs(class_type.__child) do
+		reload_class(name)
 	end
 end
 
-function end_declare(flag,cls)
-	--print("end_declare",flag,cls)
-	local oldclasses = _oldclass_cache[flag] or {}
-	for _,oldclass in pairs(oldclasses) do
-		-- 更新继承层次
-		for k,v in pairs(cls) do
-			--print("self",k,v)
-			oldclass[k] = v
+local function ajust_super(super)
+	local pos
+	for i,super_class in pairs(super) do
+		if not super_class.__child then
+			pos = i
+			break
 		end
-		--清空旧类方法（包括旧类缓存的父类方法)
-		for k,v in pairs(_class[oldclass]) do
-			_class[oldclass][k] = nil
-		end
-		-- 更新类本身属性
-		for k,v in pairs(_class[cls]) do
-			_class[oldclass][k] = v
-			--print("vtb",k,v)
-		end
-		--print("oldclass",oldclass)
-		print("reload " .. tostring(flag))
 	end
+	if pos then
+		local selfattr = table.remove(super,pos)
+		table.insert(super,1,selfattr)
+	end
+	return super
+end
+
+function class(name,...)
+	local super = {...}
+	local class_type
+	if not __class[name] then
+		class_type = {}
+		class_type.__child = {}
+	else
+		class_type = reload_class(name)
+	end
+	class_type.__name = name
+	class_type.__super = ajust_super(super)
+	class_type.init = false		--constructor
+	local function new(istemp)
+		return function (...)
+			local tmp = ...
+			assert(tmp ~= class_type,"must use class_type.new(...) but not class_type:new(...)")
+			local self = {}
+			if istemp then
+				self.__temp = true
+			end
+			self.__type = class_type
+			setmetatable(self,{__index = class_type});
+			do
+				if class_type.init then
+					class_type.init(self,...)
+				end
+			end
+			return self
+		end
+	end
+	class_type.new = new(false)
+	class_type.newtemp = new(true)
+
+	update_hierarchy(class_type,super)
+	if not __class[name] then -- if not getmetatable(class_type) then
+		local vtb = {}	-- 仅用于缓存父类方法
+		__class[name] = class_type
+		__class[class_type] = vtb
+		setmetatable(class_type,{__index = vtb,})
+		setmetatable(vtb,{__index =
+			function (t,k)
+				for _,super_type in pairs(class_type.__super) do
+					local result = super_type[k]
+					if result then
+						vtb[k] = result
+						return result
+					end
+				end
+			end
+		})
+	end
+	return class_type
 end
 
