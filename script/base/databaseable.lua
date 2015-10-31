@@ -20,8 +20,8 @@ function cdatabaseable:isdirty()
 	return self.dirty
 end
 
-function cdatabaseable:__getattr(attrs)
-	local mod = self.data
+function cdatabaseable:__getattr(attrs,data)
+	local mod = data or self.data
 	for i,attr in ipairs(attrs) do
 		if not mod[attr] then
 			mod[attr] = {}
@@ -38,6 +38,17 @@ function cdatabaseable:__split(key)
 		table.insert(tbl,attr)
 	end
 	return tbl
+end
+
+-- 兼容旧格式
+function cdatabaseable:last_key_mod(data,key)
+	local attrs = self:__split(key)
+	local lastkey = table.remove(attrs)
+	local lastmod = self:__getattr(attrs,data)
+	if type(lastmod) ~= "table" then
+		return false
+	end
+	return true,lastkey,lastmod
 end
 
 function cdatabaseable:get(key,default)

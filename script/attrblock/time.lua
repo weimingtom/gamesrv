@@ -163,7 +163,7 @@ end
 function cthistemp:set(key,val,secs)
 	local ok,lastkey,lastmod = cdatabaseable.last_key_mod(self,self.time,key)
 	if not ok then
-		error(string.format("[cthistemp:set] exists same variable, pid=%d key=%s",self.pid,key))
+		error(string.format("[cthistemp:set] key branch conflict, pid=%d key=%s lastkey=%s lastmod=%s",self.pid,key,lastkey,lastmod))
 	end
 	self:checkvalid(key,lastkey,lastmod)
 	local oldval = cdatabaseable.set(self,key,val)
@@ -222,7 +222,7 @@ end
 function cthistemp:delay(key,secs)
 	local ok,lastkey,lastmod = cdatabaseable.last_key_mod(self,self.time,key)
 	if not ok then
-		error(string.format("[cthistemp:delay] exists same variable, pid=%d key=%s",self.pid,key))
+		error(string.format("[cthistemp:delay] key branch conflict, pid=%d key=%s lastkey=%s lastmod=%s",self.pid,key,lastkey,lastmod))
 	end
 	self:checkvalid(key,lastkey,lastmod)
 	if lastmod[lastkey] then
