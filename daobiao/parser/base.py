@@ -2,7 +2,7 @@
 from pyExcelerator import *
 from makescript.parse import *
 
-def parse(xlsfilename,dstpath,parses):
+def myparsexls(xlsfilename,dstpath,parses):
 	sheets = parse_xls(xlsfilename)
 	for sheet_name,sheet_data in sheets:
 		sheet_name = sheet_name.encode("utf-8")

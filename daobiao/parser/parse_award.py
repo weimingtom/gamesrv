@@ -26,5 +26,5 @@ if __name__ == "__main__":
 		exit(0)
 	xlsfilename = sys.argv[1]
 	dstpath = sys.argv[2]
-	print(xlsfilename,dstpath)
-	parse(xlsfilename,dstpath,parses)
+	#print(xlsfilename,dstpath)
+	myparsexls(xlsfilename,dstpath,parses)

@@ -32,4 +32,4 @@ if __name__ == "__main__":
 		exit(0)
 	xlsfilename = sys.argv[1]
 	dstpath = sys.argv[2]
-	parse(xlsfilename,dstpath,parses)
+	myparsexls(xlsfilename,dstpath,parses)

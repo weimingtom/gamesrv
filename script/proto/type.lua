@@ -1,3 +1,4 @@
+-- 当前范围:[1,1100)
 local proto = {}
 proto.c2s = [[
 .RoleType {
@@ -197,6 +198,9 @@ proto.c2s = [[
 	args 2 : ArgType
 }
 
+.TaskCircle {
+	shimen 0 : integer #师门环数
+}
 ]]
 
 proto.s2c = proto.c2s

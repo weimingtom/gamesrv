@@ -17,6 +17,7 @@ def parse_team(sheet_name,sheet_data,dstpath):
 	}
 	sheet = CSheet(sheet_name,sheet_data)
 	daobiao(sheet,"data_team",cfg,dstpath)
+
 parses = {
     "team" : parse_team,
 }
@@ -27,4 +28,4 @@ if __name__ == "__main__":
 		exit(0)
 	xlsfilename = sys.argv[1]
 	dstpath = sys.argv[2]
-	parse(xlsfilename,dstpath,parses)
+	myparsexls(xlsfilename,dstpath,parses)
