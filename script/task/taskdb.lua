@@ -3,6 +3,7 @@ ctaskdb = class("ctaskdb")
 function ctaskdb:init(pid)
 	self.pid = pid
 	self.tasks = {}
+	self.finishtasks = {}
 	self.circle = {} -- 各类任务环数
 end
 
@@ -16,10 +17,13 @@ end
 
 function ctaskdb:addcircle(name,addnum)
 	self.circle[name] = (self.circle[name] or 1) + addnum
-	local data = data_task_circle[name]
-	if self.circle > data.limit and data.repeat then
+	local data = data_task_ctrl[name]
+	if self.circle > data.limit and data.repeat == 1 then
 		self.circle = self.circle % data.limit
 	end
+	sendpackage(self.pid,"task",circle,{
+		name = self.circle[name],
+	})
 end
 
 function ctaskdb:gettask(taskid)
@@ -28,8 +32,7 @@ end
 
 function ctaskdb:addtask(task)
 	local taskid = task.taskid
-	local type2 = gettasktype2(taskid)
-	local name = TASK_TYPE_NAME[type2]
+	local name = gettask_typename(taskid)
 	self:addcircle(name,1)
 	logger.log("info","task",string.format("addtask,pid=%d taskid=%d circle=%d",self.pid,taskid,self.circle[name]))
 	self.tasks[taskid] = task
@@ -48,7 +51,7 @@ function ctaskdb:finishtask(task)
 	local taskid = task.taskid
 	local oldstate = task.state
 	logger.log("info","task",string.format("finishtask,pid=%d taskid=%d",self.pid,taskid))
-	task.state = TASK_STATE_FINISH
+	self:settaskstate(task,TASK_STATE_FINISH,true)
 	local taskdata = gettaskdata(taskid)
 	if taskdata.autosubmit then
 		self:submittask(task)
@@ -58,12 +61,13 @@ end
 function ctaskdb:submittask(task)
 	local taskid = task.taskid
 	self:deltask(taskid,"submit")
+	self.finishtasks[taskid] = true
 	self:bonustask(task)
 	local taskdata = gettaskdata(taskid)
 	if taskdata.autoaccept then
 		local ratios = {}
 		for tid,ratio in pairs(taskdata.nexttask) do
-			if self:canaccept(tid) then
+			if self:canaccepttask(tid) then
 				ratios[tid] = ratio
 			end
 		end
@@ -96,6 +100,64 @@ function ctaskdb:giveuptask(taskid)
 		self:deltask(taskid,"giveup")
 		return task
 	end
+end
+
+function ctaskdb:settaskstate(task,newstate,nolog)
+	local oldstate = task.state
+	if not nolog then
+		logger.log("info","task",string.format("settaskstate,pid=%d state=%d->%d",oldstate,newstate))
+	end
+	task.state = newstate
+end
+
+function ctaskdb:canaccepttask(taskid)
+	local player = playermgr.getplayer(pid)
+	if not player then
+		return false
+	end
+	local taskdata = gettaskdata(taskid)
+	if islvenough(player.lv,taskdata.openlv) then
+		return false,string.format("等级不足#<R>%d#级",taskdata.openlv)
+	end
+	local isok = false
+	if taskdata.pretask and next(taskdata.pretask) then
+		for i,taskids in ipairs(taskdata.pretask) do
+			local bfinish = true
+			for i,tid in ipairs(taskids) do
+				if not self.finishtasks[tid] then
+					bfinish = false
+					break
+				end
+			end
+			if bfinish then
+				isok = true
+				break
+			end
+		end
+	end
+	if not isok then
+		return false,string.format("前置任务未完成")
+	end
+	return true
+end
+
+function ctaskdb:cansubmittask(taskid)
+	local task = self:gettask(taskid)
+	if not task then
+		return false
+	end
+	if task.state ~= TASK_STATE_FINISH then
+		return false,"任务未完成"
+	end
+	return true
+end
+
+function ctaskdb:cangiveuptask(taskid)
+	local taskdata = gettaskdata(taskid)
+	if not taskdata.cangiveup then
+		return false
+	end
+	return true
 end
 
 function ctaskdb:load(data)
@@ -178,8 +240,19 @@ function gettasktype2(taskid)
 	return math.floor(tmp/10000)
 end
 
+function gettask_typename(taskid)
+	local typ = gettasktype2(taskid)
+	local name = TASK_TYPE_NAME[typ]
+	return name
+end
+
 function gettaskdata(taskid)
-	local typ = gettasktype1(taskid)
+	local typ
+	if taskid < 10000 then
+		typ = taskid
+	else
+		typ = gettasktype2(taskid)
+	end
 	if typ == TASK_TYPE_MAIN then
 	elseif typ == TASK_TYPE_BRANCH then
 	elseif typ == TASK_TYPE_SHIMEN then

@@ -3,6 +3,19 @@ local proto = {}
 proto.c2s = [[
 task_accepttask 1000 {
 	request {
+		# <10000--任务类型,>=10000--任务ID
+		taskid 0 : integer
+	}
+}
+
+task_submittask 1001 {
+	request {
+		taskid 0 : integer
+	}
+}
+
+task_giveuptask 1002 {
+	request {
 		taskid 0 : integer
 	}
 }
@@ -13,9 +26,7 @@ proto.s2c = [[
 -- 对于收集物品任务:{progress=进度,}
 task_addtask 1000 {
 	request {
-		taskid 0 : integer
-		state 1 : integer #1--接受状态,2--完成状态
-		data 2 : string #需要用json解包
+		task 0 : TaskType
 	}
 }
 
@@ -33,9 +44,7 @@ task_finishtask 1002 {
 
 task_updatetask 10002 {
 	request {
-		taskid 0 : integer
-		state 1 : integer #1--接受状态,2--完成状态
-		data 2 : string #需要用json解包
+		task 0 : TaskType
 	}
 }
 

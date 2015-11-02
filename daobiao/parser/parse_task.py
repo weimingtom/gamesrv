@@ -17,6 +17,7 @@ def parse_task_shimen(sheet_name,sheet_data,dstpath):
 		nexttask = %(nexttask)s,
 		autoaccept = %(autoaccept)d,
 		autosubmit = %(autosubmit)d,
+		cangiveup = %(cangiveup)d
 		desc = [[%(desc)s]],
 		award_desc = [[%(award_desc)s]],
 		help_award_desc = [[%(help_award_desc)s]],
@@ -26,22 +27,23 @@ def parse_task_shimen(sheet_name,sheet_data,dstpath):
 	sheet = CSheet(sheet_name,sheet_data)
 	daobiao(sheet,"data_task_shimen",cfg,dstpath)
 
-def parse_task_circle(sheet_name,sheet_data,dstpath):
+def parse_task_ctrl(sheet_name,sheet_data,dstpath):
 	cfg = {
 	"linefmt":
 """
 	%(type)s = {
 		limit = %(limit)d,
 		repeat = %(repeat)d,
+		starttask = %(starttask)s,
 	}
 """,
 	}
 	sheet = CSheet(sheet_name,sheet_data)
-	daobiao(sheet,"data_task_circle",cfg,dstpath)
+	daobiao(sheet,"data_task_ctrl",cfg,dstpath)
 
 parses = {
 	"师门任务" : parse_task_shimen,
-	"环数上限" : parse_task_circle,
+	"控制表" : parse_task_ctrl,
 }
 
 if __name__ == "__main__":

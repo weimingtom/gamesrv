@@ -201,6 +201,12 @@ proto.c2s = [[
 .TaskCircle {
 	shimen 0 : integer #师门环数
 }
+
+.TaskType {
+	taskid 0 : integer
+	state 1 : integer #1--接受状态，2--完成状态该
+	data 2 : string #需要用json解包
+}
 ]]
 
 proto.s2c = proto.c2s

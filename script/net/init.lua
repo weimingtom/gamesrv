@@ -9,5 +9,6 @@ function net.init()
 	net.mail = require "script.net.mail"
 	net.team = require "script.net.team"
 	net.scene = require "script.net.scene"
+	net.task = require "script.net.task"
 end
 return net

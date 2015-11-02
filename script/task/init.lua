@@ -24,4 +24,8 @@ function ctask:save()
 	return data
 end
 
+function ctask:pack()
+	return self:save()
+end
+
 return ctask
