@@ -11,7 +11,7 @@ data_task_shimen = {
 		nexttask = {[3020002]=1,[3010003]=1,[3040004]=1},
 		autoaccept = 1,
 		autosubmit = 1,
-		cangiveup = 1
+		cangiveup = 1,
 		desc = [[]],
 		award_desc = [[]],
 		help_award_desc = [[]],
@@ -27,7 +27,7 @@ data_task_shimen = {
 		nexttask = {[3020001]=1,[3010003]=1,[3040004]=1},
 		autoaccept = 1,
 		autosubmit = 1,
-		cangiveup = 1
+		cangiveup = 1,
 		desc = [[]],
 		award_desc = [[]],
 		help_award_desc = [[]],
@@ -43,7 +43,7 @@ data_task_shimen = {
 		nexttask = {[3020002]=1,[3010001]=1,[3040004]=1},
 		autoaccept = 1,
 		autosubmit = 1,
-		cangiveup = 1
+		cangiveup = 1,
 		desc = [[]],
 		award_desc = [[]],
 		help_award_desc = [[]],
@@ -59,7 +59,7 @@ data_task_shimen = {
 		nexttask = {[3020002]=1,[3010003]=1,[3040001]=1},
 		autoaccept = 1,
 		autosubmit = 1,
-		cangiveup = 1
+		cangiveup = 1,
 		desc = [[]],
 		award_desc = [[]],
 		help_award_desc = [[]],

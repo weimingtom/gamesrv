@@ -45,10 +45,56 @@ function task_collect_item:ondelitem(pid,itemtype,num)
 	end
 end
 
+task_collect_pet = task_collect_pet or {}
+
+function task_collect_pet:onaddpet(pid,pettype,num)
+	num = num or 1
+	local player = playermgr.getplayer(pid)
+	if not player then
+		return
+	end
+	local taskid = self.taskid
+	local taskdata = gettaskdata(taskid)
+	if taskdata.param.type == pettype then
+		self.data.progress = (self.data.progress or 0) + num
+		local needrefresh = true
+		if self.data.progress >= taskdata.param.num then
+			if self.state ~= TASK_STATE_FINISH then
+				player.taskdb:finishtask(taskid)
+				needrefresh = false
+			end
+		end
+		if needrefresh then
+			refreshtask(player,self)
+		end
+	end
+end
+
+function task_collect_pet:ondelpet(pid,pettype,num)
+	num = num or 1
+	num = math.abs(num)
+	local player = playermgr.getplayer(pid)
+	if not player then
+		return
+	end
+	local taskid = self.taskid
+	local taskdata = gettaskdata(taskid)
+	if taskdata.param.type == pettype then
+		self.data.progress = (self.data.progress or 0) - num
+		if self.data.progress < taskdata.param.num then
+			if self.state == TASK_STATE_FINISH then
+				player.taskdb:settaskstate(TASK_STATE_ACCEPT)
+			end
+		end
+		refreshtask(player,self)
+	end
+end
+
 listener_taskid = listener_taskid or {}
 
 listener_tasktype = listener_tasktype or {}
 listener_tasktype[TASK_TYPE_COLLECT_ITEM] = task_collect_item
+listener_tasktype[TASK_TYPE_COLLECT_PET] = task_collect_pet
 
 task_listener = task_listener or {}
 

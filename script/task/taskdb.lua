@@ -18,7 +18,7 @@ end
 function ctaskdb:addcircle(name,addnum)
 	self.circle[name] = (self.circle[name] or 1) + addnum
 	local data = data_task_ctrl[name]
-	if self.circle > data.limit and data.repeat == 1 then
+	if self.circle > data.limit and data.isloop == 1 then
 		self.circle = self.circle % data.limit
 	end
 	sendpackage(self.pid,"task",circle,{

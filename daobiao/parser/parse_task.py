@@ -17,7 +17,7 @@ def parse_task_shimen(sheet_name,sheet_data,dstpath):
 		nexttask = %(nexttask)s,
 		autoaccept = %(autoaccept)d,
 		autosubmit = %(autosubmit)d,
-		cangiveup = %(cangiveup)d
+		cangiveup = %(cangiveup)d,
 		desc = [[%(desc)s]],
 		award_desc = [[%(award_desc)s]],
 		help_award_desc = [[%(help_award_desc)s]],
@@ -33,9 +33,9 @@ def parse_task_ctrl(sheet_name,sheet_data,dstpath):
 """
 	%(type)s = {
 		limit = %(limit)d,
-		repeat = %(repeat)d,
+		isloop = %(isloop)d,
 		starttask = %(starttask)s,
-	}
+	},
 """,
 	}
 	sheet = CSheet(sheet_name,sheet_data)
