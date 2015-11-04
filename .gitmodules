@@ -1,6 +1,6 @@
-[submodule "skynet"]
-	path = skynet
-	url = https://github.com/sundream/skynet.git
 [submodule "shell"]
 	path = shell
 	url = https://github.com/sundream/shell.git
+[submodule "skynet"]
+	path = skynet
+	url = https://github.com/sundream/skynet.git
