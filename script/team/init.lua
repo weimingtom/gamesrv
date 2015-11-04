@@ -403,24 +403,30 @@ function cteam:ismember(pid)
 	return false
 end
 
-function cteam:len(state,include_captain)
+function cteam:members(state)
+	local pids = {}
 	if state == TEAM_STATE_FOLLOW then
-		return string.len(keys(self.follow)) + (include_captain and 1 or 0)
+		pids = keys(self.follow)
+		table.insert(pids,1,self.captain)
 	elseif state == TEAM_STATE_LEAVE then
-		return string.len(keys(self.leave))
-	elseif state == TEAM_STATE_OFFLINE then
-		local cnt = 0
-		for pid,v in pairs(self.leave) do
-			if not playermgr.getplayer(pid) then
-				cnt = cnt + 1
-			end
-		end
-		return cnt
+		pids = keys(self.leave)
 	elseif state == TEAM_STATE_ALL then
-		return 1 + string.len(keys(self.follow)) + string.len(keys(self.leave))
+		pids = {self.captain}
+		for uid,_ in pairs(self.follow) do
+			table.insert(pids,uid)
+		end
+		for uid,_ in pairs(self.leave) do
+			table.insert(pids,uid)
+		end
 	else
 		assert("invalid team state:" .. tostring(state))
 	end
+	return pids
+end
+
+function cteam:len(state)
+	local pids = self:members(state)
+	return #pids
 end
 
 -- 最大人数
