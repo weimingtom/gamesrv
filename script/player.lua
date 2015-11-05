@@ -374,10 +374,16 @@ function cplayer:validpay(typ,num,notify)
 	return true
 end
 
+function cplayer:setlv(val,reason)
+	local oldval = self.lv
+	logger.log("info","lv",string.format("setlv,pid=%d lv=%d->%d reason=%s",self.pid,oldval,val,reason))
+	self.lv = val
+end
+
 function cplayer:addlv(val,reason)
 	local oldval = self.lv
 	local newval = oldval + val
-	logger.log("info","lv",string.format("#%d addlv,%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
+	logger.log("info","lv",string.format("addlv,pid=%d lv=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
 	self.resume:set("lv",newval)
 end
 
@@ -385,9 +391,9 @@ function cplayer:addgold(val,reason)
 	val = math.floor(val)
 	local oldval = self.gold
 	local newval = oldval + val
-	logger.log("info","resource/gold",string.format("#%d addgold,%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
+	logger.log("info","resource/gold",string.format("addgold,pid=%d gold=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
 	assert(newval >= 0,string.format("not enough gold:%d+%d=%d",oldval,val,newval))
-	self:set("gold",newval)
+	self.gold = newval
 	return val
 end
 
@@ -395,9 +401,9 @@ function cplayer:addchip(val,reason)
 	val = math.floor(val)
 	local oldval = self.chip
 	local newval = oldval + val
-	logger.log("info","resource/chip",string.format("#%d addchip,%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
+	logger.log("info","resource/chip",string.format("addchip,pid=%d chip=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
 	assert(newval >= 0,string.format("not enough chip:%d+%d=%d",oldval,val,newval))
-	self:set("chip",newval)
+	self.chip = newval
 	return val
 end
 

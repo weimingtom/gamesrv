@@ -82,7 +82,8 @@ function award.player(pid,rewards,reason,btip)
 	-- 1.玩家不在线，2.由于背包不足/资源过剩没有加到的资源/物品,需要发邮件，这里合并（只发）一封邮件
 	if next(lackbonuss) then
 		mailmgr.sendmail(pid,{
-			srcid = SYSTEM_MAIL, author = "系统",
+			srcid = SYSTEM_MAIL,
+			author = "系统",
 			title = "奖励",
 			content = "",
 			attach = lackbonuss,
