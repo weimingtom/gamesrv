@@ -1,4 +1,4 @@
---<<data_formula 导表开始>>
+
 data_formula = {
 
 	[1] = {

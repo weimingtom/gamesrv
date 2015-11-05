@@ -12,15 +12,20 @@ local function test(pid)
 	assert(player.gold==110)
 	local rewards = {{type=2,value={[5]=1}}}
 	doaward("player",pid,rewards,reason,true)
-	assert(player.gold==220) -- 110 + (player.lv*10+100)
-	mailmgr.sendmail(pid,{
+	--print(player.gold)
+	assert(player.gold==1120) -- 110 + (player.lv*10+1000)
+	rewards = award.getaward(rewards)
+	local mailid = mailmgr.sendmail(pid,{
 		srcid = SYSTEM_MAIL,
 		author = "系统",
 		title = "test",
 		content = "formula",
 		attach = rewards,
 	})
-
+	player:setlv(2,reason)
+	local mailbox = mailmgr.getmailbox(pid)
+	mailbox:getattach(mailid)
+	assert(player.gold==2140) -- 1120 + 1020
 end
 
 return test

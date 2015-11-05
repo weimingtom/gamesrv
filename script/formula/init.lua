@@ -27,7 +27,8 @@ function execformula(player,formulaid)
 			params[k] = v
 		end
 	end
-	return doexecformula(formula,params)
+	pprintf("formula:%s params:%s",formula.formula,params)
+	return doexecformula(formula.formula,params)
 end
 
 function doexecformula(formula,params)

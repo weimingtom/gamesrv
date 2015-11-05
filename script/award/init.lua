@@ -58,26 +58,11 @@ function award.__player(pid,bonus,reason,btip)
 
 end
 
-function award.player(pid,rewards,reason,btip)
+function award.player(pid,bonuss,reason,btip)
 	local lackbonuss = {}
-	for i,reward in ipairs(rewards) do
-		if reward.type == 1 then
-			reward = reward.value
-			for awardid,ratio in pairs(reward) do
-				if ishit(ratio,BASE_RATIO) then
-					local bonus = getaward(awardid)
-					bonus = bonus.award
-					local lackbonus = award.__player(pid,bonus,reason,btip)
-					table.insert(lackbonuss,lackbonus)
-				end
-			end
-		else
-			assert(reward.type==2)
-			reward = reward.value
-			local bonus = choosekey(reward)
-			local lackbonus = award.__player(pid,bonus,reason,btip)
-			table.insert(lackbonuss,lackbonus)	
-		end
+	for i,bonus in ipairs(bonuss) do
+		local lackbonus = award.__player(pid,bonus,reason,btip)
+		table.insert(lackbonuss,lackbonus)	
 	end
 	-- 1.玩家不在线，2.由于背包不足/资源过剩没有加到的资源/物品,需要发邮件，这里合并（只发）一封邮件
 	if next(lackbonuss) then
@@ -91,11 +76,36 @@ function award.player(pid,rewards,reason,btip)
 	end
 end
 
-function award.org(orgid,rewards,reason,btip)
+function award.org(orgid,bonuss,reason,btip)
 end
 
+-- rewards: 奖励控制表
+function award.getaward(rewards)
+	local bonuss = {}
+	for i,reward in ipairs(rewards) do
+		if reward.type == 1 then
+			reward = reward.value
+			for awardid,ratio in pairs(reward) do
+				if ishit(ratio,BASE_RATIO) then
+					local bonus = getawarddata(awardid)
+					bonus = bonus.award
+					table.insert(bonuss,bonus)
+				end
+			end
+		else
+			assert(reward.type==2)
+			reward = reward.value
+			local awardid = choosekey(reward)
+			local bonus = getawarddata(awardid)
+			bonus = bonus.award
+			table.insert(bonuss,bonus)	
+		end
+	end
+	return bonuss
+end
 
 function doaward(typ,id,rewards,reason,btip)
+	rewards = award.getaward(rewards)
 	local func = assert(award[typ],"Invalid cmd:" .. tostring(cmd))
 
 	local srvname = getsrvname(typ,id)
@@ -120,7 +130,7 @@ function isitem(typ)
 	return typ > MAX_RESTYPE
 end
 
-function getaward(awardid)
+function getawarddata(awardid)
 	return data_award[awardid]
 end
 
