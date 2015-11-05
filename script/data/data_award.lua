@@ -21,6 +21,11 @@ data_award = {
 		name = [[伊瑟拉*1]],
 	},
 
+	[5] = {
+		award = {type=1,num=2,__formula=1},
+		name = [[金币（玩家等级*10+100)]],
+	},
+
 }
 return data_award
 --<<data_award 导表结束>>

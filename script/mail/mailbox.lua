@@ -127,7 +127,7 @@ function cmailbox:getattach(mailid)
 		mail.attach = {}
 		local reason = "getattach"
 		for i,bonus in ipairs(attach) do
-			award.__playeraward(pid,bonus,reason,true)	
+			award.__player(pid,bonus,reason,true)	
 		end
 		netmail.syncmail(pid,mail:pack())
 	end

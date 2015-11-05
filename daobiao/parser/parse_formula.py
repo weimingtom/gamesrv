@@ -11,6 +11,7 @@ def parse_award_award(sheet_name,sheet_data,dstpath):
 		formula = "return %(formula)s",
 		param = %(param)s,
 		desc = "%(desc)s",
+		purpose = "%(purpose)s",
 		compile_formula = nil,
 	},
 """,

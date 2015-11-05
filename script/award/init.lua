@@ -26,10 +26,16 @@ function award.orgaward(orgid,reward)
 end
 
 local BASE_RATIO = BASE_RATIO or 1000000
-function award.__playeraward(pid,bonus,reason,btip)
+function award.__player(pid,bonus,reason,btip)
 	local lackbonus
 	local player = playermgr.getplayer(pid)
 	if player then
+		local num
+		if bonus.__formula then
+			bonus = deepcopy(bonus)
+			bonus.__formula = nil
+			bonus.num = execformula(player,bonus.num)
+		end
 		local hasbonus_num
 		if isres(bonus.type) then
 			hasbonus_num = player:addres(bonus.type,bonus.num,reason,btip)
@@ -52,7 +58,7 @@ function award.__playeraward(pid,bonus,reason,btip)
 
 end
 
-function award.playeraward(pid,rewards,reason,btip)
+function award.player(pid,rewards,reason,btip)
 	local lackbonuss = {}
 	for i,reward in ipairs(rewards) do
 		if reward.type == 1 then
@@ -60,7 +66,8 @@ function award.playeraward(pid,rewards,reason,btip)
 			for awardid,ratio in pairs(reward) do
 				if ishit(ratio,BASE_RATIO) then
 					local bonus = getaward(awardid)
-					local lackbonus = award.__playeraward(pid,bonus,reason,btip)
+					bonus = bonus.award
+					local lackbonus = award.__player(pid,bonus,reason,btip)
 					table.insert(lackbonuss,lackbonus)
 				end
 			end
@@ -68,7 +75,7 @@ function award.playeraward(pid,rewards,reason,btip)
 			assert(reward.type==2)
 			reward = reward.value
 			local bonus = choosekey(reward)
-			local lackbonus = award.__playeraward(pid,bonus,reason,btip)
+			local lackbonus = award.__player(pid,bonus,reason,btip)
 			table.insert(lackbonuss,lackbonus)	
 		end
 	end
@@ -83,13 +90,12 @@ function award.playeraward(pid,rewards,reason,btip)
 	end
 end
 
-function award.orgaward(orgid,rewards,reason,btip)
+function award.org(orgid,rewards,reason,btip)
 end
 
 
 function doaward(typ,id,rewards,reason,btip)
-	local cmd = typ .. "award"
-	local func = assert(award[cmd],"Invalid cmd:" .. tostring(cmd))
+	local func = assert(award[typ],"Invalid cmd:" .. tostring(cmd))
 
 	local srvname = getsrvname(typ,id)
 	logger.log("info","award",format("doaward,srvname=%s typ=%s id=%d rewards=%s reason=%s btip=%s",srvname,typ,id,rewards,reason,btip))

@@ -1,7 +1,10 @@
+require "script.formula.keyword"
+
 function getformula(formulaid)
 	local formula = data_formula[formulaid]
 	if not formula.compile_formula then
-		formula.compile_formula = 
+		-- precompile ?
+		formula.compile_formula = formula.formula
 	end
 	return formula.compile_formula
 end
@@ -11,7 +14,7 @@ function execformula(player,formulaid)
 	local params = {
 		math = math,
 	}
-	for i,k in ipairs(formula.params) do
+	for k,_ in pairs(formula.param) do
 		local v = player[k]
 		if v then
 			if type(v) == "function" then
