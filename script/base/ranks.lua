@@ -154,7 +154,7 @@ function cranks:add(rank)
 		end
 	else
 		if self.maxlimit and length >= self.maxlimit then
-			self:__del(id)
+			self:del(length,true)
 		end
 		length = self:len()
 	end
@@ -207,13 +207,11 @@ function cranks:update(newrank)
 		rank[k] = v
 	end
 	-- 插入排序
-	local newpos = oldpos
 	if self.ranks[oldpos-1] and self:cmp(self.ranks[oldpos-1],rank) > 0 then -- 尝试前移
 		self:__sort(oldpos,1)
 	elseif self.ranks[oldpos+1] and self:cmp(self.ranks[oldpos+1],rank) < 0 then -- 尝试后移
 		self:__sort(oldpos,self:len())
 	end
-	rank.pos = newpos
 	if self.callback and self.callback.onupdate then
 		self.callback.onupdate(true,rank,oldpos)
 	end
