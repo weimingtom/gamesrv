@@ -1,4 +1,3 @@
-
 local function test(pid)
 	local player = playermgr.getplayer(pid)
 	local reason = "test"
