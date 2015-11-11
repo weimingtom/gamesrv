@@ -1,12 +1,16 @@
 local cplayer = require "script.player"
 
-function cplayer:org_lv()
+function cplayer:player_lv()
+	return self.lv
+end
+
+function cplayer:player_org_lv()
 	local orgid = self:query("org.id")
 	local org = orgmgr.getorg(orgid)
 	return org and org.lv or 0
 end
 
-function cplayer:team_maxlv(state)
+function cplayer:player_team_maxlv(state)
 	state = state or TEAM_STATE_ALL 
 	local teamid = self:getteamid()
 	if not teamid then
@@ -24,7 +28,7 @@ function cplayer:team_maxlv(state)
 	end
 end
 
-function cplayer:team_avglv(state)
+function cplayer:player_team_avglv(state)
 	state = state or TEAM_STATE_ALL
 	local teamid = self:getteamid()
 	if not teamid then
@@ -42,14 +46,14 @@ function cplayer:team_avglv(state)
 	end
 end
 
-function cplayer:team_avglv2(state)
+function cplayer:player_team_avglv2(state)
 	state = state or TEAM_STATE_ALL
-	local maxlv = self:team_maxlv(state)
-	local avglv = self:team_avglv(state)
+	local maxlv = self:player_team_maxlv(state)
+	local avglv = self:player_team_avglv(state)
 	return math.floor((maxlv+avglv)/2)
 end
 
-function cplayer:captain_lv()
+function cplayer:player_captain_lv()
 	local teamid = self:getteamid()
 	if not teamid then
 		return self.lv
@@ -60,6 +64,6 @@ function cplayer:captain_lv()
 	end
 end
 
-function cplayer:shimen_circle()
+function cplayer:player_shimen_circle()
 	return self.taskdb.circle.shimen or 0
 end
