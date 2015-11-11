@@ -58,7 +58,7 @@ function mailmgr.sendmail(pid,amail)
 	if mail then
 		net.mail.syncmail(pid,mail:pack())
 	end
-	return true
+	return mail.mailid,mail
 end
 
 function mailmgr.sendmails(pids,amail)
