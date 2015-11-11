@@ -362,15 +362,15 @@ end
 
 
 
-function choosevalue(dct)
+function choosevalue(dct,func)
 	local sum = 0
 	for ratio,_ in pairs(dct) do
-		sum = sum + ratio
+		sum = sum + (func and func(ratio) or ratio)
 	end
 	local hit = math.random(1,sum)
 	local limit = 0
 	for ratio,val in pairs(dct) do
-		limit = limit + ratio
+		limit = limit + (func and func(ratio) or ratio)
 		if hit <= limit then
 			return val
 		end
@@ -378,16 +378,16 @@ function choosevalue(dct)
 	return nil
 end
 
-function choosekey(dct)
+function choosekey(dct,func)
 	local sum = 0
 	for _,ratio in pairs(dct) do
-		sum = sum + ratio
+		sum = sum + (func and func(ratio) or ratio)
 	end
-	assert(sum > 1,"[choosekey] Invalid sum ratio:" .. tostring(sum))
+	assert(sum >= 1,"[choosekey] Invalid sum ratio:" .. tostring(sum))
 	local hit = math.random(1,sum)
 	local limit = 0
 	for key,ratio in pairs(dct) do
-		limit = limit + ratio
+		limit = limit + (func and func(ratio) or ratio)
 		if hit <= limit then
 			return key
 		end
