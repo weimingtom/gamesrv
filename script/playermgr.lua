@@ -23,7 +23,6 @@ end
 
 function playermgr.loadofflineplayer(pid)
 	require "script.player"
-	modname = modname or "all"
 	local player = playermgr.id_offlineplayer[pid]
 	if not player then
 		player = cplayer.new(pid)
@@ -104,6 +103,10 @@ function playermgr.delobject(pid,reason)
 	if obj then
 
 		logger.log("info","playermgr",string.format("delobject,pid=%d reason=%s",pid,reason))
+		-- 保证删除对象前下线
+		if obj.__type and obj.__type.__name == "cplayer" then
+			xpcall(obj.disconnect,onerror,obj,reason)
+		end
 		playermgr.id_obj[pid] = nil
 		playermgr.num = playermgr.num - 1
 		if obj.__type and obj.__type.__name == "cplayer" then
@@ -114,9 +117,6 @@ function playermgr.delobject(pid,reason)
 		end
 		if obj.__saveobj_flag then
 			del_saveobj(obj)
-		end
-		if obj.__type and obj.__type.__name == "cplayer" then
-			obj:disconnect(reason)
 		end
 	end
 	require "script.loginqueue"
