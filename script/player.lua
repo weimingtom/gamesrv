@@ -239,7 +239,7 @@ end
 -- 客户端主动掉线处理
 function cplayer:disconnect(reason)
 	self:exitgame()
-	xpcall(self.ondisconnect,onerror,self,reason)
+	self:ondisconnect(reason)
 end
 
 
@@ -311,8 +311,8 @@ function cplayer:onlogin()
 	}))
 	mailmgr.onlogin(self)
 	if server:isopen("friend")	then
+		resumemgr.onlogin(self) -- keep before
 		self.frienddb:onlogin(self)
-		resumemgr.onlogin(self)
 	end
 	self:doing("login")
 	if not self.sceneid then
@@ -329,8 +329,8 @@ function cplayer:onlogoff()
 	mailmgr.onlogoff(self)
 	local server = globalmgr.server
 	if server:isopen("friend")	then
+		resumemgr.onlogoff(self) -- keep before
 		self.frienddb:onlogoff(self)
-		resumemgr.onlogoff(self)
 	end
 	self:doing("logoff")
 	self:exitscene(self.sceneid)
