@@ -294,7 +294,7 @@ function cfrienddb:sendmsg(pid,msg)
 	if srvname == cserver.srvname then
 		net.friend.addmsgs(pid,self.pid,msg)
 	else
-		cluster.call(srvname,"modmethod","net.friend.addmsgs",pid,self.pid,msg)
+		cluster.call(srvname,"modmethod","net.friend",".addmsgs",pid,self.pid,msg)
 	end
 end
 

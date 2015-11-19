@@ -46,7 +46,7 @@ function mailmgr.sendmail(pid,amail)
 		return false
 	end
 	if srvname ~= server.srvname then
-		cluster.call(srvname,"modmethod","mail.mailmgr.sendmail",pid,amail)
+		cluster.call(srvname,"modmethod","mail.mailmgr",".sendmail",pid,amail)
 		return true
 	end
 	amail = deepcopy(amail) -- 防止多个玩家修改同一份邮件

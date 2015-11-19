@@ -9,7 +9,7 @@ local function docmd(srvname,pid,methodname,...)
 	assert(player,"Not found pid:" .. tostring(pid))
 	local modname,sep,funcname = string.match(methodname,"(.*)([.:].+)$")	
 	if not (modname and sep and funcname) then
-		error("[modmethod] Invalid methodname:" .. tostring(methodname))
+		error("[playermethod] Invalid methodname:" .. tostring(methodname))
 	end
 	local mod = player
 	if modname ~= "" then
@@ -18,13 +18,17 @@ local function docmd(srvname,pid,methodname,...)
 			mod = mod[attr]
 		end
 	end
-	local func = assert(mod[funcname],"[modmethod] Unknow methodname:" .. tostring(methodname))
+	local func = assert(mod[funcname],"[playermethod] Unknow methodname:" .. tostring(methodname))
+	if type(func) ~= "function" then
+		assert(sep == ".")
+		return func
+	end
 	if sep == "." then
 		return func(...)
 	elseif sep == ":" then
 		return func(mod,...)
 	else
-		error("Invalid function seperator:" .. tostring(typ))
+		error("Invalid function seperator:" .. tostring(sep))
 	end
 end
 

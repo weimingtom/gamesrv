@@ -214,7 +214,7 @@ function playermgr.gosrv(player,srvname)
 	local token = uuid()
 	local self_srvname = cserver.srvname
 	logger.log("info","kuafu",string.format("gosrv,pid=%d srvname=%s->%s token=%s",pid,self_srvname,srvname,token))
-	cluster.call(srvname,"modmethod","playermgr.addtoken",token,{pid=pid,})
+	cluster.call(srvname,"modmethod","playermgr",".addtoken",token,{pid=pid,})
 	player:ongosrv(srvname)
 	net.login.reentergame(pid,{
 		srvname = srvname,
