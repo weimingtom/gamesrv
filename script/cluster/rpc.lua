@@ -1,18 +1,20 @@
 
+local function getcmd(t,cmd)
+	local _cmd = string.format("return %s",cmd)
+	t[cmd] = load(_cmd,"=(load)","bt",_G)
+	return t[cmd]
+end
+local compile_cmd = setmetatable({},{__index=getcmd})
 
-
-local function docmd(srvname,modname,cmd,...)
-	modname = modname or ""
-	if modname ~= "" then
-		if cmd[1] ~= "." or cmd[1] ~= ":" then
-			cmd = "." .. cmd
-		end
-		cmd = string.format("return require('%s')%s",modname,cmd)
-	end
-	logger.log("debug","cluster",srvname,rpc,cmd,...)
-	local chunk = load(cmd,"=(load)","bt",_G)
+local function docmd(srvname,cmd,...)
+	logger.log("debug","cluster","rpc",srvname,cmd,...)
+	local chunk = compile_cmd[cmd]
 	local func = chunk()
-	return func(...)
+	if type(func) ~= "function" then
+		return func
+	else
+		return func(...)
+	end
 end
 
 netcluster_rpc = netcluster_rpc or {}
