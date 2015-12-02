@@ -691,3 +691,96 @@ function uuid()
 	return table.concat(ret,"")
 end
 
+-- 扩展表功能
+function table.any(set,func)
+	for k,v in pairs(set) do
+		if func(k,v) then
+			return true,k,v
+		end
+	end
+	return false
+end
+
+function table.all(set,func)
+	for k,v in pairs(set) do
+		if not func(k,v) then
+			return false,k,v
+		end
+	end
+	return true
+end
+
+function table.filter(tbl,func)
+	local newtbl = {}
+	for k,v in pairs(tbl) do
+		if func(k,v) then
+			newtbl[k] = v
+		end
+	end
+	return newtbl
+end
+
+function table.max(func,...)
+	local args = table.pack(...)
+	local max
+	for i,arg in ipairs(args) do
+		local val = func(arg)
+		if not max or val > max then
+			max = val
+		end
+	end
+	return max
+end
+
+function table.min(func,...)
+	local args = table.pack(...)
+	local min
+	for i,arg in ipairs(args) do
+		local val = func(arg)
+		if not min or val < min then
+			min = val
+		end
+	end
+	return min
+end
+
+function table.map(func,...)
+	local args = table.pack(...)
+	assert(#args >= 1)
+	func = func or function (...)
+		return {...}
+	end
+	local maxn = table.max(function (tbl)
+			return #tbl
+		end,...)
+	local len = #args
+	local newtbl = {}
+	for i=1,maxn do
+		local list = {}
+		for j=1,len do
+			table.insert(list,args[j][i])
+		end
+		local ret = func(table.unpack(list))
+		table.insert(newtbl,ret)
+	end
+	return newtbl
+end
+
+function table.broadcast(tbl,func)
+	table.map(func,tbl)
+end
+
+function table.find(tbl,func)
+	local isfunc = type(func) == "function"
+	for k,v in pairs(tbl) do
+		if isfunc then
+			if func(k,v) then
+				return k,v
+			end
+		else
+			if func == v then
+				return k,v
+			end
+		end
+	end
+end

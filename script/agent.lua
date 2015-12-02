@@ -76,8 +76,8 @@ function CMD.sendpackage(pack)
 end
 
 skynet.start(function()
-	skynet.dispatch("lua", function(session,source, command, ...)
-		local f = CMD[command]
+	skynet.dispatch("lua", function(session,source, cmd, ...)
+		local f = CMD[cmd]
 		--print("agent.dispatch",f,command,...)
 		f(...)
 	end)
