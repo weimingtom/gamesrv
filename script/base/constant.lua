@@ -65,3 +65,6 @@ TASK_TYPE_SHIMEN	= 3 --师门
 settaskname(TASK_TYPE_MAIN,"zhuxian")
 settaskname(TASK_TYPE_BRANCH,"zhixian")
 settaskname(TASK_TYPE_SHIMEN,"shimen")
+
+-- system
+NORET = NORET or {}

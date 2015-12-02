@@ -32,12 +32,11 @@ function cluster.dispatch (session,source,srvname,cmd,...)
 	local ret
 	if cmd == "heartbeat" then
 		require "script.cluster.clustermgr"
-		ret = clustermgr.heartbeat(srvname)
+		skynet.ret(skynet.pack(clustermgr.heartbeat(srvname)))
 	else
 		local mod = assert(netcluster[cmd],string.format("[cluster] from %s,unkonw cmd:%s",srvname,cmd))
-		ret = mod.dispatch(srvname,...)
+		skynet.ret(skynet.pack(mod.dispatch(srvname,...)))
 	end
-	skynet.ret(skynet.pack(ret))
 end
 
 function cluster.call(srvname,protoname,cmd,...)

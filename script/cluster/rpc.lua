@@ -10,7 +10,7 @@ local function docmd(srvname,modname,cmd,...)
 		cmd = string.format("return require('%s')%s",modname,cmd)
 	end
 	logger.log("debug","cluster",srvname,rpc,cmd,...)
-	local chunk = load(cmd,"bt",_G)
+	local chunk = load(cmd,"=(load)","bt",_G)
 	local func = chunk()
 	return func(...)
 end
