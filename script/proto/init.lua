@@ -162,8 +162,26 @@ local function dispatch (session,source,typ,...)
 end
 
 function proto.init()
+	proto.reloadproto()
 	proto.connection = {}
 	skynet.dispatch("lua",dispatch)
+end
+
+function proto.reloadproto()
+	local protodata = require "script.proto.proto"
+	local sprotoparser = require "sprotoparser"
+	local sprotoloader = require "sprotoloader"
+	protodata.init()
+	local bin_c2s = sprotoparser.parse(protodata.c2s)
+	local bin_s2c = sprotoparser.parse(protodata.s2c)
+	sprotoloader.save(bin_c2s,1)
+	sprotoloader.save(bin_s2c,2)
+	if game.initall then
+		for pid,obj in pairs(playermgr:allplayer()) do
+			local agent = obj.__agent
+			skynet.send(agent,"lua","reloadproto")
+		end
+	end
 end
 
 

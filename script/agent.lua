@@ -1,7 +1,9 @@
 local skynet = require "skynet"
+
 local netpack = require "netpack"
 local socket = require "socket"
 local sproto = require "sproto"
+local mc = require "multicast"
 
 local CMD = {}
 local agent = {}
@@ -16,6 +18,14 @@ function agent.sendpackage(pack)
 
 		socket.write(agent.fd, package)
 	end
+end
+
+function agent.reloadproto()
+	-- slot 1,2 set at main.lua
+	local sprotoloader = require "sprotoloader"
+	agent.host = sprotoloader.load(1):host "package"
+	agent.send_request = agent.host:attach(sprotoloader.load(2))
+
 end
 
 skynet.register_protocol { 
@@ -43,13 +53,8 @@ function CMD.start(gate, fd,addr)
 	agent.fd = fd
 	agent.ip = addr
 	agent.gate = gate
-	--local proto = require "script.proto.proto"
-	--agent.host = sproto.parse(proto.c2s):host "package"
-	--agent.send_request = agent.host:attach(sproto.parse(proto.s2c))
-	-- slot 1,2 set at main.lua
-	local sprotoloader = require "sprotoloader"
-	agent.host = sprotoloader.load(1):host "package"
-	agent.send_request = agent.host:attach(sprotoloader.load(2))
+	
+	agent.reloadproto()
 	skynet.call(gate, "lua", "forward", fd)
 	skynet.send(".MAINSRV","lua","client","start",fd,addr)
 end
@@ -73,6 +78,41 @@ end
 
 function CMD.sendpackage(pack)
 	agent.sendpackage(pack)
+end
+
+local channels = {}
+-- channel
+function CMD.subscribe(channel)
+	assert(channel)
+	local c = channels[channel]
+	if not c then
+		c = mc.new {
+			channel = channel,
+			dispatch = function (channel,source,cmd,request,session)
+				--print(string.format("%s <=== %s %s",skynet.address(skynet.self()),skynet.address(source), channel), ...)
+				CMD.send_request(cmd,request,session)
+			end
+		}
+		channels[channel] = c
+		print("subscribe",channel,c.channel,c)
+		c:subscribe()
+	end
+
+end
+
+function CMD.unsubscribe(channel)
+	assert(channel)
+	local c = channels[channel]
+	if c then
+		print("unsubscribe",channel,c.channel,c)
+		c:unsubscribe()
+	end
+end
+
+-- proto
+function CMD.reloadproto()
+	print(skynet.self(),"reloadproto")
+	agent.reloadproto()
 end
 
 skynet.start(function()

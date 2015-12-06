@@ -13,7 +13,7 @@ local protomods = {
 
 local proto = {}
 
-do
+function proto.init()
 	proto.s2c = [[
 .package {
 	type 0 : integer
@@ -28,13 +28,15 @@ do
 ]]
 	local data = require "script.proto.type"
 	proto.s2c = proto.s2c .. data.s2c
-	proto.c2s = proto.c2s ..data.c2s
+	proto.c2s = proto.c2s .. data.c2s
 	for _,modname in ipairs(protomods) do
 		local data = require("script.proto." .. modname)
 		proto.s2c = proto.s2c .. data.s2c
 		proto.c2s = proto.c2s .. data.c2s
 	end
 end
+
+proto.init()
 
 function proto.dump(text_proto)
 	text_proto = text_proto or proto

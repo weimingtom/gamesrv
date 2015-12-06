@@ -41,4 +41,9 @@ function gm.kickall(args)
 	playermgr.kickall(pid,"gm")
 end
 
+--- usage: reloadproto
+function gm.reloadproto(args)
+	proto.reloadproto()
+end
+
 return gm

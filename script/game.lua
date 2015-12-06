@@ -23,6 +23,7 @@ require "script.team.teammgr"
 require "script.scene.scenemgr"
 require "script.award.init"
 require "script.formula.init"
+require "script.channel"
 
 game = game or {}
 function game.init()
@@ -48,6 +49,7 @@ function game.init()
 	scenemgr.init()
 	cteammgr.startgame()
 	huodongmgr.init()
+	channel.init()
 	--huodongmgr.startgame()
 	game.initall = true
 	game.startgame() -- 初始化完后启动的逻辑
