@@ -5,7 +5,7 @@ function cranks:init(name,ids,sortids,param)
 	self.name = name
 	self.ids = ids
 	self.sortids = sortids
-	self.decs = sortids.decs and true or false
+	self.desc = sortids.desc and true or false
 	if param then
 		self.limit = param.limit or 100
 		assert(self.limit > 0)
@@ -268,6 +268,10 @@ function cranks:load(data)
 	self.desc = data.desc
 	self.ranks = data.ranks
 	self.length = #self.ranks
+	for i,rank in ipairs(self.ranks) do
+		local id = self:id(rank)
+		self.id_rank[id] = rank
+	end
 end
 
 function cranks:save()
