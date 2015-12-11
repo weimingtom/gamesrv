@@ -784,3 +784,40 @@ function table.find(tbl,func)
 		end
 	end
 end
+
+function table.dump(t,space,name)
+	space = space or ""
+	name = name or ""
+	local cache = { [t] = "."}
+	local function _dump(t,space,name)
+		local temp = {}
+		for k,v in pairs(t) do
+			local key = tostring(k)
+			if cache[v] then
+				table.insert(temp,"+" .. key .. " {" .. cache[v].."}")
+			elseif type(v) == "table" then
+				local new_key = name .. "." .. key
+				cache[v] = new_key
+				table.insert(temp,"+" .. key .. _dump(v,space .. (next(t,k) and "|" or " " ).. string.rep(" ",#key),new_key))
+			else
+				table.insert(temp,"+" .. key .. " [" .. tostring(v).."]")
+			end
+		end
+		return table.concat(temp,"\n"..space)
+	end
+	return _dump(t,space,name)
+end
+
+-- 扩展string
+function string.rtrim(str)
+	return string.match(str,"^(%s-[^%s]*)%s*$")
+end
+
+function string.ltrim(str)
+	return string.match(str,"^%s*(.*)$")
+end
+
+function string.trim(str)
+	str = string.ltrim(str)
+	return string.rtrim(str)
+end
