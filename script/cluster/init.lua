@@ -32,6 +32,7 @@ function cluster.dispatch (session,source,issafecall,srvname,cmd,...)
 	if not issafecall then	
 		skynet.ret(skynet.pack(cluster.__dispatch(session,source,srvname,cmd,...)))
 	else
+		-- xpcall 无法返回错误消息
 		skynet.ret(skynet.pack(xpcall(cluster.__dispatch,onerror,session,source,srvname,cmd,...)))
 	end
 end
