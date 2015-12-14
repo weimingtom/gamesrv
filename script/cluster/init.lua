@@ -30,19 +30,19 @@ end
 function cluster.dispatch (session,source,issafecall,srvname,cmd,...)
 	--print("manservice.lua",session,source,issafecall,srvname,cmd,...)
 	if not issafecall then	
-		return cluster.__dispatch(session,source,srvname,cmd,...)
+		skynet.ret(skynet.pack(cluster.__dispatch(session,source,srvname,cmd,...)))
 	else
-		return xpcall(cluster.__dispatch,onerror,session,source,srvname,cmd,...)
+		skynet.ret(skynet.pack(xpcall(cluster.__dispatch,onerror,session,source,srvname,cmd,...)))
 	end
 end
 
 function cluster.__dispatch(session,source,srvname,cmd,...)
 	if cmd == "heartbeat" then
 		require "script.cluster.clustermgr"
-		skynet.ret(skynet.pack(clustermgr.heartbeat(srvname)))
+		return clustermgr.heartbeat(srvname)
 	else
 		local mod = assert(netcluster[cmd],string.format("[cluster] from %s,unkonw cmd:%s",srvname,cmd))
-		skynet.ret(skynet.pack(mod.dispatch(srvname,...)))
+		return mod.dispatch(srvname,...)
 	end
 end
 
