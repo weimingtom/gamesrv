@@ -27,9 +27,16 @@ function cluster.init()
 	end
 end
 
-function cluster.dispatch (session,source,srvname,cmd,...)
-	--print("manservice.lua",session,source,srvname,cmd,...)
-	local ret
+function cluster.dispatch (session,source,issafecall,srvname,cmd,...)
+	--print("manservice.lua",session,source,issafecall,srvname,cmd,...)
+	if not issafecall then	
+		return cluster.__dispatch(session,source,srvname,cmd,...)
+	else
+		return xpcall(cluster.__dispatch,onerror,session,source,srvname,cmd,...)
+	end
+end
+
+function cluster.__dispatch(session,source,srvname,cmd,...)
 	if cmd == "heartbeat" then
 		require "script.cluster.clustermgr"
 		skynet.ret(skynet.pack(clustermgr.heartbeat(srvname)))
@@ -42,8 +49,15 @@ end
 function cluster.call(srvname,protoname,cmd,...)
 	local self_srvname = skynet.getenv("srvname")
 	assert(srvname ~= self_srvname,"cluster call self,srvname:" .. tostring(srvname))
-	logger.log("debug","netcluster",format("[send] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,{...}))
-	return skynet_cluster.call(srvname,".MAINSRV","cluster",self_srvname,protoname,cmd,...)
+	logger.log("debug","netcluster",format("[call] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,{...}))
+	return skynet_cluster.call(srvname,".MAINSRV","cluster",nil,self_srvname,protoname,cmd,...)
+end
+
+function cluster.pcall(srvname,protoname,cmd,...)
+	local self_srvname = skynet.getenv("srvname")
+	assert(srvname ~= self_srvname,"cluster call self,srvname:" .. tostring(srvname))
+	logger.log("debug","netcluster",format("[pcall] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,{...}))
+	return skynet_cluster.call(srvname,".MAINSRV","cluster",true,self_srvname,protoname,cmd,...)
 end
 
 return cluster
