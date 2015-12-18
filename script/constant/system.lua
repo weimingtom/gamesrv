@@ -1,0 +1,2 @@
+-- system
+NORET = NORET or {}

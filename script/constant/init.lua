@@ -1,0 +1,7 @@
+require "script.constant.system"
+require "script.constant.task"
+require "script.constant.team"
+require "script.constant.war"
+require "script.constant.scene"
+require "script.constant.resourse"
+require "script.constant.other"

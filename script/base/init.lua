@@ -10,7 +10,7 @@ httpc = require "http.httpc"
 sproto = require "sproto"
 netpack = require "netpack"
 
-require "script.base.constant"
+require "script.constant"
 require "script.base.class"
 require "script.base.functor"
 require "script.base.databaseable"

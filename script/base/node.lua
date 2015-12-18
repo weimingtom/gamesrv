@@ -3,10 +3,10 @@ cnode = class("cnode")
 
 function cnode:init(conf)
 	conf = conf or {}
-	cdatabaseable.init(self,{
-		id = conf.id or 0,
-		flag = conf.flag or "node",
-	})
+	--cdatabaseable.init(self,{
+	--	id = conf.id or 0,
+	--	flag = conf.flag or "node",
+	--})
 	self.data = {}
 	self.name = conf.name
 	self.subnode = conf.noleaf and {} or nil
