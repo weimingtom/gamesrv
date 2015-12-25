@@ -1,4 +1,4 @@
-require "script.base.constant"
+require "script.constant.init"
 require "script.logger.init"
 local skynet = require "script.skynet"
 
