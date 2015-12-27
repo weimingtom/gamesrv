@@ -5,8 +5,8 @@ function cranks:init(name,ids,sortids,param)
 	self.name = name
 	self.ids = ids
 	self.sortids = sortids
-	self.desc = sortids.desc and true or false
 	if param then
+		self.desc = param.desc and true or false
 		self.limit = param.limit or 100
 		assert(self.limit > 0)
 		self.maxlimit = self.limit * 2
