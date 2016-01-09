@@ -5,6 +5,7 @@ require "script.card.cardtablelib"
 require "script.friend.frienddb"
 require "script.card.cardbaglib"
 require "script.card.cardcontainer"
+require "script.achieve.achievedb"
 
 cplayer = class("cplayer",csaveobj,cdatabaseable)
 
@@ -46,6 +47,7 @@ function cplayer:init(pid)
 	self.cardtablelib = ccardtablelib.new(self.pid)
 	self.cardbaglib = ccardbaglib.new(self.pid)
 	self.frienddb = cfrienddb.new(self.pid)
+	self.achievementdb = cachievementdb.new(self.pid)
 	self.today = ctoday.new{
 		pid = self.pid,
 		flag = self.flag,
@@ -69,11 +71,12 @@ function cplayer:init(pid)
 		thisweek2 = self.thisweek2,
 	}
 	self.autosaveobj = {
+		time = self.timeattr,
 		card = self.carddb,
 		cardtablelib = self.cardtablelib, 
 		cardbaglib = self.cardbaglib,
 		friend = self.frienddb,
-		time = self.timeattr,
+		achievement = self.achievementdb,
 	}
 
 	self.loadstate = "unload"
