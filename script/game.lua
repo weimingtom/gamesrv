@@ -23,6 +23,7 @@ require "script.team.teammgr"
 require "script.scene.scenemgr"
 require "script.award.init"
 require "script.formula.init"
+require "script.event.init"
 require "script.channel"
 
 game = game or {}
@@ -49,6 +50,7 @@ function game.init()
 	cteammgr.startgame()
 	huodongmgr.init()
 	channel.init()
+	event.init()
 	timectrl.init()
 	--huodongmgr.startgame()
 	game.initall = true

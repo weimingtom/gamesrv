@@ -47,7 +47,7 @@ function cplayer:init(pid)
 	self.cardtablelib = ccardtablelib.new(self.pid)
 	self.cardbaglib = ccardbaglib.new(self.pid)
 	self.frienddb = cfrienddb.new(self.pid)
-	self.achievementdb = cachievementdb.new(self.pid)
+	self.achievedb = cachievedb.new(self.pid)
 	self.today = ctoday.new{
 		pid = self.pid,
 		flag = self.flag,
@@ -76,7 +76,7 @@ function cplayer:init(pid)
 		cardtablelib = self.cardtablelib, 
 		cardbaglib = self.cardbaglib,
 		friend = self.frienddb,
-		achievement = self.achievementdb,
+		achieve = self.achievedb,
 	}
 
 	self.loadstate = "unload"
@@ -280,10 +280,10 @@ end
 
 function cplayer:oncreate()
 	logger.log("info","register",string.format("register,account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
-
-	if globalmgr.server:isopen("friend") then
-		self.frienddb:oncreate(self)
-		resumemgr.oncreate(self)
+	for k,obj in pairs(self.autosaveobj) do
+		if obj.oncreate then
+			obj:oncreate(self)
+		end
 	end
 end
 
@@ -313,9 +313,10 @@ function cplayer:onlogin()
 		friend = server:isopen("friend"),
 	}))
 	mailmgr.onlogin(self)
-	if server:isopen("friend")	then
-		resumemgr.onlogin(self) -- keep before
-		self.frienddb:onlogin(self)
+	for k,obj in pairs(self.autosaveobj) do
+		if obj.onlogin then
+			obj:onlogin(self)
+		end
 	end
 	self:doing("login")
 	if not self.sceneid then
@@ -327,13 +328,12 @@ function cplayer:onlogin()
 end
 
 function cplayer:onlogoff()
-
 	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port()))
 	mailmgr.onlogoff(self)
-	local server = globalmgr.server
-	if server:isopen("friend")	then
-		resumemgr.onlogoff(self) -- keep before
-		self.frienddb:onlogoff(self)
+	for k,obj in pairs(self.autosaveobj) do
+		if obj.onlogoff then
+			obj:onlogoff(self)
+		end
 	end
 	self:doing("logoff")
 	self:exitscene(self.sceneid)
@@ -397,7 +397,11 @@ function cplayer:addgold(val,reason)
 	logger.log("info","resource/gold",string.format("addgold,pid=%d gold=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
 	assert(newval >= 0,string.format("not enough gold:%d+%d=%d",oldval,val,newval))
 	self.gold = newval
-	return val
+	local addgold = newval - oldval
+	if addgold > 0 then
+		event.playerdo(self.pid,"金币增加",addgold)
+	end
+	return addgold
 end
 
 function cplayer:addchip(val,reason)
@@ -517,7 +521,7 @@ function cplayer:unpack_fight_profile(profile)
 	self:set("fight.consecutive_wincnt",consecutive_wincnt)
 	self:set("fight.consecutive_failcnt",consecutive_failcnt)
 	-- check task
-	-- check achivement
+	-- check achievement
 end
 
 -- getter

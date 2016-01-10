@@ -47,6 +47,7 @@ function hotfix.hotfix(modname)
 		local msg = string.format("hotfix fail,module=%s reason=%s",modname,table.concat(errlist,"\n"))
 		logger.log("error","hotfix",msg)
 		skynet.error(msg)
+		print(msg)
 		return
 	end
 	local oldmod = package.loaded[modname]

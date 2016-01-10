@@ -1,12 +1,12 @@
 
 logger = logger or {}
 LOGGERSRV=".LOGGER"
-function logger.write(filename,msg)
-	skynet.send(LOGGERSRV,"lua","write",filename,msg)
-end
+--function logger.write(filename,msg)
+--	skynet.send(LOGGERSRV,"lua","write",filename,msg)
+--end
 
 function logger.debug(filename,...)
-	skynet.send(LOGGERSRV,"lua","debug",filename,msg)
+	skynet.send(LOGGERSRV,"lua","debug",filename,...)
 end
 
 function logger.info(filename,...)

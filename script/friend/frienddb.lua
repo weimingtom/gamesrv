@@ -49,6 +49,11 @@ function cfrienddb:clear()
 end
 
 function cfrienddb:oncreate(player)
+	local server = globalmgr.server
+	if not server:isopen("friend") then
+		return
+	end
+	resumemgr.oncreate(player)
 end
 
 function cfrienddb:onload()
@@ -70,6 +75,11 @@ function cfrienddb:onload()
 end
 
 function cfrienddb:onlogin(player)
+	local server = globalmgr.server
+	if not server:isopen("friend") then
+		return
+	end
+	resumemgr.onlogin(player) -- keep before
 	local frdblk = self:getfrdblk(self.pid)
 	frdblk:addref(self.pid)
 	frdblk:set("online",true)
@@ -112,6 +122,11 @@ function cfrienddb:onlogin(player)
 end
 
 function cfrienddb:onlogoff(player)
+	local server = globalmgr.server
+	if not server:isopen("friend") then
+		return
+	end
+	resumemgr.onlogoff(player) -- keep before
 	local frdblk = self:getfrdblk(self.pid)
 	frdblk:delref(self.pid)
 	frdblk:set("online",false)

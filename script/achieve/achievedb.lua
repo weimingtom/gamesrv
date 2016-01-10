@@ -1,14 +1,14 @@
-cachievementdb = class("cachievementdb",ccontainer)
+cachievedb = class("cachievedb",ccontainer)
 
-function cachievementdb:init(pid)
+function cachievedb:init(pid)
 	ccontainer.init(self,{
 		pid = pid,
-		name = "cachievementdb",
+		name = "cachievedb",
 	})
 	self.loadstate = "unload"
 end
 
-function cachievementdb:load(data)
+function cachievedb:load(data)
 	if not data or not next(data) then
 		return
 	end
@@ -23,7 +23,7 @@ function cachievementdb:load(data)
 	self.len = len
 end
 
-function cachievementdb:save()
+function cachievedb:save()
 	local data = {}
 	data.objid = self.objid
 	local objs = {}
@@ -34,22 +34,22 @@ function cachievementdb:save()
 	return data
 end
 
-function cachievementdb:clear()
-	logger.log("info","achieve",string.format("clear,pid=%s",pid))
-	self:clear()
+function cachievedb:clear()
+	logger.log("info","achieve",string.format("clear,pid=%s",self.pid))
+	ccontainer.clear(self)
 end
 
-function cachievementdb:oncreate(player)
+function cachievedb:oncreate(player)
 end
 
-function cachievementdb:onlogin(player)
+function cachievedb:onlogin(player)
 	self:syncall(player)
 end
 
-function cachievementdb:onlogoff(player)
+function cachievedb:onlogoff(player)
 end
 
-function cachievementdb:newachieve(achieveid)
+function cachievedb:newachieve(achieveid)
 	local achieve_data = data_achievement[achieveid]
 	return {
 		id = achieveid,
@@ -59,14 +59,14 @@ function cachievementdb:newachieve(achieveid)
 	}
 end
 
-function cachievementdb:addachieve(achieve)
+function cachievedb:addachieve(achieve)
 	local achieveid = achieve.id
 	logger.log("info","achieve",string.format("addachieve,pid=%s achieveid=%s",self.pid,achieveid))
 	self:add(achieve,achieveid)
 	self:sync(self.pid,achieve)
 end
 
-function cachievementdb:delachieve(achieveid)
+function cachievedb:delachieve(achieveid)
 	local achieve = self:getachieve(achieveid)
 	if achieve then
 		logger.log("info","achieve",string.format("delachieve,pid=%s achieveid=%s",self.pid,achieveid))
@@ -75,47 +75,48 @@ function cachievementdb:delachieve(achieveid)
 	end
 end
 
-function cachievementdb:getachieve(achieveid)
+function cachievedb:getachieve(achieveid)
 	return self:get(achieveid)
 end
 
-function achievementdb:checkachieve(achieveid,num)
+function cachievedb:checkachieve(achieveid,num)
 	local achieve = self:getachieve(achieveid)
 	if not achieve then
 		achieve = self:newachieve(achieveid)
 		self:addachieve(achieve)
 	end
 	if achieve.progress < achieve.target then
-		logger.log("info","achieve",string.format("checkachieve,pid=%s achieveid=%s progress=%d+%d",self.pid,achieve.progress,num))
+		logger.log("info","achieve",string.format("checkachieve,pid=%s achieveid=%s progress=%d+%d",self.pid,achieveid,achieve.progress,num))
 		achieve.progress = achieve.progress + num
+		achieve.progress = math.min(achieve.progress,achieve.target)
 		self:sync(self.pid,achieve)
 	end
 end
 
-function cachievementdb:syncall(pid)
+function cachievedb:syncall(pid)
 end
 
-function cachievementdb:sync(pid,achieve)
+function cachievedb:sync(pid,achieve)
 end
 
-function cachievementdb.getbyevent(eventname)
-	if not cachievementdb.event2achievements then
-		cachievementdb.event2achievements = {}
+function cachievedb.getbyevent(eventname)
+	if not cachievedb.event2achieves then
+		cachievedb.event2achieves = {}
 	end
-	if not cachievementdb.event2achievements[eventname] then
-		cachievementdb.event2achievements[eventname] = {}
-	end
-
-	for id,v in pairs(data_achivement) do
-		if type(id) == "number" then
-			table.insert(cachievementdb.event2achievements[eventname],id)
+	if not cachievedb.event2achieves[eventname] then
+		cachievedb.event2achieves[eventname] = {}
+		for id,v in pairs(data_achievement) do
+			if type(id) == "number" then
+				table.insert(cachievedb.event2achieves[eventname],id)
+			end
 		end
 	end
-	return cachievementdb.event2achievements[eventname]
+
+	return cachievedb.event2achieves[eventname]
 end
 
 function __hotfix(oldmod)
-	cachievementdb.event2achievements = nil
+	cachievedb.event2achieves = nil
 end
 
-return cachievementdb
+return cachievedb

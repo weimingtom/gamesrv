@@ -4,15 +4,15 @@ function event.init()
 	event.trigger = {}
 end
 
-function event.playerdo(name,pid,num)
+function event.playerdo(pid,name,num)
 	local player = playermgr.getplayer(pid)
 	if not player then
 		return
 	end
-	-- check achievement
-	local achivements = cachievementdb.getbyevent(name)	
-	for i, achieveid in ipairs(achievements) do
-		player.achievementdb:checkachieve(achieveid,num)
+	-- check achieve
+	local achieves = cachievedb.getbyevent(name)	
+	for i, achieveid in ipairs(achieves) do
+		player.achievedb:checkachieve(achieveid,num)
 	end
 
 	local func = event.trigger[name]
@@ -28,7 +28,6 @@ function event.register(name,func)
 end
 
 function event.onaddgold(pid,addgold)
-
 end
 
 function event.onkillmonster(pid,killnum)

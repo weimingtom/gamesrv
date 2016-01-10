@@ -29,6 +29,7 @@ function playermgr.loadofflineplayer(pid)
 		player:loadfromdatabase(true)
 		player.offline = true
 	end
+	print(pid,player:isloaded())
 	if player:isloaded() then
 		playermgr.id_offlineplayer[pid] = player
 	end

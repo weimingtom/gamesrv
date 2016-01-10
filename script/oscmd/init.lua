@@ -23,8 +23,16 @@ function oscmd.ontimer()
 
 	 
 	for i,line in ipairs(lines) do
-		local isok,result = pcall(oscmd.docmd,line)
-		logger.log("info","oscmd",format("docmd='%s' isok=%s result=%s",line,isok,result))
+		local tbl = {pcall(oscmd.docmd,line)}
+		local issuccess = table.remove(tbl,1)
+		local result
+		if next(tbl) then
+			for i,v in ipairs(tbl) do
+				tbl[i] = tostring(v)
+			end
+			result = table.concat(tbl,",")
+		end
+		logger.log("info","oscmd",format("docmd='%s' issuccess=%s result=%s",line,issuccess,result))
 	end
 end
 
@@ -35,13 +43,12 @@ function oscmd.docmd(line)
 		table.insert(args,arg)
 	end
 	if cmd == "hotfix" then
-		hotfix.hotfix(leftcmd)
+		return hotfix.hotfix(leftcmd)
 	elseif cmd == "gm" then
 		pid,leftcmd = string.match(leftcmd,"^([%d]+)%s+(.*)$")
 		pid = tonumber(pid)
-		gm.docmd(pid,leftcmd)
+		return gm.docmd(pid,leftcmd)
 	end
-	return "success"
 end
 
 return oscmd

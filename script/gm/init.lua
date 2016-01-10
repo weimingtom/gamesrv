@@ -58,7 +58,6 @@ local function docmd(player,cmdline)
 				end
 			end
 		end
-		master = player
 		if func then
 			if authority >= need_auth then
 				local args = {}
@@ -67,20 +66,18 @@ local function docmd(player,cmdline)
 						table.insert(args,arg)
 					end
 				end
-				func(args)
+				return func(args)
 			else
 				return string.format("authority not enough(%d < %d)",authority,need_auth)
 			end
 		else
 			if authority >= AUTH_ADMIN then
-				func = load(cmdline)
-				func()
+				func = load(cmdline,"=(load)","bt")
+				return func()
 			else
 				return "unknow cmd:" .. tostring(cmdline)
 			end
 		end
-		master = nil
-		return "success"
 	else
 		return "cann't parse cmdline:" .. tostring(cmdline)
 	end
@@ -91,13 +88,29 @@ function gm.docmd(pid,cmdline)
 	local player
 	if pid ~= 0 then
 		player = playermgr.getplayer(pid)
+		if not player then
+			player = playermgr.loadofflineplayer(pid)
+		end
 		authority = player:authority()
 	else
 		player = 0
 	end
-	local isok,result = pcall(docmd,player,cmdline)
-	logger.log("info","gm",string.format("#%d(authority=%s) docmd='%s' isok=%s result=%s",pid,authority,cmdline,isok,result))
-	net.msg.notify(pid,string.format("执行结果:%s",result))
+	master = player
+	local tbl = {pcall(docmd,player,cmdline)}
+	master = nil
+	local issuccess = table.remove(tbl,1)
+	local result
+	if next(tbl) then
+		for i,v in ipairs(tbl) do
+			tbl[i] = tostring(v)
+		end
+		result = table.concat(tbl,",")
+	end
+	logger.log("info","gm",format("#%d(authority=%s) docmd='%s' issuccess=%s result=%s",pid,authority,cmdline,issuccess,result))
+	if pid ~= 0 then
+		net.msg.notify(pid,string.format("执行%s\n%s",issuccess and "成功" or "失败",result))
+	end
+	return issuccess,result
 end
 
 --- usage: setauthority pid authority
@@ -162,5 +175,8 @@ function gm.init()
 	require "script.gm.other"
 end
 
+function __hotfix(oldmod)
+	gm.init()
+end
 
 return gm

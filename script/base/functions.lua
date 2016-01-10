@@ -568,7 +568,7 @@ function checkargs(args,...)
 		if not args[i] then
 			return nil,string.format("argument not enough(%d < %d)",#args,#typs)
 		end
-		if args[i] == "*" then -- ignore check
+		if typs[i] == "*" then -- ignore check
 			for j=i,#args do
 				table.insert(ret,args[j])
 			end
@@ -591,19 +591,22 @@ function checkargs(args,...)
 		end
 		if typ == "int" or typ == "double" then
 			val = tonumber(args[i])
+			if not val then
+				return false,"invalid number:" .. tostring(args[i])
+			end
 			if typ == "int" then
-				assert(val == math.floor(val),"invalid int:" .. tostring(args[i]))
+				val = math.floor(val)
 			end
 			if range_begin and range_end then
 				if not (range_begin <= val and val <= range_end) then
-					return nil,string.format("%s not in range [%s,%s]",val,range_begin,range_end)
+					return false,string.format("%s not in range [%s,%s]",val,range_begin,range_end)
 				end
 			end
 			table.insert(ret,val)
 		elseif typ == "boolean" then
 			typ = string.lower(typ)
 			if not (typ == "true" or typ == "false" or typ == "1" or typ == "0") then
-				return nil,"invalid boolean:" .. tostring(typ)
+				return false,"invalid boolean:" .. tostring(typ)
 			end
 			val = (typ == "true" or typ == "1") and true or false
 			table.insert(ret,val)
@@ -611,7 +614,7 @@ function checkargs(args,...)
 			val = args[i]
 			table.insert(ret,val)
 		else
-			return nil,"unknow type:" ..tostring(typ)
+			return false,"unknow type:" ..tostring(typ)
 		end
 	end
 	return true,ret
