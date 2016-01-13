@@ -8,6 +8,7 @@ def parse_task_shimen(sheet_name,sheet_data,dstpath):
 			"linefmt" :
 """
 	[%(taskid)d] = {
+		taskid = %(taskid)d,
 		name = "%(name)s",
 		param = %(param)s,
 		award = %(award)s,
