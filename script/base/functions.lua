@@ -417,8 +417,8 @@ function getweekno(flag)
 	return math.floor(tm/WEEK_SECS) + (tm % WEEK_SECS == 0 and 0 or 1)
 end
 
-function getsecond()
-	return os.time()
+function getsecond(now)
+	return now or os.time()
 end
 
 function getyear(now)
@@ -464,15 +464,41 @@ function getminutesecond(now)
 	return tonumber(s)
 end
 
---今天过去的秒数
-function getdaysecond()
-	now = os.time()
+--当天过去的秒数
+function getdaysecond(now)
+	now = now or os.time()
 	return getdayhour(now) * HOUR_SECS + gethourminute(now) * 60 + getminutesecond(now)
 end
 
---今天0点时间(秒为单位)
-function getdayzerotime()
-	return getsecond() - getdaysecond()
+--当天0点时间(秒为单位)
+function getdayzerotime(now)
+	now = now or os.time()
+	return getsecond(now) - getdaysecond(now)
+end
+
+
+-- 当周0点(星期一为一周起点)
+function getweekzerotime(now)
+	now = now or os.time()
+	local weekday = getweekday(now)
+	weekday = weekday == 0 and 7 or weekday
+	local diffday = weekday - 1
+	return getdayzerotime(now-diffday*DAY_SECS)
+end
+
+-- 当周0点（星期天为一周起点)
+function getweek2zerotime(now)
+	now = now or os.time()
+	local weekday = getweekday(now)
+	local diffday = weekday - 0
+	return getdayzerotime(now-diffday*DAY_SECS)
+end
+
+-- 当月0点
+function getmonthzerotime(now)
+	now = now or os.time()
+	local monthday = getmonthday(now)
+	return getdayzerotime(now-monthday*DAY_SECS)
 end
 
 --string

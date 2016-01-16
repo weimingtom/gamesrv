@@ -90,7 +90,8 @@ function ctaskdb:bonustask(task)
 end
 
 function ctaskdb:accepttask(taskid)
-	local task = ctask.new(taskid)
+	local taskdata = gettaskdata(taskid)
+	local task = ctask.new(taskdata)
 	self:addtask(task)
 end
 
