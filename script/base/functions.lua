@@ -339,13 +339,16 @@ function ishit(num,limit)
 	return math.random(1,limit) <= num
 end
 
-function shuffle(list,inplace)
+function shuffle(list,inplace,limit)
 	if not inplace then
 		list = deepcopy(list)
 	end
 	local idx,tmp
 	local len = #list
 	for i = 1,len-1 do
+		if limit and i > limit then
+			return slice(list,1,limit)
+		end
 		idx = math.random(i,len)
 		tmp = list[idx]
 		list[idx] = list[i]
