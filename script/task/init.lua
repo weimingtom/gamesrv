@@ -1,7 +1,8 @@
-require "script.task.listener"
-ctask = class("ctask",task_listener)
+ctask = class("ctask")
 
-function ctask:init(taskdata)
+function ctask:init(taskid,data)
+	local taskdata = assert(gettaskdata(taskid))
+	assert(taskid==taskdata.taskid)
 	self.taskid = taskdata.taskid
 	self.state = TASK_STATE_ACCEPT
 	if taskdata.exceedtime then
@@ -21,7 +22,7 @@ function ctask:init(taskdata)
 			self.exceedtime = os.time() + secs
 		end
 	end
-	self.data = {}
+	self.data = data or {}
 end
 
 function ctask:load(data)
@@ -45,6 +46,28 @@ end
 
 function ctask:pack()
 	return self:save()
+end
+
+function ctask:set(key,val)
+	local attrs = {}
+	for attr in string.gmatch(key,"([^.]+)%.?") do
+		table.insert(attrs,attr)
+	end
+	local lastkey = table.remove(attrs)
+	local root = self
+	for i,attr in ipairs(attrs) do
+		root = root[attr]
+	end
+	root[lastkey] = val
+end
+
+function ctask:get(key)
+	local root = self
+	local attrs = {}
+	for attr in string.gmatch(key,"([^.]+)%.?") do
+		root = root[attr]
+	end
+	return root
 end
 
 return ctask

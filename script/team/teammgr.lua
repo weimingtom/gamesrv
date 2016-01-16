@@ -53,7 +53,7 @@ function cteammgr:save()
 end
 
 function cteammgr:loadfromdatabase()
-	if self.loadstate == "unload" then
+	if not self.loadstate or self.loadstate == "unload" then
 		self.loadstate = "loading"
 		local db = dbmgr.getdb()
 		local data = db:get(db:key("team","mgr"))

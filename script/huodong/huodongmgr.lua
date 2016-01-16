@@ -146,7 +146,7 @@ function huodongmgr.addhuodong(huodong)
 end
 
 function huodongmgr.loadfromdatabase()
-	if huodongmgr.loadstate == "unload" then
+	if not huodongmgr.loadstate or huodongmgr.loadstate == "unload" then
 		huodongmgr.loadstate = "loading"
 		local db = dbmgr.getdb()
 		local data = db:get(db:key("global","huodong"))

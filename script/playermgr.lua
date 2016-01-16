@@ -66,7 +66,7 @@ function playermgr.loadofflineplayer(pid,modname)
 	else
 		assert(player.autosaveobj[modname],"Unknow modname:" .. tostring(modname))
 		local mod = player.autosaveobj[modname]
-		if mod.loadstate == "unload" then
+		if not mod.loadstate or mod.loadstate == "unload" then
 			mod.loadstate = "loading"
 			local data = db:get(db:key("role",self.pid,modname))
 			mod:load(data)

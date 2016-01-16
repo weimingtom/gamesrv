@@ -33,7 +33,7 @@ end
 
 function cresume:loadfromdatabase()
 	local data
-	if self.loadstate == "unload" then
+	if not self.loadstate or self.loadstate == "unload" then
 		self.loadstate = "loading"
 		if cserver.isresumesrv() then
 			local db = dbmgr.getdb()

@@ -10,6 +10,8 @@ def parse_task_shimen(sheet_name,sheet_data,dstpath):
 	[%(taskid)d] = {
 		taskid = %(taskid)d,
 		name = "%(name)s",
+		category = "%(category)s",
+		type = %(type)d,
 		param = %(param)s,
 		award = %(award)s,
 		help_award = %(help_award)s,
@@ -19,6 +21,7 @@ def parse_task_shimen(sheet_name,sheet_data,dstpath):
 		autoaccept = %(autoaccept)d,
 		autosubmit = %(autosubmit)d,
 		cangiveup = %(cangiveup)d,
+		finishbyclient = %(finishbyclient)d,
 		desc = [[%(desc)s]],
 		award_desc = [[%(award_desc)s]],
 		help_award_desc = [[%(help_award_desc)s]],

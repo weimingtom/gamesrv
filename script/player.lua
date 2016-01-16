@@ -6,6 +6,8 @@ require "script.friend.frienddb"
 require "script.card.cardbaglib"
 require "script.card.cardcontainer"
 require "script.achieve.achievedb"
+require "script.task.taskmgr"
+require "script.item.itemdb"
 
 cplayer = class("cplayer",csaveobj,cdatabaseable)
 
@@ -70,6 +72,8 @@ function cplayer:init(pid)
 		thisweek = self.thisweek,
 		thisweek2 = self.thisweek2,
 	}
+	self.taskmgr = ctaskmgr.new(self.pid)
+	self.itemdb = citemdb.new(self.pid)
 	self.autosaveobj = {
 		time = self.timeattr,
 		card = self.carddb,
@@ -77,6 +81,8 @@ function cplayer:init(pid)
 		cardbaglib = self.cardbaglib,
 		friend = self.frienddb,
 		achieve = self.achievedb,
+		task = self.taskmgr,
+		item = self.itemdb,
 	}
 
 	self.loadstate = "unload"
@@ -161,7 +167,7 @@ function cplayer:loadfromdatabase(loadall)
 		loadall = true
 	end
 	assert(self.pid)
-	if self.loadstate == "unload" then
+	if not self.loadstate or self.loadstate == "unload" then
 		self.loadstate = "loading"
 		local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 		local data = db:get(db:key("role",self.pid,"data"))
@@ -176,7 +182,7 @@ function cplayer:loadfromdatabase(loadall)
 	end
 	if loadall then
 		for k,v in pairs(self.autosaveobj) do
-			if v.loadstate == "unload" then
+			if not v.loadstate or v.loadstate == "unload" then
 				v.loadstate = "loading"
 				local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 				local data = db:get(db:key("role",self.pid,k))

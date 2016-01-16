@@ -126,8 +126,22 @@ function cmailbox:getattach(mailid)
 		local attach = mail.attach
 		mail.attach = {}
 		local reason = "getattach"
-		for i,bonus in ipairs(attach) do
-			award.__player(pid,bonus,reason,true)	
+		if #attach > 0 then -- 新格式
+			for i,bonus in ipairs(attach) do
+				award.__player(pid,bonus,reason,true)	
+			end
+		else
+			if attach.gold and attach.gold > 0 then
+				award.__player(pid,{RESTYPE_GOLD,attach.gold},reason,true)
+			end
+			if attach.chip and attach.chip > 0 then
+				award.__player(pid,{RESTYPE_CHIP,attach.chip},reason,true)
+			end
+			if attach.items and next(attach.items) then
+				for i,item in ipairs(items) do
+					award.__player(pid,item,reason,true)
+				end
+			end
 		end
 		netmail.syncmail(pid,mail:pack())
 	end
@@ -146,7 +160,7 @@ function cmailbox:length()
 end
 
 function cmailbox:loadfromdatabase()
-	if self.loadstate == "unload" then
+	if not self.loadstate or self.loadstate == "unload" then
 		self.loadstate = "loading"
 		local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 		local data = db:get(db:key("mail",self.pid))

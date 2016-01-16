@@ -53,8 +53,8 @@ local function test(pid1,pid2)
 			gold = 100,
 			chip = 200,
 			items = {
-				{itemid=14101,num=2,},
-				{itemid=14201,num=5},
+				{type=14101,num=2,},
+				{type=14201,num=5},
 			},
 		}
 	})
