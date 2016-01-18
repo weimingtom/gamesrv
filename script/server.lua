@@ -98,7 +98,7 @@ end
 function cserver.starttimer_logstatus()
 	local interval = skynet.getenv("mode") == "debug" and 5 or 60
 	timer.timeout("timer.logstatus",interval,cserver.starttimer_logstatus)
-	logger.log("info","status",string.format("onlinenum=%s task=%s mqlen=%s",playermgr.onlinenum,skynet.task(),skynet.mqlen()))
+	logger.log("info","status",string.format("onlinenum=%s num=%s task=%s mqlen=%s",playermgr.onlinenum,playermgr.num,skynet.task(),skynet.mqlen()))
 end
 
 -- class method

@@ -34,11 +34,12 @@ function saveall()
 	end
 end
 
-local function onerror(err)
+local onerror = onerror or function (err)
 	msg = string.format("[ERROR] %s %s\n",os.date("%Y-%m-%d %H:%M:%S"),err)
 		.. debug.traceback()
-	logger.log("error","saveobj",msg)
-	skynet.error(msg)
+	--logger.log("error","saveobj",msg)
+	--skynet.error(msg)
+	logger.log("error","onerror",msg)
 end
 
 local function ontimer(id)
