@@ -28,7 +28,7 @@ function oscmd.ontimer()
 		local result
 		if next(tbl) then
 			for i,v in ipairs(tbl) do
-				tbl[i] = tostring(v)
+				tbl[i] = mytostring(v)
 			end
 			result = table.concat(tbl,",")
 		end

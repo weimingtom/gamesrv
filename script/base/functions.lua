@@ -18,7 +18,7 @@ MAX_ITEMID = 10000
 SYSTEM_MAIL = 0
 
 --用户必须保证对象非递归嵌套表
-function self_tostring(obj)
+function mytostring(obj)
 	if type(obj) ~= "table" then
 		return tostring(obj)
 	end
@@ -26,10 +26,10 @@ function self_tostring(obj)
 	table.insert(cache,"{")
 	for k,v in pairs(obj) do
 		if type(k) == "number" then
-			--table.insert(cache,self_tostring(v)..",")
-			table.insert(cache,string.format("[%d]=%s,",k,self_tostring(v)))
+			--table.insert(cache,mytostring(v)..",")
+			table.insert(cache,string.format("[%d]=%s,",k,mytostring(v)))
 		else
-			local str = string.format("%s=%s,",self_tostring(k),self_tostring(v))
+			local str = string.format("%s=%s,",mytostring(k),mytostring(v))
 			table.insert(cache,str)	
 		end
 	end
@@ -43,7 +43,7 @@ function format(fmt,...)
 	local len = math.max(#args,args.n or 0)
 	for i = 1, len do
 		if type(args[i]) == "table" then
-			args[i] = self_tostring(args[i])
+			args[i] = mytostring(args[i])
 		elseif type(args[i]) ~= "number" then
 			args[i] = tostring(args[i])
 		end

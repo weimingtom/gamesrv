@@ -307,7 +307,7 @@ function cplayer:comptible_process()
 end
 
 function cplayer:onlogin()
-	logger.log("info","login",string.format("login,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port()))
+	logger.log("info","login",string.format("login,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s agent=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port(),self.__agent))
 	self:comptible_process()
 	local server = globalmgr.server
 	heartbeat(self.pid)
@@ -334,7 +334,7 @@ function cplayer:onlogin()
 end
 
 function cplayer:onlogoff()
-	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port()))
+	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s agent=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port(),self.__agent))
 	mailmgr.onlogoff(self)
 	for k,obj in pairs(self.autosaveobj) do
 		if obj.onlogoff then

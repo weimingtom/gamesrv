@@ -10,7 +10,7 @@ function timectrl.next_fiveminute(now)
 	local min = gethourminute(secs)	
 	min = math.floor(min/INTERVAL) * INTERVAL
 	local tm = {year=getyear(secs),month=getyearmonth(secs),day=getmonthday(secs),hour=getdayhour(secs),min=min,sec=0,}
-	print(self_tostring(tm),min)
+	print(mytostring(tm),min)
 	return os.time(tm)
 end
 
@@ -89,7 +89,7 @@ end
 
 function timectrl.error_handle(...)
 	args = {...}
-	logger.log("error","timectrl",string.format("[ERROR] %s",self_tostring(args)))
+	logger.log("error","timectrl",string.format("[ERROR] %s",mytostring(args)))
 	error("timectrl error")
 end
 

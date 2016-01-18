@@ -40,9 +40,16 @@ function proto.sendpackage(agent,protoname,cmd,request,onresponse)
 end
 
 local function onrequest(agent,cmd,request)
-	local connect = assert(proto.connection[agent],"invalid agent:" .. tostring(agent))
-	local obj = assert(playermgr.getobject(connect.pid),"invalid pid:" .. tostring(connect.pid))
-
+	local connect = proto.connection[agent]
+	if not connect then
+		logger.log("warning","netclient",format("[NON EXIST AGENT] onrequest,agent=%s cmd=%s request=%s",agent,cmd,request))
+		return
+	end
+	local obj = playermgr.getobject(connect.pid)
+	if not obj then
+		logger.log("warning","netclient",format("[NON EXIST OBJECT] onrequest,agent=%s cmd=%s request=%s",agent,cmd,request))
+		return
+	end
 	logger.pprintf("REQUEST:%s\n",{
 		pid = obj.pid,
 		agent = skynet.address(agent),
@@ -71,9 +78,13 @@ local function onrequest(agent,cmd,request)
 end
 
 local function onresponse(agent,session,response)
-	local connect = assert(proto.connection[agent],"invlaid agent:" .. tostring(agent))
-	local obj = playermgr.getobject(connect.pid)
+	local connect = proto.connection[agent]
+	if not connect then
+		logger.log("warning","netclient",format("[NON EXIST AGENT] onrequest,agent=%s cmd=%s request=%s",agent,cmd,request))
+		return
+	end
 	-- 替换下线时，旧对象已被删除，忽略其收到的回复
+	local obj = playermgr.getobject(connect.pid)
 	if not obj then
 		return
 	end
@@ -110,6 +121,7 @@ function CMD.data(agent,typ,...)
 			skynet.ret(skynet.pack(result))
 		else
 			skynet.error(result)
+			skynet.response()(false)
 		end
 	else
 		assert(typ == "RESPONSE")

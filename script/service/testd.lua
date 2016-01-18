@@ -1,5 +1,6 @@
 require "script.skynet"
 
+local NORET = NORET or {}
 local CMD = {}
 function CMD.error(...)
 	error(...)
@@ -15,6 +16,14 @@ end
 
 function CMD.ret(...)
 	return ...
+end
+
+function CMD.retfalse()
+	skynet.ret(skynet.pack(false))
+end
+
+function CMD.retfalse2()
+	skynet.response()(false)
 end
 
 function needret_retpack(noret,...)
