@@ -35,9 +35,9 @@ function saveall()
 end
 
 local function onerror(err)
-	msg = string.format("sknerror [ERROR] %s %s\n",os.date("%Y-%m-%d %H:%M:%S"),err)
+	msg = string.format("[ERROR] %s %s\n",os.date("%Y-%m-%d %H:%M:%S"),err)
 		.. debug.traceback()
-	logger.log("info","saveobj",msg)
+	logger.log("error","saveobj",msg)
 	skynet.error(msg)
 end
 

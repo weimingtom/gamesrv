@@ -21,6 +21,10 @@ function cdatabaseable:isdirty()
 	return self.dirty
 end
 
+function cdatabaseable:updated()
+	return self:isdirty()
+end
+
 function cdatabaseable:__getattr(attrs,data)
 	local mod = data or self.data
 	for i,attr in ipairs(attrs) do

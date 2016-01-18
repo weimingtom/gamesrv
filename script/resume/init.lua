@@ -58,7 +58,7 @@ function cresume:savetodatabase()
 		return
 	end
 	if self.loadstate == "loaded" then
-		if self:updated() then
+		if self:isdirty() then
 			local data = self:save()
 			local db = dbmgr.getdb()
 			db:set(db:key("resume",self.pid),data)
