@@ -697,6 +697,7 @@ function onerror(msg)
 		table.insert(vars,1,string.format("[ERROR] [%s] %s",os.date("%Y-%m-%d %H:%M:%S"),msg))
 		local msg = debug.traceback(table.concat(vars,"\n"),level)
 		print(msg)
+		require "script.logger.init"
 		logger.log("error","onerror",msg)
 		--skynet.error(msg)
 	end)

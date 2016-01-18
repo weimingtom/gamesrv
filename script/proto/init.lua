@@ -121,7 +121,6 @@ function CMD.data(agent,typ,...)
 			skynet.ret(skynet.pack(result))
 		else
 			skynet.error(result)
-			skynet.response()(false)
 		end
 	else
 		assert(typ == "RESPONSE")
