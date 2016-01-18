@@ -101,7 +101,7 @@ cd /home/game/servers/gamesrv_100/shell && sh startserver.sh
 	cd /home/game/robert/skynet
 	./skynet ../script/conf/robert.conf
 	启动另一个shell,telnet连接控制机器人
-	telent 127.0.0.1 6666
+	telnet 127.0.0.1 6666
 	start script/service/robertd 数量 起始角色ID
 	如: start script/service/robertd 10 10001  <=> 从10001角色ID开始启动10个机器人连接gamesrv_100服务器
 ```
