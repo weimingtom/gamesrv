@@ -3,7 +3,6 @@ proto = proto or {}
 function proto.kick(agent,fd)
 	local connect = proto.connection[agent]
 	if connect then
-		connect.sessions = nil
 		local pid = assert(connect.pid,"invalid pid:" .. tostring(connect.pid))
 		playermgr.delobject(pid,"kick")
 		proto.connection[agent] = nil
@@ -183,6 +182,7 @@ function proto.reloadproto()
 	local sprotoparser = require "sprotoparser"
 	local sprotoloader = require "sprotoloader"
 	protodata.init()
+	protodata.dump()
 	local bin_c2s = sprotoparser.parse(protodata.c2s)
 	local bin_s2c = sprotoparser.parse(protodata.s2c)
 	sprotoloader.save(bin_c2s,1)

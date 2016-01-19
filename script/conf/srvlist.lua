@@ -1,4 +1,13 @@
 srvlist = {
+	accountcenter = {
+		ip = "127.0.0.1",
+		port = 8000,
+		db = {
+			host = "127.0.0.1",
+			port = 6800,
+			db = 10,
+		},
+	},
 	gamesrv_100 = {
 		ip = "127.0.0.1",
 		port = 8000,

@@ -149,6 +149,7 @@ function logger.init()
 	end
 	fd:close()
 	os.execute("rm -rf .log.tmp")
+	skynet.retpack(true)
 end
 
 function logger.shutdown()

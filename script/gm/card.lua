@@ -1,6 +1,7 @@
 
 gm = require "script.gm.init"
 
+--- cmd: addcard
 --- e.g.:  addcard 10001 11001 10
 function gm.addcard(args)
 	local isok,args = checkargs(args,"int","int","int")
@@ -17,6 +18,7 @@ function gm.addcard(args)
 	player:addcardbysid(sid,amount)
 end
 
+--- cmd: delcard
 --- usage: delcard pid sid amount
 --- e.g. : delcard 10001 11001 10
 function gm.delcard(args)
@@ -34,6 +36,7 @@ function gm.delcard(args)
 	player:delcardbysid(sid,amount)
 end
 
+--- cmd: clearcard
 --- usage: clearcard pid racename
 --- e.g. : clearcard 10001 all
 function gm.clearcard(args)

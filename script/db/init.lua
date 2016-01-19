@@ -43,13 +43,11 @@ function cdb:key(...)
 	return ret
 end
 
-function cdb:get(key,default)
+function cdb:get(key)
 	local value = skynet.call(self.dbsrv,"lua","get",key)
 	logger.log("debug","db",format("get,key=%s value=%s",key,value))
 	if value then
 		value = cjson.decode(value)
-	else
-		value = default
 	end
 	return value
 end

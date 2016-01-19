@@ -1,6 +1,7 @@
 gm = require "script.gm.init"
 require "script.oscmd.maintain"
 
+--- cmd: maintain
 --- usage: maintain shutdown_time
 function gm.maintain(args)
 	local isok,args = checkargs(args,"int")	
@@ -12,6 +13,7 @@ function gm.maintain(args)
 	maintain.force_maintain(lefttime)
 end
 
+--- cmd: shutdown
 --- usage: shutdown
 function gm.shutdown(args)
 	local reason = args[1] or "gm"
@@ -22,7 +24,7 @@ function gm.saveall(args)
 	game.saveall()
 end
 
---- usage: kick pid1 pid2,...
+--- cmd: kick
 function gm.kick(args)
 	local isok,args = checkargs(args,"int","*")	
 	if not isok then
@@ -34,16 +36,17 @@ function gm.kick(args)
 	end
 end
 
---- usage: kickall
+--- cmd: kickall
 function gm.kickall(args)
 	playermgr.kickall(pid,"gm")
 end
 
---- usage: reloadproto
+--- cmd: reloadproto
 function gm.reloadproto(args)
 	proto.reloadproto()
 end
 
+--- cmd: runcmd
 --- usage: runcmd lua脚本 [是否返回结果]
 function gm.runcmd(args)
 	local cmdline = args[1]
@@ -56,6 +59,7 @@ function gm.runcmd(args)
 	return result
 end
 
+--- cmd: offline
 --- usage: offline 玩家ID 指令 参数
 function gm.offline(args)
 	local isok,args = checkargs(args,"int","*")
@@ -71,6 +75,7 @@ function gm.offline(args)
 	return gm.docmd(pid,cmdline)
 end
 
+--- cmd: hotfix
 --- usage: hotfix 模块名...
 function gm.hotfix(args)
 	for i,modname in ipairs(args) do
@@ -78,7 +83,7 @@ function gm.hotfix(args)
 	end
 end
 
--- usage: countonline
+--- cmd: countonline
 function gm.countonline(args)
 	local onlinenum,num = 0,0
 	for pid,obj in pairs(playermgr.id_obj) do

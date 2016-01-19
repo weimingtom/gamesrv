@@ -1,6 +1,7 @@
 
 gm = require "script.gm.init"
 
+--- cmd: test
 --- usage: test test_filename ...
 function gm.test(args)
 	local isok,args = checkargs(args,"string","*")

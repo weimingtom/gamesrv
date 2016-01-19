@@ -154,7 +154,7 @@ function playermgr.genpid()
 	local srvname = skynet.getenv("srvname")
 	local conf = srvlist[srvname]
 	local db = dbmgr.getdb()
-	local pid = db:get(db:key("role","maxroleid"),conf.minroleid)
+	local pid = db:get(db:key("role","maxroleid")) or conf.minroleid
 	pid = pid + 1
 	if pid > conf.maxroleid then
 		return nil

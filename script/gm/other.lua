@@ -1,6 +1,7 @@
 
 gm = require "script.gm.init"
 
+--- cmd: echo
 --- usage: echo msg
 function gm.echo(args)
 	local isok,args = checkargs(args,"string")

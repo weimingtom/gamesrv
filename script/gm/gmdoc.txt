@@ -1,16 +1,67 @@
-helper:
- usage: buildgmdoc
+[card]
+cmd: addcard
+e.g.:  addcard 10001 11001 10
+
+cmd: delcard
+usage: delcard pid sid amount
+e.g. : delcard 10001 11001 10
+
+cmd: clearcard
+usage: clearcard pid racename
+e.g. : clearcard 10001 all
 
 
 
-init:
- usage: setauthority pid authority
- e.g. : setauthority 10001 80 # 将玩家10001权限设置成80(权限范围:[1,100])
+[helper]
+cmd: buildgmdoc
+
+cmd: help
+usage: help 关键字
 
 
 
-test:
- usage: test test_filename ...
+[init]
+cmd: setauthority
+usage: setauthority pid authority
+e.g. : setauthority 10001 80 # 将玩家10001权限设置成80(权限范围:[1,100])
+
+
+
+[other]
+cmd: echo
+usage: echo msg
+
+
+
+[sys]
+cmd: maintain
+usage: maintain shutdown_time
+
+cmd: shutdown
+usage: shutdown
+
+cmd: kick
+
+cmd: kickall
+
+cmd: reloadproto
+
+cmd: runcmd
+usage: runcmd lua脚本 [是否返回结果]
+
+cmd: offline
+usage: offline 玩家ID 指令 参数
+
+cmd: hotfix
+usage: hotfix 模块名...
+
+cmd: countonline
+
+
+
+[test]
+cmd: test
+usage: test test_filename ...
 
 
 

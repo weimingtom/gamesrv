@@ -38,34 +38,13 @@ end
 
 proto.init()
 
-function proto.dump(text_proto)
-	text_proto = text_proto or proto
-	local lineno
-	local b,e
-	print("s2c:")
-	lineno = 1
-	b = 1
-	while true do
-		e = string.find(text_proto.s2c,"\n",b)
-		if not e then
-			break
-		end
-		print(lineno,string.sub(text_proto.s2c,b,e-1))
-		b = e + 1
-		lineno = lineno + 1
-	end
-	print("c2s:")
-	lineno = 1
-	b = 1
-	while true do
-		e = string.find(text_proto.c2s,"\n",b)
-		if not e then
-			break
-		end
-		print(lineno,string.sub(text_proto.c2s,b,e-1))
-		b = e + 1
-		lineno = lineno + 1
-	end
+function proto.dump()
+	local fd = io.open("../script/proto/proto_c2s.txt","wb")	
+	fd:write(proto.c2s)
+	fd:close()
+	local fd = io.open("../script/proto/proto_s2c.txt","wb")	
+	fd:write(proto.s2c)
+	fd:close()
 end
 
 return proto

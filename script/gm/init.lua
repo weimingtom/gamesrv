@@ -113,6 +113,7 @@ function gm.docmd(pid,cmdline)
 	return issuccess,result
 end
 
+--- cmd: setauthority
 --- usage: setauthority pid authority
 --- e.g. : setauthority 10001 80 # 将玩家10001权限设置成80(权限范围:[1,100])
 function gm.setauthority(args)
