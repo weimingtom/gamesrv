@@ -76,11 +76,11 @@ function csaveobj:autosave()
 	assert(self.saveflag ~= "oncesave","autosave conflict with oncesave")
 	logger.log("info","saveobj",string.format(" %s autosave",self:uniqueflag()))
 	self.saveflag = "autosave"
-	--if not self.bstarttimer then
-	--	self.bstarttimer = true
-	--	starttimer(self)
-	--end
-	starttimer(self)
+	-- avoid multi starttimer
+	if not self.__bstarttimer then
+		self.__bstarttimer = true
+		starttimer(self)
+	end
 end
 
 function csaveobj:merge(obj)

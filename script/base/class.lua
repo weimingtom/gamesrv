@@ -14,7 +14,7 @@ local function reload_class(name)
 		vtb[k] = nil
 	end
 	local super = class_type.__super
-	for _,super_class in pairs(super) do
+	for _,super_class in ipairs(super) do
 		if super_class.__child then
 			super_class.__child[class_type.__name] = true
 		end
@@ -33,7 +33,7 @@ end
 
 local function ajust_super(super)
 	local pos
-	for i,super_class in pairs(super) do
+	for i,super_class in ipairs(super) do
 		if not super_class.__child then
 			pos = i
 			break
@@ -100,3 +100,38 @@ function class(name,...)
 	return class_type
 end
 
+function issubclass(cls1,cls2)
+	if not cls1.__name then
+		return false
+	end
+	if not cls2.__child then
+		return false
+	end
+	return cls2.__child[cls1.__name] and true or false
+end
+
+function typename(obj)
+	if obj.__name then --a class
+		return obj.__name
+	end
+	if obj.__type then
+		return obj.__type.__name
+	end
+	return type(obj)
+end
+
+function isinstance(obj,cls)
+	if not cls then
+		return false
+	end
+	local classname = assert(cls.__name,"isinstance parameter 2 isn't a class")
+	if typename(obj) == classname then
+		return true
+	end
+	for classname,_ in pairs(cls.__child) do
+		if isinstance(obj,__class[classname]) then
+			return true
+		end
+	end
+	return false
+end

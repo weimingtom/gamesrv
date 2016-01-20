@@ -855,3 +855,4 @@ function string.trim(str)
 	str = string.ltrim(str)
 	return string.rtrim(str)
 end
+
