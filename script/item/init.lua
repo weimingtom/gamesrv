@@ -1,9 +1,10 @@
 citem = class("citem")
 
 function citem:init(param)
+	param = param or {}
 	self.id = param.id
-	self.type = assert(param.type)
-	self.num = assert(param.num)
+	self.type = param.type
+	self.num = param.num
 	self.bind = param.bind
 end
 

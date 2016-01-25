@@ -4,44 +4,54 @@ require "script.base.functions"
 logger = logger or {}
 function logger.write(filename,msg)
 	assert(string.match(filename,"^[a-z_]+[a-z_0-9/]*$"),"invalid log filename:" .. tostring(filename))
+	local now = os.time()
+	local date = os.date("%Y-%m-%d %H:%M:%S",now)
+	if logger.time.sec ~= now then
+		logger.time.sec = now
+		logger.time.usec = 0
+	end
+	logger.time.usec = logger.time.usec + 1
 	fd = logger.gethandle(filename)
+	msg = string.format("[%s %06d] %s",date,logger.time.usec,msg)
 	fd:write(msg)
 	fd:flush()
+	return msg
 end
+
 function logger.debug(filename,...)
 	if logger.mode > logger.LOG_DEBUG then
 		return
 	end
-	logger.write(filename,string.format("[%s] [%s] %s\n",os.date("%Y-%m-%d %H:%M:%S"),"DEBUG",table.concat({...},"\t")))
+	logger.write(filename,string.format("[%s] %s\n","DEBUG",table.concat({...},"\t")))
 end
 
 function logger.info(filename,...)
 	if logger.mode > logger.LOG_INFO then
 		return
 	end
-	logger.write(filename,string.format("[%s] [%s] %s\n",os.date("%Y-%m-%d %H:%M:%S"),"INFO",table.concat({...},"\t")))
+	logger.write(filename,string.format("[%s] %s\n","INFO",table.concat({...},"\t")))
 end
 
 function logger.warning(filename,...)
 	if logger.mode > logger.LOG_WARNING then
 		return
 	end
-	logger.write(filename,string.format("[%s] [%s] %s\n",os.date("%Y-%m-%d %H:%M:%S"),"WARNING",table.concat({...},"\t")))
+	logger.write(filename,string.format("[%s] %s\n","WARNING",table.concat({...},"\t")))
 end
 
 function logger.error(filename,...)
 	if logger.mode > logger.LOG_ERROR then
 		return
 	end
-	logger.write(filename,string.format("[%s] [%s] %s\n",os.date("%Y-%m-%d %H:%M:%S"),"ERROR",table.concat({...},"\t")))
+	logger.write(filename,string.format("[%s] %s\n","ERROR",table.concat({...},"\t")))
 end
 
 function logger.critical(filename,...)
 	if logger.mode > logger.LOG_CRITICAL then
 		return
 	end
-	local msg = string.format("[%s] [%s] %s\n",os.date("%Y-%m-%d %H:%M:%S"),"CRITICAL",table.concat({...},"\t"))
-	logger.write(filename,msg)
+	local msg = string.format("[%s] %s\n","CRITICAL",table.concat({...},"\t"))
+	msg = logger.write(filename,msg)
 	skynet.error(msg)
 	logger.sendmail("2457358113@qq.com","CRITICAL",msg)
 end
@@ -116,6 +126,10 @@ function logger.init()
 	local modename = skynet.getenv("mode")
 	logger.mode = assert(logger.MODE_NAME_ID[modename],"Invalid modename:" .. tostring(modename))
 	logger.handles = {}
+	logger.time = {
+		sec = 0,
+		usec = 0,
+	}
 	logger.path = skynet.getenv("workdir") .. "/log"
 	print("logger.path:",logger.path)
 	os.execute(string.format("mkdir -p %s",logger.path))

@@ -844,11 +844,11 @@ end
 
 -- 扩展string
 function string.rtrim(str)
-	return string.match(str,"^(%s-[^%s]*)%s*$")
+	return string.gsub(str,"^[ \t\n\r]+","")
 end
 
 function string.ltrim(str)
-	return string.match(str,"^%s*(.*)$")
+	return string.gsub(str,"[ \t\n\r]+$","")
 end
 
 function string.trim(str)

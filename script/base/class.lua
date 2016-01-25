@@ -46,6 +46,24 @@ local function ajust_super(super)
 	return super
 end
 
+local function set_super(class_type,super)
+	local pos
+	for i,super_class in ipairs(super) do
+		if not super_class.__child then
+			pos = i
+			break
+		end
+	end
+	if pos then
+		local selfattr = table.remove(super,pos)
+		for k,v in pairs(selfattr) do
+			class_type[k] = v
+		end
+	end
+	class_type.__super = super
+	return super
+end
+
 -- 保证每个类名不同
 function class(name,...)
 	local super = {...}
@@ -57,7 +75,8 @@ function class(name,...)
 		class_type = __class[name]
 	end
 	class_type.__name = name
-	class_type.__super = ajust_super(super)
+	--class_type.__super = ajust_super(super)
+	set_super(class_type,super)
 	class_type.init = false		--constructor
 	local function new(istemp)
 		return function (...)
