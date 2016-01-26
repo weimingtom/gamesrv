@@ -501,32 +501,6 @@ function getmonthzerotime(now)
 	return getdayzerotime(now-monthday*DAY_SECS)
 end
 
---string
-function isdigit(str)
-	local ret = pcall(tonumber,str)
-	return ret
-end
-
-function hexstr(str)
-	assert(type(str) == "string")
-	local len = #str
-	return string.format("0x" .. string.rep("%x",len),string.byte(str,1,len))
-end
-
-local WHITECHARS_PAT = "%S+"
-function split(str,pat,maxsplit)
-	pat = pat or WHITECHARS_PAT
-	maxsplit = maxsplit or -1
-	local ret = {}
-	local i = 0
-	for s in string.gmatch(str,pat) do
-		if not (maxsplit == -1 or i <= maxsplit) then
-			break
-		end
-		table.insert(ret,s)
-	end
-	return ret
-end
 
 --filesystem
 function currentdir()
@@ -717,9 +691,10 @@ for i=0,15 do
 end
 
 
-function uuid()
+function uuid(len)
+	len = len or 32
 	local ret = {}
-	for i=1,32 do
+	for i=1,len do
 		table.insert(ret,HEX_MAP[math.random(0,0xf)])
 	end
 	return table.concat(ret,"")
@@ -800,10 +775,6 @@ function table.map(func,...)
 	return newtbl
 end
 
-function table.broadcast(tbl,func)
-	table.map(func,tbl)
-end
-
 function table.find(tbl,func)
 	local isfunc = type(func) == "function"
 	for k,v in pairs(tbl) do
@@ -842,6 +813,15 @@ function table.dump(t,space,name)
 	return _dump(t,space,name)
 end
 
+function dump(o,...)
+	if type(o) ~= "table" then
+		return tostring(o)
+	else
+		return table.dump(o,...)
+	end
+end
+
+
 -- 扩展string
 function string.rtrim(str)
 	return string.gsub(str,"^[ \t\n\r]+","")
@@ -856,3 +836,49 @@ function string.trim(str)
 	return string.rtrim(str)
 end
 
+function string.isdigit(str)
+	local ret = pcall(tonumber,str)
+	return ret
+end
+
+function string.hexstr(str)
+	assert(type(str) == "string")
+	local len = #str
+	return string.format("0x" .. string.rep("%x",len),string.byte(str,1,len))
+end
+
+local WHITECHARS_PAT = "%S+"
+function string.split(str,pat,maxsplit)
+	pat = pat or WHITECHARS_PAT
+	maxsplit = maxsplit or -1
+	local ret = {}
+	local i = 0
+	for s in string.gmatch(str,pat) do
+		if not (maxsplit == -1 or i <= maxsplit) then
+			break
+		end
+		table.insert(ret,s)
+		i = i + 1
+	end
+	return ret
+end
+
+function string.urlencodechar(char)
+	return string.format("%%%02X",string.byte(char))
+end
+
+function string.urldecodechar(hexchar)
+	return string.char(tonumber(hexchar,16))
+end
+
+function string.urlencode(str)
+	str = string.gsub(str,"([^%w%.%- ])",string.urlencodechar)
+	str = string.gsub(str," ","+")
+	return str
+end
+
+function string.urldecode(str)
+	str = string.gsub(str,"+"," ")
+	str = string.gsub(str,"%%(%x%x)",string.urldecodechar)
+	return str
+end
