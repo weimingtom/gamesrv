@@ -821,6 +821,56 @@ function dump(o,...)
 	end
 end
 
+function table.getattr(tbl,attr)
+	local attrs = type(attr) == "table" and attr or string.split(attr,".")
+	local root = tbl
+	for i,attr in ipairs(attrs) do
+		root = root[attr]
+	end
+	return root
+end
+
+function table.hasattr(tbl,attr)
+	local attrs = type(attr) == "table" and attr or string.split(attr,".")
+	local root = tbl
+	local len = #attrs
+	for i,attr in ipairs(attrs) do
+		if not root[attr] then
+			return false
+		end
+		root = root[attr]
+		if i ~= len and type(root) ~= "table" then
+			return false
+		end
+	end
+	return true
+end
+
+function table.setattr(tbl,attr,val,bforce)
+	local attrs = string.split(attr,".")
+	local lastkey = table.remove(attrs)
+	if bforce then
+		local root = tbl
+		for i,attr in ipairs(attrs) do
+			if not root[attr] then
+				root[attr] = {}
+			end
+			root = root[attr]
+		end
+		root[lastkey] = val
+		return true
+	else
+		if table.hasattr(tbl,attrs) then
+			local attrval = table.getattr(tbl,attrs)
+			if type(attrval) == "table" then
+				attrval[lastkey] = val
+				return  true
+			end
+		end
+	end
+	return false
+end
+
 
 -- 扩展string
 function string.rtrim(str)
@@ -847,9 +897,9 @@ function string.hexstr(str)
 	return string.format("0x" .. string.rep("%x",len),string.byte(str,1,len))
 end
 
-local WHITECHARS_PAT = "%S+"
+local NON_WHITECHARS_PAT = "%S+"
 function string.split(str,pat,maxsplit)
-	pat = pat or WHITECHARS_PAT
+	pat = pat and string.format("[^%s]+",pat) or NON_WHITECHARS_PAT
 	maxsplit = maxsplit or -1
 	local ret = {}
 	local i = 0
