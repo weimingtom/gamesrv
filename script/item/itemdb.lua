@@ -17,30 +17,19 @@ function citemdb:load(data)
 	if not data or not next(data) then
 		return
 	end
-	local objs = {}
-	local len = 0
-	for itemid,itemdata in pairs(self.objs) do
-		itemid = tonumber(itemid)
-		local item = citem.new(itemdata)
-		item:load(itemdata) -- can ignore
-		self.objs[itemid] = item
-		len = len + 1
-	end
-	self.objid = data.objid
-	self.len = len
+	ccontainer.load(self,data,function (itemdata)
+		local item = citem.new()
+		item:load(itemdata)
+		return item
+	end)
 	self.expandspace = data.expandspace
 end
 
 function citemdb:save()
 	local data = {}
-	local objs = {}
-	for itemid,item in pairs(self.objs) do
-		itemid = tostring(itemid)
-		local itemdata = item:save()
-		objs[itemid] = itemdata
-	end
-	data.objs = objs
-	data.objid = self.objid
+	ccontainer.save(self,function (item)
+		return item:save()
+	end)
 	data.expandspace = self.expandspace
 	return data
 end

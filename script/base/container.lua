@@ -18,6 +18,35 @@ function ccontainer:clear()
 	end
 end
 
+-- 可重写
+function ccontainer:load(data,loadfunc)
+	if not data or not next(data) then
+		return
+	end
+	self.objid = data.objid
+	local len = 0
+	for id,objdata in pairs(data.objs) do
+		id = tonumber(id)
+		local obj = loadfunc and loadfunc(objdata) or objdata
+		self.objs[id] = obj
+		len = len + 1
+	end
+	self.len = len
+end
+
+-- 可重写
+function ccontainer:save(savefunc)
+	local data = {}
+	data.objid = self.objid
+	local objs = {}
+	for id,obj in pairs(self.objs) do
+		id = tostring(id)
+		objs[id] = savefunc and savefunc(obj) or obj
+	end
+	data.objs = objs
+	return data
+end
+
 function ccontainer:register(callback)
 	if callback then
 		if callback.onclear then

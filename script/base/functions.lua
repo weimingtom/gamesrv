@@ -501,32 +501,6 @@ function getmonthzerotime(now)
 	return getdayzerotime(now-monthday*DAY_SECS)
 end
 
---string
-function isdigit(str)
-	local ret = pcall(tonumber,str)
-	return ret
-end
-
-function hexstr(str)
-	assert(type(str) == "string")
-	local len = #str
-	return string.format("0x" .. string.rep("%x",len),string.byte(str,1,len))
-end
-
-local WHITECHARS_PAT = "%S+"
-function split(str,pat,maxsplit)
-	pat = pat or WHITECHARS_PAT
-	maxsplit = maxsplit or -1
-	local ret = {}
-	local i = 0
-	for s in string.gmatch(str,pat) do
-		if not (maxsplit == -1 or i <= maxsplit) then
-			break
-		end
-		table.insert(ret,s)
-	end
-	return ret
-end
 
 --filesystem
 function currentdir()
@@ -717,9 +691,10 @@ for i=0,15 do
 end
 
 
-function uuid()
+function uuid(len)
+	len = len or 32
 	local ret = {}
-	for i=1,32 do
+	for i=1,len do
 		table.insert(ret,HEX_MAP[math.random(0,0xf)])
 	end
 	return table.concat(ret,"")
@@ -800,10 +775,6 @@ function table.map(func,...)
 	return newtbl
 end
 
-function table.broadcast(tbl,func)
-	table.map(func,tbl)
-end
-
 function table.find(tbl,func)
 	local isfunc = type(func) == "function"
 	for k,v in pairs(tbl) do
@@ -842,13 +813,72 @@ function table.dump(t,space,name)
 	return _dump(t,space,name)
 end
 
+function dump(o,...)
+	if type(o) ~= "table" then
+		return tostring(o)
+	else
+		return table.dump(o,...)
+	end
+end
+
+function table.getattr(tbl,attr)
+	local attrs = type(attr) == "table" and attr or string.split(attr,".")
+	local root = tbl
+	for i,attr in ipairs(attrs) do
+		root = root[attr]
+	end
+	return root
+end
+
+function table.hasattr(tbl,attr)
+	local attrs = type(attr) == "table" and attr or string.split(attr,".")
+	local root = tbl
+	local len = #attrs
+	for i,attr in ipairs(attrs) do
+		if not root[attr] then
+			return false
+		end
+		root = root[attr]
+		if i ~= len and type(root) ~= "table" then
+			return false
+		end
+	end
+	return true
+end
+
+function table.setattr(tbl,attr,val,bforce)
+	local attrs = string.split(attr,".")
+	local lastkey = table.remove(attrs)
+	if bforce then
+		local root = tbl
+		for i,attr in ipairs(attrs) do
+			if not root[attr] then
+				root[attr] = {}
+			end
+			root = root[attr]
+		end
+		root[lastkey] = val
+		return true
+	else
+		if table.hasattr(tbl,attrs) then
+			local attrval = table.getattr(tbl,attrs)
+			if type(attrval) == "table" then
+				attrval[lastkey] = val
+				return  true
+			end
+		end
+	end
+	return false
+end
+
+
 -- 扩展string
 function string.rtrim(str)
-	return string.match(str,"^(%s-[^%s]*)%s*$")
+	return string.gsub(str,"^[ \t\n\r]+","")
 end
 
 function string.ltrim(str)
-	return string.match(str,"^%s*(.*)$")
+	return string.gsub(str,"[ \t\n\r]+$","")
 end
 
 function string.trim(str)
@@ -856,3 +886,49 @@ function string.trim(str)
 	return string.rtrim(str)
 end
 
+function string.isdigit(str)
+	local ret = pcall(tonumber,str)
+	return ret
+end
+
+function string.hexstr(str)
+	assert(type(str) == "string")
+	local len = #str
+	return string.format("0x" .. string.rep("%x",len),string.byte(str,1,len))
+end
+
+local NON_WHITECHARS_PAT = "%S+"
+function string.split(str,pat,maxsplit)
+	pat = pat and string.format("[^%s]+",pat) or NON_WHITECHARS_PAT
+	maxsplit = maxsplit or -1
+	local ret = {}
+	local i = 0
+	for s in string.gmatch(str,pat) do
+		if not (maxsplit == -1 or i <= maxsplit) then
+			break
+		end
+		table.insert(ret,s)
+		i = i + 1
+	end
+	return ret
+end
+
+function string.urlencodechar(char)
+	return string.format("%%%02X",string.byte(char))
+end
+
+function string.urldecodechar(hexchar)
+	return string.char(tonumber(hexchar,16))
+end
+
+function string.urlencode(str)
+	str = string.gsub(str,"([^%w%.%- ])",string.urlencodechar)
+	str = string.gsub(str," ","+")
+	return str
+end
+
+function string.urldecode(str)
+	str = string.gsub(str,"+"," ")
+	str = string.gsub(str,"%%(%x%x)",string.urldecodechar)
+	return str
+end

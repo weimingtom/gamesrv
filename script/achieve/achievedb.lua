@@ -12,25 +12,11 @@ function cachievedb:load(data)
 	if not data or not next(data) then
 		return
 	end
-	self.objid = data.objid
-	local objs = {}
-	local len = 0
-	for k,v in pairs(data.objs) do
-		objs[tonumber(k)] = v
-		len = len + 1
-	end
-	self.objs = objs
-	self.len = len
+	ccontainer.load(self,data)
 end
 
 function cachievedb:save()
-	local data = {}
-	data.objid = self.objid
-	local objs = {}
-	for k,v in pairs(self.objs) do
-		objs[tostring(k)] = v
-	end
-	data.objs = objs
+	local data = ccontainer.save(self)
 	return data
 end
 

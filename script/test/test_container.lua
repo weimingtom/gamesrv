@@ -1,6 +1,6 @@
 local function test(param)
 	print(MAX_NUMBER)
-	citemdb = class("citemdb",ccontainer)
+	local citemdb = class("__citemdb",ccontainer)
 	function citemdb:onclear(objs)
 		print("onclear",objs)
 	end
@@ -30,7 +30,7 @@ local function test(param)
 		return data
 	end
 
-	citem = class("citem")
+	local citem = class("__citem")
 
 	local itemdb = citemdb.new({
 		pid = 0,
