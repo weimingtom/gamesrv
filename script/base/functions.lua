@@ -52,7 +52,11 @@ function format(fmt,...)
 end
 
 function printf(fmt,...)
-	print(format(fmt,...))
+	if ... == nil then
+		print(fmt)
+	else
+		print(format(fmt,...))
+	end
 end
 
 function pretty_tostring(obj,indent)
