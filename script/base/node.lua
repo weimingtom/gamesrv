@@ -116,7 +116,7 @@ end
 function cnode:rename(oldname,newname)
 	local node = self:__getnode(oldname)
 	if node then
-		self:__delnode(oldaname)
+		self:__delnode(oldname)
 		self:__addnode(newname,node)
 		return oldname
 	end

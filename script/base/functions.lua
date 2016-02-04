@@ -504,13 +504,12 @@ end
 
 --filesystem
 function currentdir()
-	local ok,ret = pcall(require,"lfs")
+	local ok,lfs = pcall(require,"lfs")
 	if ok then
 		return lfs.currentdir()
 	end
-	local fd = popen("pwd")
-	local path = fd:read("*all")
-	print (path)
+	local fd = io.popen("pwd")
+	local path = fd:read("*all"):trim()
 	return path
 end
 

@@ -148,7 +148,7 @@ function cranks:add(rank)
 	if length > 0 and self:cmp(self.ranks[length],rank) <= 0 then
 		if self.maxlimit and length >= self.maxlimit then
 			if self.callback and self.callback.onadd then
-				self.callback.onadd(false,id,ispos)
+				self.callback.onadd(false,rank)
 			end
 			return false
 		end
