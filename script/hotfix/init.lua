@@ -2,6 +2,7 @@ local workdir = skynet.getenv("workdir")
 local patten = workdir .. "/?.lua"
 
 local ignore_module = {
+	"script%.init",
 	"script%.agent",
 	"script%.watchdob",
 	"script%.service%..+d",
@@ -56,8 +57,9 @@ function hotfix.hotfix(modname)
 	if type(env.__hotfix) == "function" then
 		env.__hotfix(oldmod)
 	end
-	logger.log("info","hotfix",srvname .. " hotfix " .. modname)
-	print (srvname,"hotfix " .. modname,oldmod,newmod,skynet.self())
+	local msg = string.format("hotfix %s",modname)
+	logger.log("info","hotfix",msg)
+	print(msg)
 end
 return hotfix
 
