@@ -103,6 +103,11 @@ function chuodong:checkhuodong()
 	else
 		self.bforceend = nil
 	end
+	-- 新一轮活动
+	local lefttime = self.join_starttime - pass_secs
+	if -5 <= lefttime and lefttime <= 295 then -- self.join_starttime == pass_secs
+		self:clear()
+	end
 	if self.join_starttime <= pass_secs then
 		if pass_secs < self.join_endtime then
 			if self.state ~= HUODONG_STATE_JOIN_START then
@@ -125,9 +130,6 @@ function chuodong:checkhuodong()
 					if pass_secs < self.end_readytime then
 						if self.state ~= HUODONG_STATE_START then
 							self.state = HUODONG_STATE_START
-							-- 策划要求活动的生命期延续到下次活动开启
-							-- 开启活动时清空上一次活动数据
-							self:clear()
 							self:onstarthuodong()
 						end
 					else
