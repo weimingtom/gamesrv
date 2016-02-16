@@ -36,8 +36,7 @@ function cwarobj:init(conf,warid)
 	self.hand_card_limit = 10
 	self.id_card = {}
 	self.warid = warid
-	self.tiredvalue = 0
-	self.roundcnt = 0
+	self.tiredvalue = 01	self.roundcnt = 0
 	self.s2cdata = {}
 	if  conf.isattacker then
 		self.type = "attacker"
@@ -56,6 +55,86 @@ function cwarobj:init(conf,warid)
 		maxhp = 30,
 		skillcost = 2,
 	})
+	self.footman = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "footman",
+	})
+	self.animal_footman = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "animal_footman",
+	})
+	self.fish_footman = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "fish_footman",
+	})
+	self.pirate_footman = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "pirate_footman",
+	})
+	self.magic_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "magic_handcard",
+	})
+	self.footman_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "footman_hancard",
+	})
+	self.animal_footman_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "animal_footman_handcard",
+	})
+	self.fish_footman_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "fish_footman_handcard",
+	})
+	self.pirate_footman_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "pirate_footman_handcard",
+	})
+	self.secret_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "secret_handcard",
+	})
+	self.warcry_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "warcry_handcard",
+	})
+	self.dieeffect_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "dieeffect_handcard",
+	})
+	self.sneer_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "sneer_handcard",
+	})
+	self.assault_handcard = ccategorytarget.new({
+		pid = self.pid,
+		warid = self.warid,
+		flag = "assault_handcard",
+	})
+	self.onplaycard = {}
+	self.afterplaycard = {}
+	self.onbeginround = {}
+	self.onendround = {}
+	self.ontriggersecret = {}
+	self.onputinhand = {}
+	self.onremovefromhand = {}
+	self.ai = {
+		onbeginround = false,
+	}
 end
 
 
@@ -236,11 +315,58 @@ function cwarobj:gettarget(targetid)
 	end
 end
 
+function cwarobj:getcategorys(type,sid,ishandcard)
+	local ret = {}
+	local cardcls = getclassbycardsid(sid)
+	if ishandcard then
+		if cardcls.warcry == 1 then
+			table.insert(ret,self.warcry_handcard)
+		end
+		if cardcls.dieeffect == 1 then
+			table.insert(ret,self.dieeffect_handcard)
+		end
+		if cardcls.secret == 1 then
+			table.insert(ret,self.secret_handcard)
+		end
+		if cardcls.sneer == 1 then
+			table.insert(ret,self.sneer_handcard)
+		end
+		if cardcls.assault == 1 then
+			table.insert(ret,self.assault_handcard)
+		end
+		if is_animal_footman(type) then
+			table.insert(ret,self.animal_footman_handcard)
+		elseif is_fish_footman(type) then
+			table.insert(ret,self.fish_footman_handcard)
+		elseif is_pirate_footman(type) then
+			table.insert(ret,self.pirate_footman_handcard)
+		end
+		if is_footman(type) then
+			table.insert(ret,self.footman_handcard)
+		end
+		if is_magiccard(type) then
+			table.insert(ret,self.magic_handcard)
+		end
+		
+
+	else
+		if is_animal_footman(type) then
+			table.insert(ret,self.animal_footman)
+		elseif is_fish_footman(type) then
+			table.insert(ret,self.fish_footman)
+		elseif is_pirate_footman(type) then
+			table.insert(ret,self.pirate_footman)
+		end
+		if is_footman(type) then
+			table.insert(ret,self.footman)
+		end
+	end
+	return ret
+end
+
+
 
 function cwarobj:isvalidtarget(warcard,target)
-	if target:getstate("immune") then
-		return false
-	end
 	if is_magiccard(warcard.type) then
 		if target:getstate("magic_immune") then
 			return false
@@ -248,22 +374,20 @@ function cwarobj:isvalidtarget(warcard,target)
 	end
 	local targetid = target.id
 	local targettype = warcard.targettype
-	local selftarget = math.floor(targettype / 10)
-	local enemytarget = targettype % 10
 	if targetid == self.hero.id then
-		if selftarget == TARGETTYPE_SELF_HERO or selftarget == TARGETTYPE_SELF_HERO_FOOTMAN then
+		if targettype == TARGETTYPE_SELF_HERO or targettype == TARGETTYPE_ALL_HERO or targettype == TARGETTYPE_SELF_HERO_FOOTMAN or targettype == TARGETTYPE_ALL_HERO_FOOTMAN then
 			return true
 		end
 	elseif targetid == self.enemy.hero.id then
-		if enemytarget == TARGETTYPE_ENEMY_HERO or enemytarget == TARGETTYPE_ENEMY_HERO_FOOTMAN then
+		if targettype == TARGETTYPE_ENEMY_HERO or targettype == TARGETTYPE_ALL_HERO or targettype == TARGETTYPE_ENEMY_HERO_FOOTMAN or targettype == TARGETTYPE_ALL_HERO_FOOTMAN then
 			return true
 		end
-	elseif self.init_warcardid < targetid and targetid <= self.warcardid then
-		if selftarget == TARGETTYPE_SELF_FOOTMAN then
+	elseif self.init_warcardid <= targetid and targetid <= self.warcardid then
+		if targettype == TARGETTYPE_SELF_FOOTMAN or targettype == TARGETTYPE_ALL_FOOTMAN or targettype == TARGETTYPE_SELF_HERO_FOOTMAN or targettype == TARGETTYPE_ALL_HERO_FOOTMAN then
 			return true
 		end
-	elseif self.enemy.init_warcardid < targetid and targetid <= self.enemy.warcardid then
-		if enemytarget == TARGETTYPE_ENEMY_FOOTMAN then
+	elseif self.enemy.init_warcardid <= targetid and targetid <= self.enemy.warcardid then
+		if targettype == TARGETTYPE_ENEMY_FOOTMAN or targettype == TARGETTYPE_ALL_FOOTMAN or targettype == TARGETTYPE_ENEMY_HERO_FOOTMAN or targettype == TARGETTYPE_ALL_HERO_FOOTMAN then
 			return true
 		end
 	else
@@ -292,9 +416,6 @@ function cwarobj:playcard(warcardid,pos,targetid,choice)
 	local target
 	if warcard.targettype ~= 0 and targetid then
 		target = self:gettarget(targetid)
-		if not target then
-			return
-		end
 		if not self:isvalidtarget(warcard,target) then
 			logger.log("warning","war",string.format("[warid=%d] #%d playcard,targetid=%d(invalid targettype)",self.warid,self.pid,targetid))
 			return

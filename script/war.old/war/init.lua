@@ -9,23 +9,16 @@ require "script.war.aux"
 
 __warid = __warid or 0
 
-function genwarid()
-	if __warid >= MAX_NUMBER then
-		__warid = 0
-	end
-	__warid = __warid + 1
-	return __warid
-end
-
 cwar = class("cwar",cdatabaseable)
 
 function cwar:init(profile1,profile2)
+	__warid = __warid + 1
 	cdatabaseable.init(self,{
 		pid = 0,
 		flag = "cwar",
 	})
 	self.data = {}
-	self.warid = genwarid()
+	self.warid = __warid
 	self.attacker = cwarobj.new(profile1,self.warid)
 	self.defenser = cwarobj.new(profile2,self.warid)
 	self.attacker.enemy = self.defenser
