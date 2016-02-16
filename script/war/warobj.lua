@@ -45,7 +45,7 @@ function cwarobj:init(conf,warid)
 		self.warcardid = self.init_warcardid
 	else
 		self.type = "defenser"
-		self.init_warcardid = 300
+		self.init_warcardid = 100 + MAX_CARD_NUM
 		self.warcardid = self.init_warcardid
 	end
 	self.hero = chero.newhero({
@@ -610,7 +610,7 @@ function cwarobj:putinwar(warcard,pos)
 	end
 	warcard.pos = pos
 	table.insert(self.warcards,pos,warcardid)
-	-- 不是从首牌置入战场的牌也需要纳入管理 
+	-- 不是从手牌置入战场的牌也需要纳入管理 
 	if not self.id_card[warcard.id] then
 		self:addcard(warcard)
 	end
@@ -644,23 +644,6 @@ function cwarobj:removefromwar(warcard)
 	end
 	table.remove(self.warcards,pos)
 	warcard.inarea = "graveyard"
-end
-
-function cwarobj:checkhalo_lifecircle()
-	self.footman:checklifecircle()
-	self.animal_footman:checklifecircle()
-	self.fish_footman:checklifecircle()
-	self.pirate_footman:checklifecircle()
-	self.magic_handcard:checklifecircle()
-	self.footman_handcard:checklifecircle()
-	self.animal_footman:checklifecircle()
-	self.fish_footman:checklifecircle()
-	self.pirate_footman:checklifecircle()
-	self.secret_handcard:checklifecircle()
-	self.warcry_handcard:checklifecircle()
-	self.dieeffect_handcard:checklifecircle()
-	self.sneer_handcard:checklifecircle()
-	self.assault_handcard:checklifecircle()
 end
 
 function cwarobj:addsecret(warcardid)
@@ -704,82 +687,11 @@ function cwarobj:addcard(card)
 	self.id_card[id] = card
 end
 
-function cwarobj:check_die()
-	self:check_diefootman()
-	if self.hero:isdie() then
-		if not self.enemy.hero:isdie() then
-			warmgr.endwar(self.warid,0,1)
-		else
-			warmgr.endwar(self.warid,1,0)
-		end
-	else
-		if self.enemy.hero:isdie() then
-			warmgr.endwar(self.warid,1,0)
-		end
-	end
-end
-
-function cwarobj:check_diefootman()
-	local diefootman = self.diefootman
-	local enemy_diefootman = self.enemy.diefootman
-	self.diefootman = {}
-	self.enemy.diefootman = {}
-	for _,warcard in ipairs(diefootman) do
-		warcard:__oncheckdie()
-		self:delcard(warcard.id,"check_diefootman")
-	end
-	for _,warcard in ipairs(enemy_diefootman) do
-		warcard:__oncheckdie()
-		self.enemy:delcard(warcard.id,"check_diefootman")
-	end
-end
-
 function cwarobj:clone(warcard)
 	local warcard2 = self:newwarcard(warcard.sid)
 	warcard2:clone(warcard)
 	return warcard2
 end
-
-function cwarobj:dump()
-	local data = {}
-	data.data = self.data
-	data.state = self.state
-	data.srvname = self.srvname
-	data.race = self.race
-	data.crystal = self.crystal
-	data.empty_crystal = self.empty_crystal
-	data.warid = self.warid
-	data.pid = self.pid
-	data.type = self.type
-	data.warcardid = self.warcardid
-	data.tiredvalue = self.tiredvalue
-	data.roundcnt = self.roundcnt
-	data.handcards = self.handcards
-	data.leftcards = self.leftcards
-	data.secretcards = self.secretcards
-	data.warcards = self.warcards
-	data.hero = self.hero:dump()
-	data.footman = self.footman:dump()
-	data.animal_footman = self.animal_footman:dump()
-	data.fish_footman = self.fish_footman:dump()
-	data.footman_handcard = self.footman_handcard:dump()
-	data.animal_footman_handcard = self.animal_footman_handcard:dump()
-	data.fish_footman_handcard = self.fish_footman_handcard:dump()
-	data.secret_handcard = self.secret_handcard:dump()
-	data.warcry_handcard = self.warcry_handcard:dump()
-	data.onplaycard = self.onplaycard
-	data.afterplaycard = self.afterplaycard
-	data.onbeginround = self.onbeginround
-	data.onendround = self.onendround
-	local cards = {}
-	for id,card in pairs(self.id_card) do
-		cards[id] = card:dump()
-	end
-	data.id_card = cards
-	return data
-end
-
-
 
 function cwarobj:after_playcard(warcard)
 end
@@ -820,36 +732,6 @@ function cwarobj:add_empty_crystal(value)
 	warmgr.refreshwar(self.warid,self.pid,"set_empty_crystal",{value=self.empty_crystal,})
 end
 
-function cwarobj:set_magic_hurt_multiple(value)
-	logger.log("debug","war",string.format("[warid=%d] #%d set_magic_hurt_multiple %d",self.warid,self.pid,value))
-	self.magic_hurt_multiple = value
-	warmgr.refreshwar(self.warid,self.pid,"set_magic_hurt_multiple",{value=self.cure_multiple,})
-end
-
-function cwarobj:set_cure_multiple(value)
-	logger.log("debug","war",string.format("[warid=%d] #%d set_cure_multiple %d",self.warid,self.pid,value))
-	self.cure_multiple = value
-	warmgr.refreshwar(self.warid,self.pid,"set_cure_multiple",{value=self.cure_multiple,})
-end
-
-function cwarobj:set_cure_to_hurt(value)
-	logger.log("debug","war",string.format("[warid=%d] #%d set_crue_to_hurt %d",self.warid,self.pid,value))
-	self.cure_to_hurt = value
-	warmgr.refreshwar(self.warid,self.pid,"set_cure_to_hurt",{value=self.cure_to_hurt})
-end
-
-function cwarobj:get_magic_hurt_adden()
-	return self.magic_hurt_adden
-end
-
-function cwarobj:add_magic_hurt_adden(value)
-	logger.log("debug","war",string.format("[warid=%d] #%d add_magic_hurt_adden %d",self.warid,self.pid,value))
-	self.magic_hurt_adden = self.magic_hurt_adden + value
-	warmgr.refreshwar(self.warid,self.pid,"set_magic_hurt_adden",{value=self.magic_hurt_adden})
-end
-
-
-
 
 function cwarobj:onfail()
 	logger.log("info","war",string.format("[warid=%d] #%d fail",self.warid,self.pid))
@@ -860,186 +742,5 @@ function cwarobj:onwin()
 	logger.log("info","war",string.format("[warid=%d] #%d win",self.warid,self.pid))
 	cluster.call("warsrvmgr","war","endwar",self.pid,self.warid,1)
 end
-
-function cwarobj:__onplaycard(warcard,pos,target)
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local owner,card,cardcls,eventresult
-	local war = warmgr.getwar(self.warid)
-	for i,id in ipairs(self.onplaycard) do
-		owner = war:getowner(id)
-		card = owner.id_card[id]
-		cardcls = getclassbycardsid(card.sid)
-		eventresult = cardcls.__onplaycard(card,warcard,pos,target)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-function cwarobj:__afterplaycard(warcard,pos,target)
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local owner,card,cardcls,eventresult
-	local war = warmgr.getwar(self.warid)
-	for i,id in ipairs(self.afterplaycard) do
-		owner = war:getowner(id)
-		card = owner.id_card[id]
-		cardcls = getclassbycardsid(card.sid)
-		eventresult = cardcls.__afterplaycard(card,warcard,pos,target)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-
-function cwarobj:__onbeginround(roundcnt)
-	self.hero:onbeginround(roundcnt)
-	local warcard
-	for i,id in ipairs(self.warcards) do
-		warcard = self.id_card[id]
-		warcard:__onbeginround(roundcnt)
-	end
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local owner,card,cardcls,eventresult
-	local war = warmgr.getwar(self.warid)
-	for i,id in ipairs(self.onbeginround) do
-		owner = war:getowner(id)
-		card = owner.id_card[id]
-		cardcls = getclassbycardsid(card.sid)
-		eventresult = cardcls.__onbeginround(card,roundcnt)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-function cwarobj:__onendround(roundcnt)
-	self.hero:onendround(roundcnt)
-	self:checkhalo_lifecircle()
-	local warcard
-	for _,id in pairs(self.handcards) do
-		warcard = self.id_card[id]
-		warcard:checklifecircle()
-	end
-	for i,id in ipairs(self.warcards) do
-		warcard = self.id_card[id]
-		warcard:checklifecircle()
-		warcard:__onendround(roundcnt)
-	end
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local owner,card,cardcls,eventresult
-	local war = warmgr.getwar(self.warid)
-	for i,id in ipairs(self.onendround) do
-		owner = war:getowner(id)
-		card = owner.id_card[id]
-		cardcls = getclassbycardsid(card.sid)
-		eventresult = cardcls.__onendround(card,roundcnt)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-function cwarobj:__ontriggersecret(secretcardid)
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local owner,card,cardcls,eventresult
-	local war = warmgr.getwar(self.warid)
-	for i,id in ipairs(self.ontriggersecret) do
-		owner = war:getowner(id)
-		card = owner.id_card[id]
-		cardcls = getclassbycardsid(card.sid)
-		eventresult = cardcls.__ontriggersecret(card,secretcardid)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-function cwarobj:__onputinhand(warcard)
-	local categorys = self:getcategorys(warcard.type,warcard.sid,true)
-	for _,category in ipairs(categorys) do
-		category:addobj(warcard)
-	end
-	warcard:onputinhand()
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	for _,id in ipairs(self.onputinhand) do
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__onputinhand(warcard)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-function cwarobj:__onremovefromhand(warcard)
-	local categorys = self:getcategorys(warcard.type,warcard.sid,true)
-	for _,category in ipairs(categorys) do
-		category:delobj(warcard.id)
-	end
-	warcard:onremovefromhand()
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	for _,id in ipairs(self.onremovefromhand) do
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__onremovefromhand(warcard)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
 
 return cwarobj
