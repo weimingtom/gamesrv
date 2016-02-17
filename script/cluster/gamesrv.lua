@@ -9,40 +9,36 @@ end
 
 local CMD = {}
 -- warsrvmgr --> gamesrv
-function CMD.startwar(srvname,typ,pid,warsrvname,warid,matcher_profile)
-	--pprintf("%s %s %s %s %s %s",srvname,typ,pid,warsrvname,warid,matcher_profile)
+function CMD.startwar(srvname,typ,pid,enemy,warinfo)
+	local warid = assert(warinfo.warid)
+	local warsrvname = assert(warinfo.warsrvname)
 	local player = playermgr.getplayer(pid)
 	if not player then
-		return
+		player = playermgr.loadofflineplayer(pid)
 	end
-	if typ == "fight" then
-		player:set("fight.warid",warid)
-		player:set("fight.warsrvname",warsrvname)
-		sendpackage(pid,"war","matchplayer",matcher_profile)
-		sendpackage(pid,"war","startwar",{
-			warid = warid,
-		})
-	end
+	player:set("fight.warid",warid)
+	player:set("fight.warsrvname",warsrvname)
+	sendpackage(pid,"war","matchplayer",enemy)
+	sendpackage(pid,"war","startwar",{
+		warid = warid,
+	})
 end
 
-function CMD.endwar(srvname,typ,pid,warsrvname,warid,result,profile,lastmatch)
+function CMD.endwar(srvname,typ,pid,warid,result,stat)
 	local player = playermgr.getplayer(pid)
 	if not player then
 		return
 	end
-	if typ == "fight" then
-		local own_warid = player:query("fight.warid")
-		local own_warsrvname = player:query("fight.warsrvname")
-		assert(own_warid == warid,"Not match warid:" .. tostring(warid))
-		assert(own_warsrvname == warsrvname,"Not match warsrvname:" .. tostring(warsrvname))
-		player:delete("fight.warid")
-		player:delete("fight.warsrvname")
-		player:unpack_fight_profile(profile)
-		sendpackage(pid,"war","warresult",{
-			warid = warid,
-			result = result,
-		})
-	end
+	local own_warid = player:query("fight.warid")
+	local own_warsrvname = player:query("fight.warsrvname")
+	assert(own_warid == warid,"Not match warid:" .. tostring(warid))
+	player:delete("fight.warid")
+	player:delete("fight.warsrvname")
+	sendpackage(pid,"war","warresult",{
+		warid = warid,
+		result = result,
+	})
+	-- 处理统计信息
 end
 
 function gamesrv.dispatch(srvname,cmd,...)

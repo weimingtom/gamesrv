@@ -9,6 +9,7 @@ function cwarcard:init(conf)
 	self.sid = assert(conf.sid)
 	self.warid = assert(conf.warid)
 	self.pid = assert(conf.pid)
+	self.birthday = assert(conf.birthday)
 	self.pos = nil
 	self.inarea = "cardlib"
 	self.halos = {}
@@ -42,6 +43,8 @@ function cwarcard:initproperty()
 	self.atkcnt = cardcls.atkcnt
 	self.hurt = 0
 end
+
+
 
 local valid_buff = {
 	addmaxhp = true,

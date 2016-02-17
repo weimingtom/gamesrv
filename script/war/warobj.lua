@@ -15,29 +15,31 @@ function cwarobj:init(conf,warid)
 	self.data = {}
 	self.state = "init"
 	self.srvname = conf.srvname
-	self.race = conf.race
+	self.name = conf.name
 	-- xxx
 	self.crystal = 0
 	self.empty_crystal = 0
-	self.magic_hurt_adden = 0
-	self.magic_hurt_multiple = 1	--魔法伤害倍数
-	self.cure_multiple = 1 -- 治疗倍数
-	self.cure_to_hurt = 0 --治疗/魔法伤害转换标志
-	self.handcards = {}
-	self.leftcards = {}
-	self.diefootman = {}
-	for cardsid,num in pairs(conf.cardtable.cards) do
-		for i = 1,num do
-			table.insert(self.leftcards,cardsid)
-		end
-	end
-	self.secretcards = {}
-	self.warcards = {}
-	self.hand_card_limit = 10
-	self.id_card = {}
 	self.warid = warid
 	self.tiredvalue = 0
 	self.roundcnt = 0
+	self.hand_card_limit = 10
+	self.handcards = {}
+	self.leftcards = {}
+	self.secretcards = {}
+	self.warcards = {}
+	self.id_card = {}
+	for cardsid,num in pairs(conf.cardtable.cards) do
+		for i = 1,num do
+			local warcard = cwarcard.new({
+				id = self:gen_warcardid(),
+				sid = cardsid,
+				warid = self.warid,
+				pid = self.pid,
+			})
+			table.insert(self.leftcards,warcard)
+		end
+	end
+
 	self.s2cdata = {}
 	if  conf.isattacker then
 		self.type = "attacker"
@@ -52,13 +54,9 @@ function cwarobj:init(conf,warid)
 		id = self.init_warcardid,
 		pid = self.pid,
 		warid = self.warid,
-		race = self.race,
-		maxhp = 30,
-		skillcost = 2,
+		name = self.name,
 	})
 end
-
-
 
 
 function cwarobj:load(data)
@@ -82,16 +80,36 @@ function cwarobj:gen_warcardid()
 	return self.warcardid
 end
 
+function cwarobj:newwarcard(sid)
+	local warcardid = self:gen_warcardid()
+	if warcardid >= self.init_warcardid + MAX_CARD_NUM then
+		local msg = string.format("[warid=%d] #%d putinhand,type=%s cardsid=%d warcardid=%d overlimit",self.warid,self.pid,self.type,cardsid,warcardid)
+		logger.log("error","war",msg)
+		self:endwar(WARRESULT_TIE)
+		return
+	end
+	local conf = {
+		id = warcardid,
+		sid = sid,
+		warid = self.warid,
+		pid = self.pid,
+		birthday = self.roundcnt,
+	}
+	local warcard = cwarcard.new(conf)
+	self:addcard(warcard)
+	return warcard
+end
+
 function cwarobj:pickcard(israndom)
 	local pos = #self.leftcards
 	if pos == 0 then
-		return 0
+		return
 	end
 	if israndom then
 		pos = math.random(#self.leftcards)
 	end
-	local sid = table.remove(self.leftcards,pos)
-	return sid
+	local warcard = table.remove(self.leftcards,pos)
+	return warcard
 end
 
 -- 置入牌库
@@ -102,7 +120,8 @@ function cwarobj:puttocardlib(id,israndom)
 	if pos ~= 1 and israndom then
 		pos = math.random(#self.leftcards)
 	end
-	table.insert(self.leftcards,pos,card.sid)
+	local warcard = self:newwarcard(card.sid)
+	table.insert(self.leftcards,pos,warcard)
 	warmgr.refreshwar(self.warid,self.pid,"puttocardlib",{id=id,})
 end
 
@@ -110,12 +129,14 @@ function cwarobj:shuffle_cards()
 	shuffle(self.leftcards,true)	
 end
 
-function cwarobj:init_handcard()
+function cwarobj:ready_handcard()
 	local num = self.type == "attacker" and ATTACKER_START_CARD_NUM or DEFENSER_START_CARD_NUM
 	self.tmp_handcards = self:random_handcard(num)
-	for i,cardsid in ipairs(self.tmp_handcards) do
-		self:putinhand(cardsid)
+	local tmp_handcards = {}
+	for i,warcard in ipairs(self.tmp_handcards) do
+		table.insert(tmp_handcards,warcard.id)
 	end
+	warmgr.refreshwar(self.warid,self.pid,"ready_handcards",tmp_handcards)
 end
 
 function cwarobj:random_handcard(cnt)
@@ -130,28 +151,43 @@ function cwarobj:random_handcard(cnt)
 end
 
 function cwarobj:confirm_handcard(poslist)
+	local tmp_handcards = self.tmp_handcards
+	if not tmp_handcards then
+		return
+	end
+	self.tmp_handcards = nil
 	local giveup_handcards = {}
 	for _,pos in ipairs(poslist) do
-		if not self.handcards[pos] then
+		if not tmp_handcards[pos] then
 			logger.log("warning","war",string.format("#%d confirm_handcard,non match pos:%d",self.pid,pos))
-			cluster.call("warsrvmgr","war","endwar",self.pid,self.warid,2)
-			cluster.call("warsrvmgr","war","endwar",self.enemy.pid,self.warid,2)
+			self:endwar(WARRESULT_TIE)
 			return
 		else
-			table.insert(giveup_handcards,self.handcards[pos])
-			table.remove(self.tmp_handcards,pos)
+			table.insert(giveup_handcards,tmp_handcards[pos])
+			table.remove(tmp_handcards,pos)
 		end
 	end
-	logger.log("info","war",format("[warid=%d] #%d confirm_handcard,handcards=%s",self.warid,self.pid,self.tmp_handcards))
+	logger.log("info","war",format("[warid=%d] #%d confirm_handcard,handcards=%s",self.warid,self.pid,self:getcardsids(tmp_handcards)))
+	for i,warcard in ipairs(tmp_handcards) do
+		self:putinhand(warcard)
+	end
 	for _,id in ipairs(giveup_handcards) do
-		self:removefromhand(self.id_card[id])
 		self:puttocardlib(id,true)
-		self:delcard(id,"confirm_handcard")
-		local cardsid = self:pickcard()
-		self:putinhand(cardsid)
+	end
+	for i=1,#giveup_handcards do
+		local warcard = self:pickcard()
+		self:putinhand(warcard)
 	end
 	self.state = "confirm_handcard"
-	logger.log("info","war",format("#%d confirm_handcard,handcards:%s leftcards:%s",self.pid,self.handcards,self.leftcards))
+	logger.log("info","war",format("#%d confirm_handcard,handcards:%s leftcards:%s",self.pid,self:getcardsids(self.handcards),self:getcardsids(self.leftcards)))
+end
+
+function cwarobj:getcardsids(warcards)
+	local tbl = {}
+	for k,warcard in pairs(warcards) do
+		tbl[k] = warcard.sid
+	end
+	return tbl
 end
 
 function cwarobj:lookcards_confirm(pos)
@@ -160,16 +196,26 @@ function cwarobj:lookcards_confirm(pos)
 	local num = #lookcards
 	assert(1 <= pos and pos <= num,"Invalid pos:" .. tostring(pos))
 	self:putinhand(lookcards[pos])
-	for i = 1,num do
+	for i,warcard in ipairs(lookcards) do
 		if i ~= pos then
-			warmgr.refreshwar(self.warid,self.pid,"lookcards_discard",{pos=i,})
+			self:destroycard(warcard.id)
 		end
 	end
 end
 
 
+function cwarobj:endwar(result,stat)
+	local war = warmgr.getwar(self.warid)
+	local isattacker = war.attacker.pid == self.pid
+	if not isattacker then
+		if result == WARRESULT_WIN then
+			result = WARRESULT_LOSE
+		end
+	end
+	war:endwar(result,stat)
+end
+
 function cwarobj:endround(roundcnt)
-	-- test
 	roundcnt = roundcnt or self.roundcnt
 	assert(roundcnt == self.roundcnt)
 	logger.log("debug","war",string.format("[warid=%d] #%d endround,roundcnt=%d",self.warid,self.pid,roundcnt))
@@ -178,29 +224,23 @@ function cwarobj:endround(roundcnt)
 		return
 	end
 	self.state = "endround"
-	self:__onendround(self.roundcnt)
+	self:before_endround()
 	cluster.call(self.srvname,"forward",self.pid,"war","endround",{
 		roundcnt = self.roundcnt,
 	})
+	self:onendround()
 	self:check_die()
 	local war = warmgr.getwar(self.warid)
 	war:s2csync()
+	self:after_endround()
 	self.enemy:beginround()
 end
 
 function cwarobj:beginround()
 	self.roundcnt = self.roundcnt + 1
 	logger.log("debug","war",string.format("[warid=%d] #%d beginround,roundcnt=%d",self.warid,self.pid,self.roundcnt))
-
-	local war = warmgr.getwar(self.warid)
-	if self.roundcnt == 1 and self.type == "attacker" then
-		self:putinhand(16100)
-		war:s2csync()
-	end
 	self.state = "beginround"
-	self:__onbeginround(self.roundcnt)
-	local cardsid = self:pickcard()
-	self:putinhand(cardsid)
+	self:before_beginround()
 	if self.empty_crystal < 10 then
 		self:add_empty_crystal(1)
 	end
@@ -208,11 +248,24 @@ function cwarobj:beginround()
 	cluster.call(self.srvname,"forward",self.pid,"war","beginround",{
 		roundcnt = self.roundcnt,
 	})
+	self:onbeginround()
+	-- 抽卡
+	local war = warmgr.getwar(self.warid)
+	if self.roundcnt == 1 and self.type == "attacker" then
+		local warcard = self:newwarcard(161000)
+		self:putinhand(warcard)
+		war:s2csync()
+	end
+	local warcard = self:pickcard()
+	if not warcard then
+		self.tiredvalue = self.tiredvalue + 1
+		self.hero:addhp(-self.tiredvalue,0)
+	else
+		self:putinhand(warcard)
+	end
 	self:check_die()
 	war:s2csync()
-	if self.ai.onbeginround then
-		self.ai.onbeginround(self,self.roundcnt)
-	end
+	self:after_beginround()
 end
 
 function cwarobj:gettarget(targetid)
@@ -497,23 +550,6 @@ function cwarobj:hero_useskill(targetid)
 	self.hero:useskill(target)
 end
 
-function cwarobj:newwarcard(cardsid)
-	local warcardid = self:gen_warcardid()
-	if warcardid >= self.init_warcardid + MAX_CARD_NUM then
-		self:destroycard(cardsid)
-		local msg = string.format("[warid=%d] #%d putinhand,type=%s cardsid=%d warcardid=%d overlimit",self.warid,self.pid,self.type,cardsid,warcardid)
-		logger.log("error","war",msg)
-		error(msg)
-	end
-	local warcard = cwarcard.new({
-		id = warcardid,
-		sid = cardsid,
-		warid = self.warid,
-		pid = self.pid,
-	})
-	return warcard
-end
-
 function cwarobj:putinhand(cardsid)
 	if cardsid == 0 then
 		self.tiredvalue = self.tiredvalue + 1
@@ -526,7 +562,6 @@ function cwarobj:putinhand(cardsid)
 	end
 	local warcard = self:newwarcard(cardsid)
 	local warcardid = warcard.id
-	assert(self.id_card[warcardid] == nil,"repeat warcardid:" .. tostring(warcardid))
 	logger.log("debug","war",string.format("[warid=%d] #%d putinhand,cardsid=%d,warcardid=%d",self.warid,self.pid,cardsid,warcardid))
 	table.insert(self.handcards,warcardid)
 	warcard.inarea = "hand"
@@ -696,8 +731,8 @@ end
 function cwarobj:after_playcard(warcard)
 end
 
-function cwarobj:destroycard(sid)
-	warmgr.refreshwar(self.warid,self.pid,"destroycard",{sid=sid,})
+function cwarobj:destroycard(id)
+	warmgr.refreshwar(self.warid,self.pid,"destroycard",{id=id})
 end
 
 function cwarobj:getrecoverhp(recoverhp)
@@ -732,15 +767,64 @@ function cwarobj:add_empty_crystal(value)
 	warmgr.refreshwar(self.warid,self.pid,"set_empty_crystal",{value=self.empty_crystal,})
 end
 
+-- 事件
+function cwarobj:before_beginround()
+	-- 自身牌库
+	for i,warcard in ipairs(self.leftcards) do
+		if warcard.before_beginround then
+			warcard:before_beginround()
+		end
+	end
+	-- 自身手牌
+	for i,warcard in ipairs(self.handcards) do
+		if warcard.before_beginround then
+			warcard:before_beginround()
+		end
+	end
+	-- 自身英雄
+	self.hero:before_beginround()
+	-- 自身战场随从
+	for i,warcard in ipairs(self.warcards) do
+		if warcard.before_beginround then
+			warcard:before_beginround()
+		end
+	end
+	-- 敌方牌库
+	for i,warcard in ipairs(self.enemy.leftcards) do
+		if warcard.before_beginround then
+			warcard:before_beginround()
+		end
+	end
+	-- 敌方手牌
+	for i,warcard in ipairs(self.enemy.handcards) do
+		if warcard.before_beginround then
+			warcard:before_beginround()
+		end
+	end
+	-- 敌方英雄
+	self.enemy.hero:before_beginround()
+	-- 敌方战场随从
+	for i,warcard in ipairs(self.enemy.warcards) do
+		if warcard.before_beginround then
+			warcard:before_beginround()
+		end
+	end
 
-function cwarobj:onfail()
-	logger.log("info","war",string.format("[warid=%d] #%d fail",self.warid,self.pid))
-	cluster.call("warsrvmgr","war","endwar",self.pid,self.warid,0)
 end
 
-function cwarobj:onwin()
-	logger.log("info","war",string.format("[warid=%d] #%d win",self.warid,self.pid))
-	cluster.call("warsrvmgr","war","endwar",self.pid,self.warid,1)
+function cwarobj:onbeginround()
+end
+
+function cwarobj:after_beginround()
+end
+
+function cwarobj:before_endround()
+end
+
+function cwarobj:onendround()
+end
+
+function cwarobj:after_endround()
 end
 
 return cwarobj

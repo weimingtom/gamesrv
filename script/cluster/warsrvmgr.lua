@@ -25,17 +25,17 @@ function warsrvmgr.allocer()
 			end
 		end
 		if profile2 then
+			local attacker,defenser
 			if ishit(50,100) then
-				profile1.isattacker = true
+				attacker = profile1
+				defenser = profile2
 			else
-				profile1,profile2 = profile2,profile1
-				profile1.isattacker = true
+				attacker = profile2
+				defenser = profile1
 			end
-			profile1.state = "match"
-			profile2.state = "match"
 			warsrvmgr.onmatch(profile1,profile2)
 			for _,warsrvname in ipairs(warsrvmgr.order_warsrv) do
-				local ok,result = pcall(cluster.call,warsrvname,"war","createwar",profile1,profile2)
+				local ok,result = pcall(cluster.call,warsrvname,"war","createwar",attacker,defenser)
 				if ok and result then
 					break
 				end
@@ -45,9 +45,10 @@ function warsrvmgr.allocer()
 end
 
 function warsrvmgr.onmatch(profile1,profile2)
-	profile1.lastmatch = profile2.pid
-	profile2.lastmatch = profile1.pid
-
+	profile1.state = "match"
+	profile2.state = "match"
+	profile1.enemy = profile2
+	profile2.enemy = profile1
 end
 
 
@@ -106,35 +107,24 @@ function warsrvmgr.startwar(warsrvname,pid,warid)
 	profile.state = "startwar"
 	profile.warsrvname = warsrvname
 	profile.warid = warid
-	local matcher_profile = warsrvmgr.getprofile(profile.lastmatch)
-	print(profile.lastmatch,matcher_profile)
-	if matcher_profile then
-		cluster.call(profile.srvname,"war","startwar","fight",pid,warsrvname,warid,matcher_profile)
+	local enemy = profile.enemy
+	if enemy then
+		cluster.call(profile.srvname,"war","startwar",pid,enemy,{
+			warsrvanme = warsrvname,
+			warid = warid,
+		})
 	end
 end
 
-function warsrvmgr.endwar(warsrvname,pid,warid,result)
+function warsrvmgr.endwar(warsrvname,pid,warid,result,stat)
+	stat = stat or {} -- 战斗结束统计信息（如击杀随从数，使用法术牌数等）
 	local profile = warsrvmgr.getprofile(pid)
 	warsrvmgr.delprofile(pid)
 	profile.state = "endwar"
-	if result == 1 then --win
-		profile.wincnt = profile.wincnt + 1
-		profile.consecutive_wincnt = profile.consecutive_wincnt + 1
-		profile.consecutive_failcnt = 0
-	elseif result == 0 then --fail
-		profile.failcnt = profile.failcnt + 1
-		profile.consecutive_failcnt = profile.consecutive_failcnt + 1
-		profile.consecutive_wincnt = 0
-	else
-		-- tie
-	end
-	lastmatch = warsrvmgr.getprofile(profile.lastmatch)
-	cluster.call(profile.srvname,"war","endwar","fight",pid,profile.warsrvname,warid,result,profile,lastmatch)	
+	local enemy = assert(profile.enemy)
+	stat.enemy = enemy
+	cluster.call(profile.srvname,"war","endwar",pid,warid,result,stat)	
 end
-
-
-
-
 
 local CMD = {}
 

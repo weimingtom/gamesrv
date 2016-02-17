@@ -21,7 +21,7 @@ def gettypename(sid):
         4 : "fire",
         5 : "soil",
     }
-    race = (sid / 1000) % 10
+    race = (sid / 10000) % 10
     typename = typenames.get(race)
     if typename:
         return typename
@@ -46,6 +46,7 @@ ccard%(sid)d = class("ccard%(sid)d",super,{
     sid = %(sid)d,
     race = %(race)d,
     name = "%(name)s",
+    type = %(type)d,
     magic_immune = %(magic_immune)d,
     assault = %(assault)d,
     sneer = %(sneer)d,
@@ -56,9 +57,11 @@ ccard%(sid)d = class("ccard%(sid)d",super,{
     secret = %(secret)d,
     sneak = %(sneak)d,
     magic_hurt_adden = %(magic_hurt_adden)d,
-    type = %(type)d,
     magic_hurt = %(magic_hurt)d,
     recoverhp = %(recoverhp)d,
+    cure_to_hurt = %(cure_to_hurt)d,
+    cure_multi = %(cure_multi)d,
+    magic_hurt_multi = %(magic_hurt_multi)d,
     max_amount = %(max_amount)d,
     composechip = %(composechip)d,
     decomposechip = %(decomposechip)d,
@@ -110,10 +113,10 @@ return ccard%d
     for row in range(ignorerow,sheet.rows()):
         line = sheet.line(row)        
         sid = line["sid"]
-        if sid / 10000 == 1:
+        if sid / 100000 == 1:
             linefmt = cfg["inherit_head1"] + cfg["linefmt"]
-        elif sid / 10000 == 2:
-            linefmt = cfg["inherit_head2"] % (gettypename(sid),sid - 10000) + cfg["linefmt"]
+        elif sid / 100000 == 2:
+            linefmt = cfg["inherit_head2"] % (gettypename(sid),sid - 100000) + cfg["linefmt"]
         data = linefmt % line
         filename = os.path.join(dstpath,filename_pat % sid)
         parser.write(filename,data)

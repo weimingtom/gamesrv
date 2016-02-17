@@ -31,47 +31,69 @@ function cwar:init(profile1,profile2)
 	self.attacker.enemy = self.defenser
 	self.defenser.enemy = self.attacker
 	self.state = "init"
-	self.warlogs = {}
 	self.s2cdata = {
-		[self.attacker.pid] = {},
-		[self.defenser.pid] = {},
+		attacker = {}, -- 进攻方可见数据
+		defenser = {}, -- 防守方可见数据
+		attacker_sendpos = 1,
+		defenser_sendpos = 1,
+		attacker_listener = {},
+		defenser_listener = {},
 	}
 end
 
 function cwar:adds2c(pid,cmd,args)
 	local netdata = {pid = pid,cmd=cmd,args=args,}
-	local enemypid = self.attacker.pid
-	if enemypid == pid then
-		enemypid = self.defenser.pid
+	local self_s2cdata,enemy_s2cdata
+	if pid == self.attacker.pid then
+		self_s2cdata = self.s2cdata.attacker
+		enemy_s2cdata = self.s2cdata.defenser
+	else
+		assert(pid == self.defenser.pid)
+		self_s2cdata = self.s2cdata.defenser
+		enemy_s2cdata = self.s2cdata.attacker
 	end
 	if cmd == "putinhand" then
-		table.insert(self.s2cdata[pid],netdata)
+		table.insert(self_s2cdata,netdata)
 		netdata = copy(netdata)
 		netdata.args = nil
-		table.insert(self.s2cdata[enemypid],netdata)
+		table.insert(enemy_s2cdata,netdata)
 	else
-		table.insert(self.s2cdata[pid],netdata)
-		table.insert(self.s2cdata[enemypid],netdata)
+		table.insert(self_s2cdata,netdata)
+		table.insert(enemy_s2cdata,netdata)
 	end
 end
 
 function cwar:s2csync()
-	local attacker_s2cdata = self.s2cdata[self.attacker.pid]
-	local defenser_s2cdata = self.s2cdata[self.defenser.pid]
-	self.s2cdata = {
-		[self.attacker.pid] = {},
-		[self.defenser.pid] = {},
-	}
-	--logger.log("debug","war",format("[warid=%d] s2csync,attacker=%d defenser=%d attacker_s2cdata=%s defenser_s2cdata=%s",self.warid,self.attacker.pid,self.defenser.pid,attacker_s2cdata,defenser_s2cdata))
+	local attacker_endpos = #self.s2cdata.attacker
+	local defenser_endpos = #self.s2cdata.defenser
+	local attacker_s2cdata = slice(self.s2cdata.attacker,self.s2cdata.attacker_sendpos,attacker_endpos)
+	local defenser_s2cdata = slice(self.s2cdata.defenser,self.s2cdata.defenser_sendpos,defenser_endpos)
+	self.s2cdata.attacker_sendpos = attacker_endpos + 1
+	self.s2cdata.defenser_sendpos = defenser_endpos + 1
 	if next(attacker_s2cdata) then
 		cluster.call(self.attacker.srvname,"forward",self.attacker.pid,"war","sync",{
-			cmds = attacker_s2cdata
+			cmds = attacker_s2cdata,
 		})
 	end
 	if next(defenser_s2cdata) then
 		cluster.call(self.defenser.srvname,"forward",self.defenser.pid,"war","sync",{
 			cmds = defenser_s2cdata
 		})
+	end
+	-- watcher
+	if next(attacker_s2cdata) then
+		for i,v in ipairs(self.s2cdata.attacker_listener) do
+			cluster.call(v.srvname,"forward",v.pid,"war","sync",{
+				cmds = attacker_s2cdata,
+			})
+		end
+	end
+	if next(defenser_s2cdata) then
+		for i,v in ipairs(self.s2cdata.defenser_listener) do
+			cluster.call(v.srvname,"forward",v.pid,"war","sync",{
+				cmds = defenser_s2cdata,
+			})
+		end
 	end
 end
 
@@ -96,7 +118,7 @@ function cwar:getowner(id)
 end
 
 function cwar:startwar()
-	local msg = string.format("[warid=%d] startwar %d(srvname=%s) -> %d(srvname=%s)",self.warid,self.attacker.pid,self.attacker.srvname,self.defenser.pid,self.defenser.srvname)
+	local msg = string.format("[warid=%d] startwar,attacker=%d(name=%s srvname=%s) defenser=%d(name=%s srvname=%s)",self.warid,self.attacker.pid,self.attacker.name,self.attacker.srvname,self.defenser.pid,self.defenser.name,self.defenser.srvname)
 	print(msg)
 	logger.log("info","war",msg)
 	self.state = "startwar"
@@ -107,44 +129,28 @@ function cwar:startwar()
 	self.defenser:init_handcard()
 end
 
-function cwar:endwar(result1,result2)
-	local pid1,pid2 = self.attacker.pid,self.defenser.pid
+function cwar:endwar(result,stat)
+	stat = stat or {}
+	local attacker_result,defenser_result
+	if result == WARRESULT_WIN then
+		attacker_result = WARRESULT_WIN
+		defenser_result = WARRESULT_LOSE
+	elseif result == WARRESULT_LOSE then
+		attacker_result = WARRESULT_LOSE
+		defenser_result = WARRESULT_WIN
+	else
+		assert(result == WARRESULT_TIE)
+		attacker_result = WARRESULT_TIE
+		defenser_result = WARRESULT_TIE
+	end
 	local warid = self.warid
 	self.state = "endwar"
 	self.attacker.enemy = nil
 	self.defenser.enemy = nil
-	local msg = string.format("[warid=%d] endwar,attacker=%d(result=%d) defenser=%d(result=%d)",warid,pid1,result1,pid2,result2)
+	local msg = string.format("[warid=%d] endwar,attacker=%d(name=%s srvname=%s) defenser=%d(name=%s srvname=%s) result=%s",warid,self.attacker.pid,self.attacker.name,self.attacker.srvname,self.defenser.pid,self.defenser.name,self.defenser.srvname,result)
 	logger.log("info","war",msg)
-	print(msg)
-	cluster.call("warsrvmgr","war","endwar",pid1,warid,result1)
-	cluster.call("warsrvmgr","war","endwar",pid2,warid,result2)
-
-end
-
-function cwar:gettargets(targetid)
-	if targetid == self.pid then
-		return self
-	elseif self.init_warcardid <= targetid and targetid <= self.warcardid then
-		return self.id_card[targetid]
-	else
-		local war = warmgr.getobject(self.warid)
-		local opponent
-		if self.type == "attacker" then
-			opponent = war.defenser
-		else
-			oppoent = war.attacker
-		end
-		if opponent.init_warcardid <= targetid and targetid <= opponent.warcardid then
-			return opponent.id_card[targetid]
-		else
-			assert(opponent.pid == targetid,"Invalid targetid:" .. tostring(targetid))
-			return opponent
-		end
-	end
-end
-
-function cwar:addwarlog(warlog)
-	table.insert(self.warlogs,warlog)
+	cluster.call("warsrvmgr","war","endwar",self.attacker.pid,warid,attacker_result,stat.attacker)
+	cluster.call("warsrvmgr","war","endwar",self.defenser.pid,warid,defenser_result,stat.defenser)
 end
 
 return cwar
