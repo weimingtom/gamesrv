@@ -26,6 +26,7 @@ function cwar:init(profile1,profile2)
 	})
 	self.data = {}
 	self.warid = genwarid()
+	self.inorder = 0 -- 随从置入战场顺序
 	self.attacker = cwarobj.new(profile1,self.warid)
 	self.defenser = cwarobj.new(profile2,self.warid)
 	self.attacker.enemy = self.defenser
@@ -39,6 +40,11 @@ function cwar:init(profile1,profile2)
 		attacker_listener = {},
 		defenser_listener = {},
 	}
+end
+
+function cwar:gen_inorder()
+	self.inorder = self.inorder + 1
+	return self.inorder
 end
 
 function cwar:adds2c(pid,cmd,args)

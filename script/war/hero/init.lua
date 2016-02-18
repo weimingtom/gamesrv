@@ -21,8 +21,22 @@ function chero:init(conf)
 	self.atk = 0
 	self.atkcnt = 1
 	self.leftatkcnt = 0
+	self.weapon = nil
 	self.buffs = {}
-	self.state = {}
+end
+
+function chero:canattack()
+	if self:has("freeze") then
+		return false
+	end
+	local atk = self:getatk()
+	if atk <= 0 then
+		return false
+	end
+	if self.leftatkcnt <= 0 then
+		return false
+	end
+	return true
 end
 
 return chero

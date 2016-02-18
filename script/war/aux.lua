@@ -273,13 +273,19 @@ function is_weapon(type)
 	return math.floor(type/100) == 3
 end
 
-function is_secretcard(sid)
-	local cardcls = getclassbycardsid(sid)
-	if cardcls.secret == 1 then
-		return true
-	end
-	return false
-end
+MAGICCARD = {
+	NORMAL = 101,
+	SECRET = 102
+}
+
+FOOTMAN = {
+	NORMAL = 201,
+	ANIMAL = 202,
+	FISH = 203,
+	HAIDAO = 204,
+	JIXIE = 205,
+	DIJI = 206,
+}
 
 function register(obj,type,warcardid)
 	local tbl = obj
@@ -339,6 +345,9 @@ MAX_CARD_NUM = 1000
 WARRESULT_LOSE = -1
 WARRESULT_TIE = 0
 WARRESULT_WIN = 1
+
+YES = 1
+NO = 0
 
 
 return waraux

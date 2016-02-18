@@ -13,18 +13,11 @@ function cwarcard:init(conf)
 	self.pos = nil
 	self.inarea = "cardlib"
 	self.halos = {}
+	self.haloto = {} -- 光环收益对象:{[id]=true}
 	self.buffs = {}
 	self.state = {}
 	self.atkcnt = 0
 	self.leftatkcnt = 0
-	self.lrhalo = {
-		addatk = 0,
-		addmaxhp = 0,
-	}
-
-	self:cleareffect()
-	self:clearbuff()
-	self:clearhalo()
 	self:initproperty()
 end
 
@@ -44,125 +37,6 @@ function cwarcard:initproperty()
 	self.hurt = 0
 end
 
-
-
-local valid_buff = {
-	addmaxhp = true,
-	addatk = true,
-	setatk = true,
-	setmaxhp = true,
-}
-
-local valid_halo = {
-	addmaxhp = true,
-	addatk = true,
-	addcrystalcost = true,
-	setcrystalcost = true,
-	mincrystalcost = true,
-}
-
-function cwarcard:addbuff(value,srcid,srcsid)
-	logger.log("debug","war",format("[warid=%d] #%d card.addbuff,cardid=%d buff=%s srcid=%d srcsid=%d",self.warid,self.pid,self.id,value,srcid,srcsid))
-	local buff = {srcid=srcid,srcsid=srcsid,value=value}
-	table.insert(self.buffs,buff)
-	warmgr.refreshwar(self.warid,self.pid,"addbuff",{id=self.id,buff=buff,})
-	for k,v in pairs(value) do
-		if k == "setatk" then
-			self.buffs.setatkpos = #self.buffs
-			self:setatk(v)
-		elseif k == "setmaxhp" then
-			self.buffs.setmaxhppos = #self.buffs	
-			self:setmaxhp(v)
-		elseif k == "addatk" then
-			self:addatk(v,BUFF_TYPE)
-		elseif k == "addmaxhp" then
-			self:addmaxhp(v,BUFF_TYPE)
-		end
-	end
-end
-
-function cwarcard:delbuff(srcid,start)
-	logger.log("debug","war",string.format("[warid=%d] #%d card.delbuff,cardid=%d srcid=%d",self.warid,self.pid,self.id,srcid))
-	start = start or 1
-	local pos
-	for i = start,#self.buffs do
-		local buff = self.buffs[i]
-		if buff.srcid == srcid then
-			pos = i
-			break
-		end
-	end
-	if pos then
-		local buff = self.buffs[pos]
-		table.remove(self.buffs,pos)
-		warmgr.refreshwar(self.warid,self.pid,"delbuff",{id=self.id,srcid=srcid,})
-		if pos > (self.buffs.start or 0) then
-			for k,v in pairs(buff.value) do
-				if k == "addatk" then
-					if (not self.buffs.setatkpos) or (self.buffs.setatkpos < pos) then
-						self:addatk(-v,BUFF_TYPE)
-					end
-				elseif k == "addmaxhp" then
-					if (not self.buffs.setmaxhppos) or (self.buffs.setmaxhppos < pos) then
-						self:addmaxhp(-v,BUFF_TYPE)
-					end
-				end
-			end
-		end
-	end
-end
-
-function cwarcard:addhalo(value,srcid,srcsid)
-	logger.log("debug","war",format("[warid=%d] #%d card.addhalo,cardid=%d buff=%s srcid=%d srcsid=%d",self.warid,self.pid,self.id,value,srcid,srcsid))
-	local halo = {srcid=srcid,srcsid=srcsid,value=value}
-	table.insert(self.halos,halo)
-	warmgr.refreshwar(self.warid,self.pid,"addhalo",{id=self.id,halo=halo,})
-	if value.mincrystalcost then
-		self:mincrystalcost(value.mincrystalcost)
-	end
-	for k,v in pairs(value) do
-		if k == "addatk" then
-			self:addatk(v,HALO_TYPE)
-		elseif k == "addmaxhp" then
-			self:addmaxhp(v,HALO_TYPE)
-		elseif k == "addcrystalcost" then
-			self:addcrystalcost(v)
-		elseif k == "setcrystalcost" then
-			self:setcrystalcost(v)
-		end
-	end
-end
-
-function cwarcard:delhalo(srcid,start)
-	logger.log("debug","war",string.format("[warid=%d] #%d card.delhalo,cardid=%d srcid=%d",self.warid,self.pid,self.id,srcid))
-	start = start or 1
-	local pos
-	for i = start,#self.halos do
-		local halo = self.halos[i]
-		if halo.srcid == srcid then
-			pos = i
-			break
-		end
-	end
-	if pos then
-		local halo = self.halos[pos]
-		table.remove(self.halos,pos)
-		warmgr.refreshwar(self.warid,self.pid,"delhalo",{id=self.id,srcid=srcid,})
-		for k,v in pairs(halo.value) do
-			if k == "setcrystalcost" then
-				self.halo.setcrystalcost = nil
-			elseif k == mincrystalcost then
-				self.halo.mincrystalcost = nil
-			elseif k == "addcrystalcost" then
-				self:addcrystalcost(-v)
-			elseif k == "addatk" then
-				self:addatk(-v,HALO_TYPE)
-			elseif k == "addmaxhp" then
-				self:addmaxhp(-v,HALO_TYPE)
-			end
-		end
-	end
-end
 
 -- 取消抉择
 function cwarcard:cancelchoice()
@@ -187,6 +61,7 @@ function cwarcard:setstate(type,newstate,nosync)
 		end
 	end
 end
+
 
 function cwarcard:getstate(type)
 	return self.state[type]
@@ -399,79 +274,165 @@ function cwarcard:addhp(value,srcid)
 	end
 end
 
+function cwarcard:getowner(id)
+	id = id or self.id
+	local war = warmgr.getwar(self.id)
+	return war:getowner(id)
+end
+
+function cwarcard:__get(buff_halo,attr)
+	local lastval
+	for i,v in ipairs(buff_halo) do
+		if v[attr] then
+			lastval = v[attr]
+		end
+	end
+	return lastval
+end
+
+function cwarcard:getfromhalo(owner,attr,maxid)
+	-- 光环(取最后进入战场卡牌光环效果)
+	maxid = maxid or 0
+	local val
+	if owner.hero.weapon then
+		local warcard = owner.hero.weapon
+		if warcard.haloto[self.id] and warcard.id > maxid  then
+			local tmp = self:__get(warcard.halos,attr)
+			if tmp then
+				maxid = warcard.id
+				val = tmp
+			end
+		end
+	end
+
+	for i,id in ipairs(owner.secretcards) do
+		local warcard = owner.id_card[id]
+		if warcard.haloto[self.id] and warcard.id > maxid then
+			local tmp = self:get(warcard.halos,attr)
+			if tmp then
+				maxid = warcard.id
+				val = tmp
+			end
+		end
+	end
+	for i,id in ipairs(owner.warcards) do
+		local warcard = owner.id_card[id]
+		if warcard.haloto[self.id] and warcard.id > maxid then
+			local tmp = self:get(warcard.halos,attr)
+			if tmp then
+				maxid = warcard.id
+				val = tmp
+			end
+		end
+	end
+	return val,maxid
+end
+
+function cwarcard:__get2(buffs_or_halos,attr)
+	local sum = 0
+	for i,v in ipairs(buffs_or_halos) do
+		if v[attr] then
+			sum = sum + v[attr]
+		end
+	end
+	return sum
+end
+
+function cwarcard:getfromhalo2(owner,attr)
+	local sum = 0
+	if owner.hero.weapon then
+		local warcard = owner.hero.weapon
+		if warcard.haloto[self.id] then
+			local tmp = self:__get(warcard.halos,attr)
+			if tmp then
+				sum = sum + tmp
+			end
+		end
+	end
+
+	for i,id in ipairs(owner.secretcards) do
+		local warcard = owner.id_card[id]
+		if warcard.haloto[self.id] then
+			local tmp = self:get(warcard.halos,attr)
+			if tmp then
+				sum = sum + tmp
+			end
+		end
+	end
+	for i,id in ipairs(owner.warcards) do
+		local warcard = owner.id_card[id]
+		if warcard.haloto[self.id] then
+			local tmp = self:get(warcard.halos,attr)
+			if tmp then
+				sum = sum + tmp
+			end
+		end
+	end
+	return sum
+end
+
+function cwarcard:get(attr)
+	-- 光环
+	local owner = self:getowner()
+	local val,maxid = self:getfromhalo(owner,attr,0)
+	local enemy_val,enemy_maxid = self:getfromhalo(owner.enemy,"enemy_" .. attr,maxid)
+	if maxid ~= enemy_maxid then
+		val = assert(enemy_val)
+	end
+	if val then
+		return val
+	end
+	-- BUFF
+	val = self:__get(self.buffs,attr)
+	if val then
+		return val
+	end
+	return self[attr]
+end
+
+
+-- 得到增加（累积）的属性，如：addatk
+function cwarcard:get2(attr)
+	-- 光环
+	local owner = self:getowner()
+	local self_halo_add = self:getfromhalo2(owner,attr) or 0
+	local enemy_halo_add = self:getfromhalo2(owner.enemy,"enemy_" .. attr) or 0
+	-- BUFF
+	local self_buff_add = self:__get2(self.buffs,attr) or 0
+	return self_halo_add + enemy_halo_add + self_buff_add + (self[attr] or 0)
+end
+
+function cwarcard:has(attr)
+	local val = self:get(attr)
+	if type(val) ~= "boolean" then
+		return val == YES
+	else
+		return val
+	end
+end
+
+
 
 function cwarcard:getatk()
-	if self.sid == 13402 or self.sid == 23402 then
-		return self:gethp()
-	end
-	local atk = self.atk
-	if self.buff.setatk then
-		atk = self.buff.setatk
-	end
-	local laddatk,raddatk = 0,0
-	if self.inarea == "war" then
-		local war = warmgr.getwar(self.warid)
-		local warobj = war:getwarobj(self.pid)
-		local warcard
-		local id = warobj.warcards[self.pos-1]
-		if id then
-			warcard = warobj.id_card[id]
-			laddatk = warcard.lrhalo.addatk
-		end
-		id = warobj.warcards[self.pos+1]
-		if id then
-			warcard = warobj.id_card[id]
-			raddatk = warcard.lrhalo.addatk
+	-- 光耀之子：攻击力==生命值
+	if self.sid == 134002 or self.sid == 234002 then
+		if not self.silence then
+			return self:gethp()
 		end
 	end
-	local lrhalo_addatk = laddatk + raddatk
-	atk = atk + self.buff.addatk + self.halo.addatk + lrhalo_addatk
-	return atk
-end
-
-function cwarcard:setatk(value)
-	self.buff.setatk = value
-	self.buff.addatk = 0
-	warmgr.refreshwar(self.warid,self.pid,"setatk",{id=self.id,value=self:getatk(),})
-end
-
-function cwarcard:addatk(value,mode)
-	if mode == BUFF_TYPE then
-		self.buff.addatk = self.buff.addatk + value
-		assert(self.buff.addatk >= 0,string.format("buff.addatk:%d < 0",self.buff.addatk))
-	else
-		assert(mode == HALO_TYPE)
-		self.halo.addatk = self.halo.addatk + value
-		assert(self.halo.addatk >= 0,string.format("halo.addatk:%d < 0",self.halo.addatk))
+	local atk = self:get("atk")
+	if atk then
+		return atk
 	end
-	warmgr.refreshwar(self.warid,self.pid,"setatk",{id=self.id,value=self:getatk(),})
-end
-
-function cwarcard:addcrystalcost(value)
-	self.halo.addcrystalcost = self.halo.addcrystalcost + value
-	warmgr.refreshwar(self.warid,self.pid,"setcrystalcost",{id=self.id,value=self:getcrystalcost(),})
+	return self:get2("addatk") + self.atk
 end
 
 function cwarcard:getcrystalcost()
-	if self.halo.setcrystalcost then
-		return self.halo.setcrystalcost
+	local crystalcost = self:get("crystalcost")
+	if crystalcost then
+		return crystalcost
 	end
-	local mincrystalcost = 0
-	if self.halo.mincrystalcost then
-		mincrystalcost = math.min(mincrystalcost,self.halo.mincrystalcost)
-	end
-	return math.max(mincrystalcost,self.crystalcost + self.halo.addcrystalcost)
-end
-
-function cwarcard:setcrystalcost(value)
-	assert(value >= 0,"invalid crystalcost:" .. tostring(value))
-	self.halo.setcrystalcost = value
-	warmgr.refreshwar(self.warid,self.pid,"setcrystalcost",{id=self.id,value=self:getcrystalcost(),})
-end
-
-function cwarcard:mincrystalcost(value)
-	assert(value >= 0)
-	self.halo.mincrystalcost = value
+	return self:get2("addcrystalcost")  + self.crystalcost
 end
 
 function cwarcard:gethurtvalue(magic_hurt)
@@ -589,7 +550,7 @@ function cwarcard:pack()
 	}
 end
 
-function cwarcard:clone(warcard)
+function cwarcard:copyfrom(warcard)
 	self.buffs = warcard.buffs
 	self.buff = warcard.buff
 	self.hp = warcard.hp
