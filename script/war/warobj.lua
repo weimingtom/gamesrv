@@ -662,12 +662,6 @@ function cwarobj:addcard(card)
 	warmgr.refreshwar(self.warid,self.pid,"addcard",{card=card:pack(),})
 end
 
-function cwarobj:clone(warcard)
-	local warcard2 = self:newwarcard(warcard.sid)
-	warcard2:copyfrom(warcard)
-	return warcard2
-end
-
 function cwarobj:destroycard(id)
 	self:delcard(id,"destroy")
 	warmgr.refreshwar(self.warid,self.pid,"destroycard",{id=id})
