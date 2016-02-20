@@ -78,7 +78,7 @@ end
 function cwarobj:log(loglevel,filename,...)
 	local msg = table.concat({...},"\t")
 	msg = string.format("[warid=%d pid=%d srvname=%s] %s",self.warid,self.pid,,self.srvname,msg)
-	self:log(loglevel,filename,msg)
+	logger.log(loglevel,filename,msg)
 end
 
 function cwarobj:gen_warcardid()
@@ -98,6 +98,7 @@ function cwarobj:newwarcard(sid)
 		sid = sid,
 		warid = self.warid,
 		pid = self.pid,
+		srvname = self.srvname,
 		birthday = self.roundcnt,
 	}
 	local warcard = cwarcard.new(conf)

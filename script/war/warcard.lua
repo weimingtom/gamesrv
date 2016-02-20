@@ -9,6 +9,7 @@ function cwarcard:init(conf)
 	self.sid = assert(conf.sid)
 	self.warid = assert(conf.warid)
 	self.pid = assert(conf.pid)
+	self.srvname = assert(conf.srvname)
 	self.birthday = assert(conf.birthday)
 	self.pos = nil
 	self.bsilence = nil
@@ -17,6 +18,9 @@ function cwarcard:init(conf)
 	self.haloto = {} -- 光环收益对象:{[id]=true}
 	self.buffs = {}
 	self:initproperty()
+	self.hp = self.maxhp	
+	self.hurt = 0
+	self.leftatkcnt = self.atkcnt
 end
 
 function cwarcard:initproperty()
@@ -32,51 +36,16 @@ function cwarcard:initproperty()
 	self.crystalcost = cardcls.crystalcost
 	self.magic_hurt_adden = cardcls.magic_hurt_adden
 	self.atkcnt = cardcls.atkcnt
-	self.leftatkcnt = self.atkcnt
-	self.hurt = 0
+	self.magic_immune = cardcls.magic_immune
+	self.assault = cardcls.assault
+	self.sneer = cardcls.sneer
+	self.shield = cardcls.shield
 end
 
-
--- 取消抉择
-function cwarcard:cancelchoice()
-	self.cancelchoice = true
-	warmgr.refreshwar(self.warid,self.pid,"cancelchoice",{id=self.id})
-end
-
-function cwarcard:setstate(type,newstate,nosync)	
-	local oldstate = self.state[type]
-	self.state[type] = newstate
-	if oldstate ~= newstate  then
-		logger.log("debug","war",string.format("[warid=%d] #%d setstate,cardid=%d type:%s,state:%s->%s",self.warid,self.pid,self.id,type,oldstate,newstate))
-		if not nosync then
-			warmgr.refreshwar(self.warid,self.pid,"setstate",{id=self.id,type=type,value=newstate})
-		end
-		if (not oldstate) and newstate then
-			if type == "enrage" then
-				self:onenrage()
-			elseif type == "assault" then
-				self:setleftatkcnt(self.atkcnt)
-			end
-		end
-	end
-end
-
-
-function cwarcard:getstate(type)
-	return self.state[type]
-end
-
-function cwarcard:delstate(type)
-	local oldstate = self.state[type]
-	if oldstate then
-		logger.log("debug","war",string.format("#%d delstate,cardid=%d,type=%s",self.pid,self.id,type))
-		self.state[type] = nil
-		warmgr.refreshwar(self.warid,self.pid,"delstate",{id=self.id,state=type})
-		if type == "enrage" then
-			self:onunenrage()
-		end
-	end
-	
+function cwarcard:log(loglevel,filename,...)
+	local msg = table.concat({...},"\t")
+	msg = string.format("[warid=%d pid=%d srvname=%s] %s",self.warid,self.pid,self.srvname,msg)
+	logger.log(loglevel,filename,msg)
 end
 
 function cwarcard:addleftatkcnt(value)
@@ -107,26 +76,11 @@ function cwarcard:setatkcnt(atkcnt,nosync)
 end
 
 function cwarcard:gethp()
-	return self.hp + self.buff.addhp + self.halo.addhp
+	return self.hp
 end
 
-function cwarcard:sethp(value,bsync)
-	bsync = bsync or true
-	self.buff.addhp = 0
-	self.halo.addhp = 0
-	self.hp = value
-	local hp = self:gethp()
-	if bsync then
-		warmgr.refreshwar(self.warid,self.pid,"sethp",{id=self.id,value=hp,})
-	end
-	local ishurt = hp < self:getmaxhp()
-	if ishurt then
-		local state = ishurt and 1 or 0
-		self:setstate("enrage",state)
-	end
-	if self.hp <= 0 then
-		self:setdie()
-	end
+function cwarcard:addhp(value,srcid)
+	:
 end
 
 function cwarcard:addhp(value,srcid)
@@ -334,6 +288,13 @@ function cwarcard:has(attr)
 	end
 end
 
+function cwarcard:set(attr,val)
+	local oldval = self:get(attr)
+	if oldval ~= val then
+		self[attr] = val
+		self:onupdate(attr,oldval,val)
+	end
+end
 
 
 function cwarcard:getatk()
@@ -409,6 +370,9 @@ function cwarcard:silence()
 	self.buffs = {}
 	self.halo = {}
 	self.haloto = {}
+	-- 恢复成初始属性
+	self:initproperty()
+	-- 去掉状态属性
 	self.magic_immune = 0
 	self.assault = 0
 	self.sneer = 0
@@ -420,51 +384,9 @@ function cwarcard:silence()
 	self.cure_to_hurt = 0
 	self.recoverhp_multi = 1
 	self.magic_hurt_multi = 1
+	-- 伤害继承
 	self.hp = self.maxhp - self.hurt
-	--生命值上限/基础攻击力是不变值
 	warmgr.refreshwar(self.warid,self.pid,"synccard",{warcard=self:pack(),})
-end
-
-function cwarcard:clearbuff()
-	self.buff = {}
-	self.buff.addmaxhp = 0
-	self.buff.addatk = 0
-	self.buff.addcrystalcost = 0
-	self.buff.addhp = 0
-end
-
-function cwarcard:clearhalo()
-	self.halo = {}
-	self.halo.addmaxhp = 0
-	self.halo.addatk  = 0
-	self.halo.addcrystalcost = 0
-	self.halo.addhp = 0
-end
-
-function cwarcard:clearlrhalo()
-	self.lrhalo = {
-		addatk = 0,
-		addmaxhp = 0,
-	}
-end
-
-function cwarcard:clearstate()
-	self.state = {}
-end
-
-function cwarcard:cleareffect()
-	self.effect = {
-		ondie = {},
-		oncheckdie = {},
-		onaddhp = {},
-		onhurt = {},
-		ondefense = {},
-		onattack = {},
-		onenrage = {},
-		onunenrage = {},
-		onendround = {},
-		onbeginround = {},
-	}
 end
 
 function cwarcard:pack()
@@ -495,10 +417,15 @@ function cwarcard:pack()
 end
 
 function cwarcard:clone()
-	local 
 	local owner = self:getowner()
 	local warcard = owner:newwarcard(self.sid)
-
+	local cloneattr = deepcopy(self)
+	for k,v in pairs(cloneattr) do
+		if k ~= "id" then
+			warcard[k] = v
+		end
+	end
+	return warcard
 end
 
 function cwarcard:isdie()
@@ -521,449 +448,6 @@ function cwarcard:setdie()
 		table.insert(warobj.diefootman,self)
 		self:__ondie()
 	end
-end
-
-function cwarcard:addeffect(type,effect)
-	local effects = assert(self.effect[type],"Invalid effect type:" .. tostring(type))
-	table.insert(effects,effect)
-	warmgr.refreshwar(self.warid,self.pid,"addeffect",{id=self.id,type=type,effect=effect})
-end
-
-function cwarcard:deleffect(type,srcid)
-	local effects = assert(self.effect[type],"Invalid effect type:" .. tostring(type))
-	for i,effect in ipairs(effects) do
-		if effect.id == srcid then
-			table.remove(effects,i)
-			warmgr.refreshwar(self.warid,self.pid,"deleffect",{id=self.id,type=type,srcid=srcid,})
-			break
-		end
-	end
-end
-
-
-function cwarcard:__onenrage()
-	-- 自身效果
-	self:onenrage()
-	-- buff效果
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local id
-	for _,v in ipairs(self.effect.onenrage) do
-		id = v.id
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__onenrage(warcard,self)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-function cwarcard:__onenrage()
-	-- 自身效果
-	self:onunenrage()
-	-- buff效果
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local id
-	for _,v in ipairs(self.effect.onunenrage) do
-		id = v.id
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__onunenrage(warcard,self)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-function cwarcard:__onbeginround(roundcnt)
-	-- 自身效果
-	self:onbeginround(roundcnt)
-	-- buff效果
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local id
-	for _,v in ipairs(self.effect.onbeginround) do
-		id = v.id
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__onbeginround(warcard,self,roundcnt)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-function cwarcard:__onendround(roundcnt)
-	-- 自身效果
-	self:onendround(roundcnt)
-	-- buff效果
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local id
-	for _,v in ipairs(self.effect.onendround) do
-		id = v.id
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__onendround(warcard,self,roundcnt)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	return ret
-end
-
-
-
-function cwarcard:__onattack(target)
-	-- 自身效果
-	self:onattack(target)
-	-- buff效果
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local id
-	for _,v in ipairs(self.effect.onattack) do
-		id = v.id
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__onattack(warcard,self,target)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-		if self:isdie() then
-			break
-		end
-	end
-	if not self:isdie() then
-		-- 光环效果
-		if ignoreevent ~= IGNORE_ALL_LATER_EVENT then
-			local categorys = warobj:getcategorys(self.type,self.sid,false)
-			for _,category in ipairs(categorys) do
-				for _,id in ipairs(category.onattack) do
-					owner = war:getowner(id)
-					warcard = owner.id_card[id]
-					cardcls = getclassbycardsid(warcard.sid)
-					eventresult = cardcls.__onattack(warcard,self,target)
-					if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-						ret = true
-					end
-					ignoreevent = EVENTRESULT_FIELD2(eventresult)
-					if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-						break
-					end
-					if self:isdie() then
-						break
-					end
-				end
-				if self:isdie() then
-					break
-				end
-			end
-		end
-	end
-	return ret
-end
-
-function cwarcard:__ondefense(attacker)
-	-- 自身效果
-	self:ondefense(attacker)
-	-- buff效果
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local id
-	for _,v in ipairs(self.effect.ondefense) do
-		id = v.id
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__ondefense(warcard,attacker,self)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-		if attacker:isdie() then
-			break
-		end
-	end
-	if not attacker:isdie() then
-		-- 光环效果
-		if ignoreevent ~= IGNORE_ALL_LATER_EVENT then
-			local categorys = warobj:getcategorys(self.type,self.sid,false)
-			for _,category in ipairs(categorys) do
-				for _,id in ipairs(category.ondefense) do
-					owner = war:getowner(id)
-					warcard = owner.id_card[id]
-					cardcls = getclassbycardsid(warcard.sid)
-					eventresult = cardcls.__ondefense(warcard,attacker,self)
-					if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-						ret = true
-					end
-					ignoreevent = EVENTRESULT_FIELD2(eventresult)
-					if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-						break
-					end
-					if attacker:isdie() then
-						break
-					end
-				end
-				if attacker:isdie() then
-					break
-				end
-			end
-		end
-	end
-	return ret
-end
-
-function cwarcard:__onaddhp(recoverhp)
-	-- 自身效果
-	self:onaddhp(recoverhp)
-	-- buff效果
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local id
-	for _,v in ipairs(self.effect.onaddhp) do
-		id = v.id
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__onaddhp(warcard,self,recoverhp)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	-- 光环效果
-	if ignoreevent ~= IGNORE_ALL_LATER_EVENT then
-		local categorys = warobj:getcategorys(self.type,self.sid,false)
-		for _,category in ipairs(categorys) do
-			for _,id in ipairs(category.onaddhp) do
-				owner = war:getowner(id)
-				warcard = owner.id_card[id]
-				cardcls = getclassbycardsid(warcard.sid)
-				eventresult = cardcls.__onaddhp(warcard,recoverhp)
-				if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-					ret = true
-				end
-				ignoreevent = EVENTRESULT_FIELD2(eventresult)
-				if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-					break
-				end
-			end
-		end
-	end
-	return ret
-end
-
-
-function cwarcard:__onhurt(hurtvalue,srcid)
-	-- 自身效果
-	self:onhurt(hurtvalue,srcid)
-	-- buff效果
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local id
-	for _,v in ipairs(self.effect.onhurt) do
-		id = v.id
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__onhurt(warcard,self,hurtvalue,srcid)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	-- 光环效果
-	if ignoreevent ~= IGNORE_ALL_LATER_EVENT then
-		local categorys = warobj:getcategorys(self.type,self.sid,false)
-		for _,category in ipairs(categorys) do
-			for _,id in ipairs(category.onhurt) do
-				owner = war:getowner(id)
-				warcard = owner.id_card[id]
-				cardcls = getclassbycardsid(warcard.sid)
-				eventresult = cardcls.__onhurt(warcard,self,hurtvalue,srcid)
-				if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-					ret = true
-				end
-				ignoreevent = EVENTRESULT_FIELD2(eventresult)
-				if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-					break
-				end
-			end
-		end
-	end
-	return ret
-end
-
-
-
-function cwarcard:__ondie()
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	-- 自身效果
-	self:ondie()
-	-- buff效果
-	local ret = false
-	local ignoreevent = IGNORE_NONE
-	local eventresult
-	local owner,warcard,cardcls
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local id
-	for _,v in ipairs(self.effect.ondie) do
-		id = v.id
-		assert(id ~= self.id)
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__ondie(warcard,self)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	-- 光环效果
-	if ignoreevent ~= IGNORE_ALL_LATER_EVENT then
-		local categorys = warobj:getcategorys(self.type,self.sid,false)
-		for _,category in ipairs(categorys) do
-			for _,id in ipairs(category.ondie) do
-				owner = war:getowner(id)
-				warcard = owner.id_card[id]
-				cardcls = getclassbycardsid(warcard.sid)
-				eventresult = cardcls.__ondie(warcard,self)
-				if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-					ret = true
-				end
-				ignoreevent = EVENTRESULT_FIELD2(eventresult)
-				if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-					break
-				end
-			end
-		end
-	end
-	warobj:removefromwar(self)
-	return ret
-end
-
-function cwarcard:__oncheckdie()
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	-- 自身效果
-	self:oncheckdie()
-	-- buff效果
-	for _,v in ipairs(self.effect.oncheckdie) do
-		id = v.id
-		assert(id ~= self.id)
-		owner = war:getowner(id)
-		warcard = owner.id_card[id]
-		cardcls = getclassbycardsid(warcard.sid)
-		eventresult = cardcls.__oncheckdie(warcard,self)
-		if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-			ret = true
-		end
-		ignoreevent = EVENTRESULT_FIELD2(eventresult)
-		if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-			break
-		end
-	end
-	-- 光环效果
-	if ignoreevent ~= IGNORE_ALL_LATER_EVENT then
-		local categorys = warobj:getcategorys(self.type,self.sid,false)
-		for _,category in ipairs(categorys) do
-			for _,id in ipairs(category.oncheckdie) do
-				if id == self.id then
-					warcard = self
-				else
-					owner = war:getowner(id)
-					warcard = owner.id_card[id]
-				end
-				cardcls = getclassbycardsid(warcard.sid)
-				eventresult = cardcls.__oncheckdie(warcard,self)
-				if EVENTRESULT_FIELD1(eventresult) == IGNORE_ACTION then
-					ret = true
-				end
-				ignoreevent = EVENTRESULT_FIELD2(eventresult)
-				if ignoreevent == IGNORE_LATER_EVENT or ignoreevent == IGNORE_ALL_LATER_EVENT then
-					break
-				end
-			end
-		end
-	end
-	return ret
 end
 
 -- 随从牌(战吼)/法术牌(使用效果） 
@@ -1006,22 +490,6 @@ function cwarcard:onremovefromhand()
 	end
 end
 
-function cwarcard:onequipweapon(hero)
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onequipweapon then
-			cardcls.onequipweapon(self,hero)
-		end
-	end
-end
-
-function cwarcard:ondelweapon(hero)
-	local cardcls = getclassbycardsid(self.sid)
-	if cardcls.ondelweapon then
-		cardcls.ondelweapon(self,hero)
-	end
-end
-
 function cwarcard:onbeginround(roundcnt)
 	self:setleftatkcnt(self.atkcnt)
 	if not self:issilence() then
@@ -1032,45 +500,31 @@ function cwarcard:onbeginround(roundcnt)
 	end
 end
 
-local lifecircle_states = {
-	freeze = true,
-	immune = true,
-	assault = true
-}
+function cwarcard:checkbuffs()
+	local owner = self:getowner()
+	local delbuffs = {}
+	for pos,buff in ipairs(self.buffs) do
+		if buff.exceedround and buff.exceedround >= owner.roundcnt then
+			table.insert(delbuffs,pos)
+		end
+	end
+	for i=#delbuffs,1,-1 do
+		local pos = delbuffs[i]	
+		table.remove(self.buffs,pos)
+	end
+end
 
-function cwarcard:checklifecircle()
-	for state,_ in ipairs(lifecircle_states) do
-		local lifecircle = self:getstate(state)
-		if lifecircle then
-			lifecircle = lifecircle - 1
-			if lifecircle <= 0 then
-				self:delstate(state)
-			else
-				self:setstate(state,lifecircle)
-			end
-		end
-	end
-	for i = #self.buffs,1,-1 do
-		local buff = self.buffs[i]
-		if buff.value.lifecircle then
-			buff.value.lifecircle = buff.value.lifecircle - 1
-			if buff.value.lifecircle <= 0 then
-				self:delbuff(buff.srcid,i)
-			end
-		end
-	end
-	for i = #self.halos,1,-1 do
-		local halo = self.halos[i]
-		if halo.value.lifecircle then
-			halo.value.lifecircle = halo.value.lifecircle - 1
-			if halo.value.lifecircle <= 0 then
-				self:delhalo(halo.srcid,i)
-			end
-		end
+function cwarcard:checkhalo()
+	local owner = self:getowner()
+	if self.halo.exceedround and self.halo.exceedround >= owner.roundcnt then
+		self.halo = {}
+		self.haloto = {}
 	end
 end
 
 function cwarcard:onendround(hero)
+	self:checkbuffs()
+	self:checkhalo()
 	if not self:issilence() then
 		local cardcls = getclassbycardsid(self.sid)
 		if cardcls.onendround then
@@ -1123,56 +577,3 @@ function cwarcard:ondie()
 		end
 	end
 end
-
-function cwarcard:oncheckdie()
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.oncheckdie then
-			cardcls.oncheckdie(self)
-		end
-	end
-end
-
-function cwarcard:onenrage()
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onenrage then
-			cardcls.onenrage(self)
-		end
-	end
-end
-
-function cwarcard:onunenrage()
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onunenrage then
-			cardcls.onunenrage(self)
-		end
-	end
-end
-
-
-function cwarcard:dump()
-	local data = {}
-	data.id = self.id
-	data.sid = self.sid
-	data.warid = self.warid
-	data.pid = self.pid
-	data.inarea = self.inarea
-	data.pos = self.pos
-	data.state = self.state
-	data.halos = self.halos
-	data.buffs = self.buffs
-	data.buff = self.buff
-	data.hp = self.hp
-	data.maxhp = self.maxhp
-	data.atk = self.atk
-	data.magic_hurt = self.magic_hurt
-	data.crystalcost = self.crystalcost
-	data.hurt = self.hurt
-	data.atkcnt = self.atkcnt
-	data.leftatkcnt = self.atkcnt
-	data.effect = self.effect
-	return data
-end
-
