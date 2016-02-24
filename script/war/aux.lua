@@ -353,5 +353,7 @@ WARRESULT_WIN = 1
 YES = 1
 NO = 0
 
+MAX_ROUND = 60 -- 最大回合数
+
 
 return waraux

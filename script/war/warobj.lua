@@ -671,25 +671,25 @@ end
 function cwarobj:addcrystal(value)
 	self:log("debug","war",string.format("addcrystal,%d+%d=%d",self.crystal,value,self.crystal+value))
 	self.crystal = self.crystal + value
-	warmgr.refreshwar(self.warid,self.pid,"update",{crystal=self.crystal})
+	warmgr.refreshwar(self.warid,self.pid,"sync",{crystal=self.crystal})
 end
 
 function cwarobj:setcrystal(value)
 	self:log("debug","war",string.format("setcrystal %d",value))
 	self.crystal = value
-	warmgr.refreshwar(self.warid,self.pid,"update",{crystal=self.crystal,})
+	warmgr.refreshwar(self.warid,self.pid,"sync",{crystal=self.crystal,})
 end
 
 function cwarobj:set_empty_crystal(value)
 	self:log("debug","war",string.format("set_empty_crystal %d",value))
 	self.empty_crystal = value
-	warmgr.refreshwar(self.warid,self.pid,"update",{empty_crystal=self.empty_crystal})
+	warmgr.refreshwar(self.warid,self.pid,"sync",{empty_crystal=self.empty_crystal})
 end
 
 function cwarobj:add_empty_crystal(value)
 	self:log("debug","war",string.format("add_empty_crystal %d+%d=%d",self.empty_crystal,value,self.empty_crystal+value))
 	self.empty_crystal = self.empty_crystal + value
-	warmgr.refreshwar(self.warid,self.pid,"update",{empty_crystal=self.empty_crystal,})
+	warmgr.refreshwar(self.warid,self.pid,"sync",{empty_crystal=self.empty_crystal,})
 end
 
 function cwarobj:__docmd(cmd,...)

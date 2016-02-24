@@ -1,7 +1,3 @@
-
-local BUFF_TYPE = 0
-local HALO_TYPE = 1
-
 cwarcard = class("cwarcard")
 
 function cwarcard:init(conf)
@@ -16,6 +12,7 @@ function cwarcard:init(conf)
 	self.inarea = "cardlib"
 	self.halo = {}
 	self.haloto = {} -- 光环收益对象:{[id]=true}
+	self.halofrom = {}
 	self.buffs = {}
 	self:initproperty()
 	self.hp = self.maxhp	
@@ -80,7 +77,56 @@ function cwarcard:gethp()
 end
 
 function cwarcard:addhp(value,srcid)
-	:
+	if value < 0 then
+		return self:costhp(-value,srcid)
+	elseif value > 0 then
+		return self:recoverhp(value,srcid)
+	else
+		return 0
+	end
+end
+
+function cwarcard:costhp(value,srcid)
+	assert(value > 0)
+	local oldhp = self:gethp()
+	local maxhp,inorder = self:get("maxhp")
+	for i=#self.buffs,1,-1 do
+		local buff = self.buffs[i]
+		if buff.inorder > inorder then
+			if buff.addhp and buff.addhp > 0 then
+				local costhp = math.min(buff.addhp,value)
+				buff.addhp = buff.addhp - costhp
+				value = value - costhp
+				if value == 0 then
+					break
+				end
+			else
+				break
+		end
+	end
+	local hurt = value
+	if hurt > 0 then
+		self.hurt = self.hurt + hurt
+		self.hp = oldhp - hurt
+		self:onhurt(hurt,srcid)
+		if self.hp <= 0 then
+			self:die()
+		end
+	end
+	return hurt
+end
+
+function cwarcard:recoverhp(value,srcid)
+	assert(value > 0)
+	local oldhp = self:gethp()
+	local maxhp,inorder = self:get("maxhp")
+	self.hp = oldhp + value
+	self.hp = math.min(self.hp,maxhp)
+	local recoverhp = self.hp - oldhp
+	if recoverhp > 0 then
+		self:onrecoverhp(recoverhp,srcid)
+	end
+	return recoverhp
 end
 
 function cwarcard:addhp(value,srcid)
@@ -167,169 +213,224 @@ function cwarcard:getowner(id)
 	return war:getowner(id)
 end
 
-function cwarcard:__get(buffs,attr,maxinorder)
-	maxinorder = maxinorder or 0
-	for i=#buffs,1,-1 do
-		local v = buffs[i]
-		if v.inorder > maxinorder and v[attr] then
-			return v[attr],v.inorder
+function cwarcard:get(halos_or_buffs,attr,startpos)
+	startpos = startpos or 1
+	for pos=#halos_or_buffs,startpos,-1 do
+		local v = halos_or_buffs[pos]
+		if v[attr] then
+			return v[attr],pos
 		end
 	end
 end
 
-function cwarcard:getfromhalo(owner,attr,maxinorder)
-	-- 光环(取最后进入战场卡牌光环效果)
-	maxinorder = maxinorder or 0
-	local val
-	if owner.hero.weapon then
-		local warcard = owner.hero.weapon
-		if warcard.haloto[self.id] and warcard.inorder > maxinorder  then
-			if warcard.halo[attr] then
-				maxinorder = warcard.inorder
-				val = warcard.halo[attr]
-			end
+-- 得到“增加的值”，如：addatk
+function cwarcard:get2(halos_or_buffs,attr,startpos)
+	startpos = startpos or 1
+	local sumval = 0
+	for pos=#halos_or_buffs,startpos,-1 do
+		local v = halos_or_buffs[pos]
+		if v[attr] then
+			sumval = sumval + v[attr]
 		end
 	end
-
-	for i,id in ipairs(owner.secretcards) do
-		local warcard = owner.id_card[id]
-		if warcard.haloto[self.id] and warcard.inorder > maxinorder then
-			if warcard.halo[attr] then
-				maxinorder = warcard.inorder
-				val = warcard.halo[attr]
-			end
-		end
-	end
-	for i,id in ipairs(owner.warcards) do
-		local warcard = owner.id_card[id]
-		if warcard.haloto[self.id] and warcard.inorder > maxinorder then
-			if warcard.halo[attr] then
-				maxinorder = warcard.inorder
-				val = warcard.halo[attr]
-			end
-		end
-	end
-	return val,maxinorder
+	return sumval
 end
 
-function cwarcard:__get2(buffs,attr,maxinorder)
-	maxinorder = maxinorder or 0
-	local sum = 0
-	for i,v in ipairs(buffs) do
-		if v[attr] and v.inorder > maxinorder then
-			sum = sum + v[attr]
+function cwarcard:recompute(attr,ignore_add)
+	if ignore_add then -- 状态熟悉只有设置值，没有增加值
+		local halo_val = self:get(self.halofrom,attr)
+		if halo_val then
+			return halo_val
 		end
-	end
-	return sum
-end
-
-function cwarcard:getfromhalo2(owner,attr,maxinorder)
-	maxinorder = maxinorder or 0
-	local sum = 0
-	if owner.hero.weapon then
-		local warcard = owner.hero.weapon
-		if warcard.haloto[self.id] and warcard.inorder > maxinorder then
-			if warcard.halo[attr] then
-				sum = sum + warcard.halo[attr]
-			end
+		local buff_val = self:get(self.buffs,attr)
+		if buff_val then
+			return buff_val
 		end
-	end
-
-	for i,id in ipairs(owner.secretcards) do
-		local warcard = owner.id_card[id]
-		if warcard.haloto[self.id] and warcard.inorder > maxinorder then
-			if warcard.halo[attr] then
-				sum = sum + warcard.halo[attr]
-			end
-		end
-	end
-	for i,id in ipairs(owner.warcards) do
-		local warcard = owner.id_card[id]
-		if warcard.haloto[self.id] and warcard.inorder > maxinorder then
-			if warcard.halo[attr] then
-				sum = sum + warcard.halo[attr]
-			end
-		end
-	end
-	return sum
-end
-
--- 获取属性值：取最后施加BUFF/光环设置的值
-function cwarcard:get(attr,init_maxinorder)
-	init_maxinorder = init_maxinorder or 0
-	local owner = self:getowner()
-	local buff_val,maxinorder = self:__get(self.buffs,attr,init_maxinorder)
-	local halo_val,halo_maxinorder = self:getfromhalo(owner,attr,maxinorder)
-	local enemy_halo_val,enemy_halo_maxinorder = self:getfromhalo(owner.enemy,"enemy_" .. attr,halo_maxinorder)
-	local val = enemy_halo_val or halo_val or buff_val
-	if val then
-		return val,enemy_halo_maxinorder
-	end
-	return self[attr],0
-end
-
-
--- 得到增加（累积）的属性，如：addatk
-function cwarcard:get2(attr,maxinorder)
-	maxinorder = maxinorder or 0
-	local owner = self:getowner()
-	local self_buff_add = self:__get2(self.buffs,attr,maxinorder)
-	local self_halo_add = self:getfromhalo2(owner,attr,maxinorder)
-	local enemy_halo_add = self:getfromhalo2(owner.enemy,"enemy_" .. attr,maxinorder)
-	return self_halo_add + enemy_halo_add + self_buff_add + (self[attr] or 0)
-end
-
-function cwarcard:has(attr)
-	local val = self:get(attr)
-	if type(val) ~= "boolean" then
-		return val == YES
+		return self.baseattr[attr]
 	else
-		return val
+		local addattr = "add" .. attr
+		local halo_val,pos = self:get(self.halofrom,attr)
+		if halo_val then
+			local halo_addval = self:get2(self.halofrom,addattr,pos)
+			return halo_val + halo_addval
+		else
+			local buff_val,pos = self:get(self.buffs,attr)
+			if buff_val then
+				local buff_addval = self:get(self.buffs,addattr,pos)
+				local halo_addval = self:get(self.halofrom,addattr)
+				return buff_val + buff_addval + halo_addval
+			else
+				local buff_addval = self:get(self.buffs,addattr)
+				local halo_addval = self:get(self.halofrom,addattr)
+				return self.baseattr[attr] + buff_addval + halo_addval
+			end
+		end
 	end
 end
 
-function cwarcard:set(attr,val)
-	local oldval = self:get(attr)
-	if oldval ~= val then
-		self[attr] = val
-		self:onupdate(attr,oldval,val)
+function cwarcard:set(attrs)
+	local updateattrs = {}
+	for k,v in pairs(attrs) do
+		if self[k] ~= v then
+			self[k] = v
+			updateattrs[k] = v
+		end
+	end
+	warmgr.refreshwar(self.warid,self.pid,"sync",updateattrs)
+end
+
+function cwarcard:addbuff(buff)
+	buff.exceedround = buff.exceedround or MAX_ROUND
+	self:log("info","war",format("addbuff,buff=%s",buff))
+	table.insert(self.buffs,buff)
+	local syncattrs = {}
+	for k,v in pairs(buff) do
+		if self:isstate(k) then
+			syncattrs[k] = self:recompute(k,true)
+		elseif k == "addmaxhp" or k == "maxhp" then
+			syncattrs.maxhp = self:recompute("maxhp")
+			if buff.addhp then -- 增加生命值上限的同时加生命值
+				assert(buff.addhp == buff.addmaxhp)
+				syncattrs.hp = math.min(self.hp+buff.addhp,syncattrs.maxhp)
+			end
+		elseif k == "addatk" or k == "atk" then
+			syncattrs.atk = self:recompute("atk")
+		elseif k == "addcrystalcost" or k == "crystalcost" then
+			syncattrs.crystalcost = self:recompute("crystalcost")
+		end
+	end
+	warmgr.refreshwar(self.warid,self.pid,"addbuff",buff)
+	if next(syncattrs) then
+		self:set(syncattrs)
 	end
 end
 
+function cwarcard:delbuff(pos)
+	local buff = table.remove(self.buffs,pos)
+	if buff then
+		self:log("info","war",format("delbuff,pos=%s buff=%s",pos,buff))
+		local syncattrs = {}
+		if self:isstate(k) then
+			syncattrs[k] = self:recompute(k,true)
+		elseif k:sub(1,3) == "add" then
+			local attr = k:sub(3)
+			syncattrs[attr] = self:recompute(attr)
+		else
+			syncattrs[attr] = self:recompute(attr)
+		end
+		warmgr.refreshwar(self.warid,self.pid,"delbuff",{pos=pos,})
+		if next(syncattrs) then
+			if syncattrs.addhp then
+			end
+			self:set(syncattrs)
+		end
+	end
+end
+
+function cwarcard:delbuffbysrcid(srcid)
+	local delbuffs = {}
+	for pos=#self.buffs,1,-1 do
+		local buff = self.buffs[pos]
+		if buff.srcid == srcid then
+			table.insert(delbuffs,pos)
+		end
+	end
+	for i,pos in ipairs(self.delbuffs) do
+		self:delbuff(pos)
+	end
+end
+
+function cwarcard:addhalo(halo)
+	halo.exceedround = halo.exceedround or MAX_ROUND
+	self:log("info","war",format("addhalo,halo=%s",halo))
+	table.insert(self.halofrom,halo)
+	local syncattrs = {}
+	for k,v in pairs(halo) do
+		if self:isstate(k) then
+			syncattrs[k] = self:recompute(k,true)
+		elseif k == "addmaxhp" or k == "maxhp" then
+			syncattrs.maxhp = self:recompute("maxhp")
+			if halo.addhp then -- 增加生命值上限的同时加生命值
+				assert(halo.addhp == halo.addmaxhp)
+				syncattrs.hp = math.min(self.hp+halo.addhp,syncattrs.maxhp)
+			end
+		elseif k == "addatk" or k == "atk" then
+			syncattrs.atk = self:recompute("atk")
+		elseif k == "addcrystalcost" or k == "crystalcost" then
+			syncattrs.crystalcost = self:recompute("crystalcost")
+		end
+	end
+	warmgr.refreshwar(self.warid,self.pid,"addhalo",halo)
+	if next(syncattrs) then
+		self:set(syncattrs)
+	end
+end
+
+function cwarcard:delhalo(pos)
+	local halo = table.remove(self.halofrom,pos)
+	if halo then
+		self:log("info","war",format("delhalo,pos=%s halo=%s",pos,halo))
+		local syncattrs = {}
+		if self:isstate(k) then
+			syncattrs[k] = self:recompute(k,true)
+		elseif k == "addmaxhp" or k == "maxhp" then
+			syncattrs.maxhp = self:recompute("maxhp")
+			syncattrs.hp = math.min(self.hp,syncattrs.maxhp)
+		elseif k == "addatk" or k == "atk" then
+			syncattrs.atk = self:recompute("atk")
+		elseif k == "addcrystalcost" or k == "crystalcost" then
+			syncattrs.crystalcost = self:recompute("crystalcost")
+		end
+		warmgr.refreshwar(self.warid,self.pid,"delhalo",{pos=pos})
+		if next(syncattrs) then
+			self:set(syncattrs)
+		end
+	end
+end
+
+function cwarcard:delhalobysrcid(srcid)
+	local delhalos = {}
+	for pos=#self.halofrom,1,-1 do
+		local halo = self.halofrom[pos]
+		if halo.srcid == srcid then
+			table.insert(delhalos,pos)
+		end
+	end
+	for i,pos in ipairs(self.delhalos) do
+		self:delhalo(pos)
+	end
+end
+
+function cwarcard:getstate(state)
+	return self[state]
+end
+
+function cwarcard:hasstate(state)
+	return self:getstate(state) > 0
+end
+
+function cwarcard:gethp()
+	return self.hp
+end
 
 function cwarcard:getatk()
-	-- 光耀之子：攻击力==生命值
-	if self.sid == 134002 or self.sid == 234002 then
-		if not self.bsilence then
-			return self:gethp()
-		end
-	end
-	local atk,maxinorder = self:get("atk")
-	local val = atk + self:get2("addatk",maxinorder)
-	local minval = self:get("minatk") or 0
-	local maxval = self:get("maxatk") or MAX_NUMBER
-	return math.max(minval,math.min(val,maxval))
+	return self.atk
+end
+
+function cwarcard:gethp()
+	return self.hp
 end
 
 function cwarcard:getmaxhp()
-	local maxhp,maxinorder = self:get("maxhp")
-	local val = maxhp = self:get2("addmaxhp",maxinorder)
-	local minval = self:get("minmaxhp") or 0
-	local maxval = self:get("maxmaxhp") or MAX_NUMBER
-	return math.max(minval,math.min(val,maxval))
+	return self.maxhp
 end
 
 function cwarcard:getcrystalcost()
-	local crystalcost,maxinorder = self:get("crystalcost")
-	local val = crystalcost + self:get2("addcrystalcost",maxinorder)
-	local minval = self:get("mincrystalcost") or 0
-	local maxval = self:get("maxcrystalcost") or MAX_NUMBER
-	return math.max(minval,math.min(val,maxval))
+	return self.crystalcost
 end
 
 function cwarcard:get_magic_hurt_adden()
-	local magic_hurt_adden,maxinorder = self:get("magic_hurt_adden")
-	return magic_hurt_adden + self:get2("add_magic_hurt_adden",maxinorder)
+	return self.magic_hurt_adden
 end
 
 function cwarcard:get_magic_hurt()
