@@ -16,7 +16,6 @@ function cwarcard:init(conf)
 	self.buffs = {}
 	self:initproperty()
 	self.hp = self.maxhp	
-	self.hurt = 0
 	self.leftatkcnt = self.atkcnt
 end
 
@@ -26,17 +25,31 @@ function cwarcard:initproperty()
 	self.targettype = cardcls.targettype
 	self.choice = cardcls.choice
 	self.maxhp = cardcls.hp
-	self.hp = self.maxhp
 	self.atk = cardcls.atk
 	self.magic_hurt = cardcls.magic_hurt
 	self.recoverhp = cardcls.recoverhp
 	self.crystalcost = cardcls.crystalcost
 	self.magic_hurt_adden = cardcls.magic_hurt_adden
 	self.atkcnt = cardcls.atkcnt
-	self.magic_immune = cardcls.magic_immune
-	self.assault = cardcls.assault
-	self.sneer = cardcls.sneer
-	self.shield = cardcls.shield
+	self.baseattr = {
+		maxhp = self.maxhp,
+		atk = self.atk,
+		crystalcost = self.crystalcost,
+	}
+end
+
+function cwarcard:initstate()
+	local cardcls = getclassbycardsid(self.sid)
+	for k,_ in pairs(VALID_STATE) do
+		state = cardcls[k] or 0
+		self[k] = state
+	end
+end
+
+function cwarcard:clearallstate()
+	for k,_ in pairs(VALID_STATE) do
+		self[k] = 0
+	end
 end
 
 function cwarcard:log(loglevel,filename,...)
@@ -45,35 +58,26 @@ function cwarcard:log(loglevel,filename,...)
 	logger.log(loglevel,filename,msg)
 end
 
-function cwarcard:addleftatkcnt(value)
-	local v = math.max(0,self.leftatkcnt + value)
-	self:setleftatkcnt(v)
-end
-
-function cwarcard:setleftatkcnt(atkcnt,nosync)
-	local oldleftatkcnt = self.leftatkcnt
-	if oldleftatkcnt ~= atkcnt then
-		self.leftatkcnt = atkcnt
-		if not nosync then
-			warmgr.refreshwar(self.warid,self.pid,"setleftatkcnt",{id=self.id,value=self.leftatkcnt,})
-		end
+function cwarcard:canattack()
+	if self.cannotattack then -- 无法攻击标志
+		return false
 	end
-end
-
-function cwarcard:setatkcnt(atkcnt,nosync)
-	local oldatkcnt = self.atkcnt
-	if oldatkcnt ~= atkcnt then
-		self.atkcnt = atkcnt
-		if not nosync then
-			warmgr.refreshwar(self.warid,self.pid,"setatkcnt",{id=self.id,value=self.atkcnt,})
-		end
-		self:addleftatkcnt(atkcnt-oldatkcnt)
+	if self:hasstate("freeze") then
+		return false
 	end
-
+	if self.leftatkcnt <= 0 then
+		return false
+	end
+	if self.atk <= 0 then
+		return false
+	end
+	return true
 end
 
-function cwarcard:gethp()
-	return self.hp
+function cwarcard:addleftatkcnt(addval)
+	local leftatkcnt = self.leftatkcnt + addval
+	leftatkcnt = math.min(self.atkcnt,math.max(0,leftatkcnt))
+	self:set({leftatkcnt=leftatkcnt})
 end
 
 function cwarcard:addhp(value,srcid)
@@ -88,123 +92,22 @@ end
 
 function cwarcard:costhp(value,srcid)
 	assert(value > 0)
-	local oldhp = self:gethp()
-	local maxhp,inorder = self:get("maxhp")
-	for i=#self.buffs,1,-1 do
-		local buff = self.buffs[i]
-		if buff.inorder > inorder then
-			if buff.addhp and buff.addhp > 0 then
-				local costhp = math.min(buff.addhp,value)
-				buff.addhp = buff.addhp - costhp
-				value = value - costhp
-				if value == 0 then
-					break
-				end
-			else
-				break
-		end
+	self.hp = math.max(0,self.hp - value)
+	self:onhurt(value,srcid)
+	if self.hp <= 0 then
+		self:die()
 	end
-	local hurt = value
-	if hurt > 0 then
-		self.hurt = self.hurt + hurt
-		self.hp = oldhp - hurt
-		self:onhurt(hurt,srcid)
-		if self.hp <= 0 then
-			self:die()
-		end
-	end
-	return hurt
+	return value
 end
 
 function cwarcard:recoverhp(value,srcid)
 	assert(value > 0)
-	local oldhp = self:gethp()
-	local maxhp,inorder = self:get("maxhp")
-	self.hp = oldhp + value
-	self.hp = math.min(self.hp,maxhp)
-	local recoverhp = self.hp - oldhp
+	local recoverhp = math.min(value,self.maxhp-self.hp)
 	if recoverhp > 0 then
 		self:onrecoverhp(recoverhp,srcid)
+		self.hp = self.hp + recoverhp
 	end
 	return recoverhp
-end
-
-function cwarcard:addhp(value,srcid)
-	local hp = self:gethp()
-	logger.log("debug","war",string.format("[warid=%d] #%d warcard.addhp,id=%d hp=%d+%d srcid=%d",self.warid,self.pid,self.id,hp,value,srcid))
-	if self:isdie() then
-		return
-	end
-	local maxhp = self:getmaxhp()
-	local oldhp = self:gethp()
-	value = math.min(maxhp - hp,value)
-	if value > 0 then
-		if self:__onaddhp(value) then
-			return
-		end
-		if self.hp < self.maxhp then
-			local addval = self.maxhp - self.hp
-			value = value - addval
-			self.hp = self.hp + addval
-		end
-		if value > 0 then
-			if self.halo.addhp < self.halo.addmaxhp then
-				local addval = self.halo.addmaxhp - self.halo.addhp
-				value = value - addval
-				self.halo.addhp = self.halo.addhp + addval
-			end
-			if value > 0 then
-				if self.buff.addhp < self.buff.addmaxhp then
-					local addval = self.buff.addmaxhp - self.buff.addhp
-					value = value - addval
-					self.buff.addhp = self.buff.addhp + addval
-				end
-			end
-		end
-	elseif value < 0 then
-		-- 免疫状态回合结束时结
-		if self:getstate("immune") then
-			return
-		end
-		if self:getstate("shield") then
-			self:delstate("shield")
-			return
-		end
-		value = -value
-		if self:__onhurt(value,srcid) then
-			return
-		end
-		if self.buff.addhp > 0 then
-			local costhp = math.min(self.buff.addhp,value)
-			value = value - costhp
-			self.buff.addhp = self.buff.addhp - costhp
-		end
-		if value > 0 then
-			if self.halo.addhp > 0 then
-				local costhp = math.min(self.halo.addhp,value)
-				value = value - costhp
-				self.halo.addhp = self.halo.addhp - costhp
-			end
-			if value > 0 then
-				assert(self.hp > 0)
-				self.hp = self.hp - value
-				self.hurt = self.hurt + value
-			end
-		end
-	end
-	local newhp = self:gethp()
-	if oldhp ~= newhp then
-		warmgr.refreshwar(self.warid,self.pid,"sethp",{id=self.id,value=newhp,})
-	end
-	if newhp == maxhp then
-		self:delstate("enrage")
-	else
-		assert(newhp < maxhp,string.format("hp(%d) > maxhp(%d)",newhp,maxhp))
-		self:setstate("enrage",1)
-	end
-	if self.hp <= 0 then
-		self:setdie()
-	end
 end
 
 function cwarcard:getowner(id)
@@ -237,7 +140,7 @@ function cwarcard:get2(halos_or_buffs,attr,startpos)
 end
 
 function cwarcard:recompute(attr,ignore_add)
-	if ignore_add then -- 状态熟悉只有设置值，没有增加值
+	if ignore_add then
 		local halo_val = self:get(self.halofrom,attr)
 		if halo_val then
 			return halo_val
@@ -279,27 +182,41 @@ function cwarcard:set(attrs)
 	warmgr.refreshwar(self.warid,self.pid,"sync",updateattrs)
 end
 
+local NON_COMPUTE_ATTR ={
+	id = true,
+	sid = true,
+	srcid = true,
+	exceedround = true,
+	addhp = true,
+}
+
+function cwarcard:cancompute(attr)
+	return not NON_COMPUTE_ATTR[attr]
+end
+
 function cwarcard:addbuff(buff)
 	buff.exceedround = buff.exceedround or MAX_ROUND
 	self:log("info","war",format("addbuff,buff=%s",buff))
 	table.insert(self.buffs,buff)
 	local syncattrs = {}
 	for k,v in pairs(buff) do
-		if self:isstate(k) then
-			syncattrs[k] = self:recompute(k,true)
-		elseif k == "addmaxhp" or k == "maxhp" then
-			syncattrs.maxhp = self:recompute("maxhp")
-			if buff.addhp then -- 增加生命值上限的同时加生命值
-				assert(buff.addhp == buff.addmaxhp)
-				syncattrs.hp = math.min(self.hp+buff.addhp,syncattrs.maxhp)
+		if not self:cancompute(k) then
+		elseif self:isstate(k) then
+			buff[k] = buff.exceedround
+			if buff[k] > self[k] then
+				syncattr[k] = buff[k]
 			end
-		elseif k == "addatk" or k == "atk" then
-			syncattrs.atk = self:recompute("atk")
-		elseif k == "addcrystalcost" or k == "crystalcost" then
-			syncattrs.crystalcost = self:recompute("crystalcost")
+		elseif k:sub(1,3) == "add" then
+			local attr = k:sub(3)
+			syncattrs[attr] = self:recompute(attr)
+		else
+			syncattrs[attr] = self:recompute(attr)
 		end
 	end
 	warmgr.refreshwar(self.warid,self.pid,"addbuff",buff)
+	if buff.addhp then
+		syncattrs.hp = math.min(self.hp+buff.addhp,syncattrs.maxhp)
+	end
 	if next(syncattrs) then
 		self:set(syncattrs)
 	end
@@ -310,8 +227,8 @@ function cwarcard:delbuff(pos)
 	if buff then
 		self:log("info","war",format("delbuff,pos=%s buff=%s",pos,buff))
 		local syncattrs = {}
-		if self:isstate(k) then
-			syncattrs[k] = self:recompute(k,true)
+		if not self:cancompute(k) then
+		elseif self:isstate(k) then
 		elseif k:sub(1,3) == "add" then
 			local attr = k:sub(3)
 			syncattrs[attr] = self:recompute(attr)
@@ -319,9 +236,10 @@ function cwarcard:delbuff(pos)
 			syncattrs[attr] = self:recompute(attr)
 		end
 		warmgr.refreshwar(self.warid,self.pid,"delbuff",{pos=pos,})
+		if syncattrs.maxhp then
+			syncattrs.hp = math.min(self.hp,syncattrs.maxhp)
+		end
 		if next(syncattrs) then
-			if syncattrs.addhp then
-			end
 			self:set(syncattrs)
 		end
 	end
@@ -346,21 +264,20 @@ function cwarcard:addhalo(halo)
 	table.insert(self.halofrom,halo)
 	local syncattrs = {}
 	for k,v in pairs(halo) do
-		if self:isstate(k) then
-			syncattrs[k] = self:recompute(k,true)
-		elseif k == "addmaxhp" or k == "maxhp" then
-			syncattrs.maxhp = self:recompute("maxhp")
-			if halo.addhp then -- 增加生命值上限的同时加生命值
-				assert(halo.addhp == halo.addmaxhp)
-				syncattrs.hp = math.min(self.hp+halo.addhp,syncattrs.maxhp)
-			end
-		elseif k == "addatk" or k == "atk" then
-			syncattrs.atk = self:recompute("atk")
-		elseif k == "addcrystalcost" or k == "crystalcost" then
-			syncattrs.crystalcost = self:recompute("crystalcost")
+		if not self:cancompute(k) then
+		elseif self:isstate(k) then
+			-- 光环生成的状态无法被受益者消耗
+		elseif k:sub(1,3) == "add" then
+			local attr = k:sub(3)
+			syncattrs[attr] = self:recompute(attr)
+		else
+			syncattrs[attr] = self:recompute(attr)
 		end
 	end
 	warmgr.refreshwar(self.warid,self.pid,"addhalo",halo)
+	if halo.addhp then
+		syncattrs.hp = math.min(self.hp+halo.addhp,syncattrs.maxhp)
+	end
 	if next(syncattrs) then
 		self:set(syncattrs)
 	end
@@ -371,17 +288,18 @@ function cwarcard:delhalo(pos)
 	if halo then
 		self:log("info","war",format("delhalo,pos=%s halo=%s",pos,halo))
 		local syncattrs = {}
-		if self:isstate(k) then
-			syncattrs[k] = self:recompute(k,true)
-		elseif k == "addmaxhp" or k == "maxhp" then
-			syncattrs.maxhp = self:recompute("maxhp")
-			syncattrs.hp = math.min(self.hp,syncattrs.maxhp)
-		elseif k == "addatk" or k == "atk" then
-			syncattrs.atk = self:recompute("atk")
-		elseif k == "addcrystalcost" or k == "crystalcost" then
-			syncattrs.crystalcost = self:recompute("crystalcost")
+		if not self:cancompute(k) then
+		elseif self:isstate(k) then
+		elseif k:sub(1,3) == "add" then
+			local attr = k:sub(3)
+			syncattrs[attr] = self:recompute(attr)
+		else
+			syncattrs[attr] = self:recompute(attr)
 		end
 		warmgr.refreshwar(self.warid,self.pid,"delhalo",{pos=pos})
+		if syncattrs.maxhp then
+			syncattrs.hp = math.min(self.hp,syncattrs.maxhp)
+		end
 		if next(syncattrs) then
 			self:set(syncattrs)
 		end
@@ -401,36 +319,61 @@ function cwarcard:delhalobysrcid(srcid)
 	end
 end
 
+function cwarcard:checkbuffs()
+	local owner = self:getowner()
+	local delbuffs = {}
+	for pos,buff in ipairs(self.buffs) do
+		if buff.exceedround and buff.exceedround >= owner.roundcnt then
+			table.insert(delbuffs,pos)
+		end
+	end
+	for i=#delbuffs,1,-1 do
+		local pos = delbuffs[i]	
+		self:delbuff(pos)
+	end
+end
+
+function cwarcard:checkhalo()
+	local owner = self:getowner()
+	if self.halo.exceedround and self.halo.exceedround >= owner.roundcnt then
+		local haloto = self.haloto
+		self.halo = {}
+		self.haloto = {}
+		local owner = self:getowner()
+		for id,_ in pairs(haloto) do
+			local warcard = owner:gettarget(id)
+			if not warcard:isdie() then
+				warcard:delhalobysrcid(self.id)
+			end
+		end
+	end
+end
+
+function cwarcard:checkstate()
+	local updateattrs = {}
+	for k,_ in pairs(VALID_STATE) do
+		local exceedround = self[k]
+		if exceedround >= self.roundcnt then
+			self[k] = 0
+			updateattrs[k] = self[k]
+		end
+	end
+	warmgr.refreshwar(self.warid,self.pid,"sync",updateattrs)
+end
+
 function cwarcard:getstate(state)
-	return self[state]
+	if self.state > 0 then
+		return self.state
+	end
+	return self:get(self.halofrom,state)
 end
 
 function cwarcard:hasstate(state)
 	return self:getstate(state) > 0
 end
 
-function cwarcard:gethp()
-	return self.hp
-end
-
-function cwarcard:getatk()
-	return self.atk
-end
-
-function cwarcard:gethp()
-	return self.hp
-end
-
-function cwarcard:getmaxhp()
-	return self.maxhp
-end
-
-function cwarcard:getcrystalcost()
-	return self.crystalcost
-end
-
-function cwarcard:get_magic_hurt_adden()
-	return self.magic_hurt_adden
+function cwarcard:setstate(state,val)
+	self:set({state=val})
 end
 
 function cwarcard:get_magic_hurt()
@@ -439,7 +382,7 @@ function cwarcard:get_magic_hurt()
 	local magic_hurt_adden = 0	
 	for i,id in ipairs(owner.warcards) do
 		local warcard = owner.id_card[id]
-		magic_hurt_adden = magic_hurt_adden + warcard:get_magic_hurt_adden()
+		magic_hurt_adden = magic_hurt_adden + warcard.magic_hurt_adden
 	end
 	-- 只有自身战场随从会影响法伤倍率
 	local magic_hurt_multi = 1
@@ -474,24 +417,24 @@ function cwarcard:silence()
 	-- 恢复成初始属性
 	self:initproperty()
 	-- 去掉状态属性
-	self.magic_immune = 0
-	self.assault = 0
-	self.sneer = 0
+	self:clearallstate()
 	self.atkcnt = 1
 	self.leftatckcnt = math.min(self.leftatkcnt,self.atkcnt)
-	self.shield = 0
-	self.sneak = 0
 	self.magic_hurt_adden = 0
 	self.cure_to_hurt = 0
 	self.recoverhp_multi = 1
 	self.magic_hurt_multi = 1
-	-- 伤害继承
-	self.hp = self.maxhp - self.hurt
+	self.hp = math.min(self.hp,self.maxhp)
+	-- 特殊标记
+	if self.cannotattack then
+		self.cannotattack = nil
+	end
+
 	warmgr.refreshwar(self.warid,self.pid,"synccard",{warcard=self:pack(),})
 end
 
 function cwarcard:pack()
-	return {
+	local data = {
 		id = self.id,
 		sid = self.sid,
 		warid = self.warid,
@@ -501,6 +444,7 @@ function cwarcard:pack()
 		inarea = self.inarea,
 		halo = self.halo,
 		haloto = table.keys(self.haloto),
+		halofrom = self.halofrom,
 		buffs = self.buffs,
 		atkcnt = self.atkcnt,
 		leftatkcnt = self.leftatkcnt,
@@ -508,13 +452,17 @@ function cwarcard:pack()
 		targettype = self.targettype,
 		maxhp = self.maxhp,
 		hp = self.hp,
-		atk = self.atk
+		atk = self.atk,
 		crystalcost = self.crystalcost,
 		magic_hurt = self.magic_hurt,
 		recoverhp = self.recoverhp,
 		magic_hurt_adden = self.magic_hurt_adden,
-		hurt = self.hurt,
+		cannotattack = self.cannotattack,
 	}
+	for k,_ in pairs(VALID_STATE) do
+		data[k] = self[k]
+	end
+	return data
 end
 
 function cwarcard:clone()
@@ -529,26 +477,13 @@ function cwarcard:clone()
 	return warcard
 end
 
-function cwarcard:isdie()
-	if self.__isdie then
-		return true
-	end
-	-- after delcard
-	if self.inarea == "graveyard" then
-		return true
-	end
-	return false
-end
 
-function cwarcard:setdie()
-	if not self.__isdie then
-		logger.log("info","war",string.format("[warid=%d] #%d card.setdie,cardid=%d",self.warid,self.pid,self.id))
-		self.__isdie = true
-		local war = warmgr.getwar(self.warid)
-		local warobj = war:getwarobj(self.pid)
-		table.insert(warobj.diefootman,self)
-		self:__ondie()
+function cwarcard:die()
+	if self.inarea == "war" then
+		self:getowner():removefromwar(self)
 	end
+	self.inarea = "graveyard"
+	self:ondie()
 end
 
 -- 随从牌(战吼)/法术牌(使用效果） 
@@ -592,7 +527,7 @@ function cwarcard:onremovefromhand()
 end
 
 function cwarcard:onbeginround(roundcnt)
-	self:setleftatkcnt(self.atkcnt)
+	self:set({leftatkcnt=self.atkcnt})
 	if not self:issilence() then
 		local cardcls = getclassbycardsid(self.sid)
 		if cardcls.onbeginround then
@@ -601,31 +536,11 @@ function cwarcard:onbeginround(roundcnt)
 	end
 end
 
-function cwarcard:checkbuffs()
-	local owner = self:getowner()
-	local delbuffs = {}
-	for pos,buff in ipairs(self.buffs) do
-		if buff.exceedround and buff.exceedround >= owner.roundcnt then
-			table.insert(delbuffs,pos)
-		end
-	end
-	for i=#delbuffs,1,-1 do
-		local pos = delbuffs[i]	
-		table.remove(self.buffs,pos)
-	end
-end
-
-function cwarcard:checkhalo()
-	local owner = self:getowner()
-	if self.halo.exceedround and self.halo.exceedround >= owner.roundcnt then
-		self.halo = {}
-		self.haloto = {}
-	end
-end
 
 function cwarcard:onendround(hero)
-	self:checkbuffs()
 	self:checkhalo()
+	self:checkbuffs()
+	self:checkstate()
 	if not self:issilence() then
 		local cardcls = getclassbycardsid(self.sid)
 		if cardcls.onendround then
@@ -661,11 +576,11 @@ function cwarcard:onhurt(hurtvalue,srcid)
 	end
 end
 
-function cwarcard:onaddhp(hurtvalue,srcid)
+function cwarcard:onrecoverhp(hurtvalue,srcid)
 	if not self:issilence() then
 		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onaddhp then
-			cardcls.onaddhp(self,hurtvalue,srcid)
+		if cardcls.onrecoverhp then
+			cardcls.onrecoverhp(self,hurtvalue,srcid)
 		end
 	end
 end

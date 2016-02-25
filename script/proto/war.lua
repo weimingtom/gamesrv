@@ -26,7 +26,7 @@ war_confirm_handcard 502 {
 
 war_playcard 503 {
 	request {
-		cardid 0 : integer
+		id 0 : integer
 		pos 1 : integer
 		targetid 2 : integer
 		choice 3 : integer
@@ -41,8 +41,8 @@ war_endround 504 {
 
 war_launchattack 505 {
 	request {
-		attackerid 0 : integer
-		defenserid 1 : integer
+		id 0 : integer
+		targetid 1 : integer
 	}
 }
 

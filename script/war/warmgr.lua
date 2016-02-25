@@ -28,10 +28,10 @@ function warmgr.createwar(profile1,profile2)
 	return war
 end
 
-function warmgr.endwar(warid,result1,result2)
+function warmgr.endwar(warid,result)
 	local war = warmgr.getwar(warid)
 	if war then
-		war:endwar(result1,result2)
+		war:endwar(result)
 		warmgr.delwar(warid)
 	end
 end

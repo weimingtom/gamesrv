@@ -10,56 +10,60 @@ end
 
 local CMD = {}
 -- warsrvmgr --> warsrv
-function CMD.createwar(srvname,profile1,profile2)
-	assert(srvname == "warsrvmgr","Invalid srvname:" .. srvname)
+function CMD.createwar(source,profile1,profile2)
+	assert(source == "warsrvmgr","Invalid source:" .. source)
 	if warmgr.num > 100000 then
 		return false
 	end
 	local war = warmgr.createwar(profile1,profile2)
 	warmgr.addwar(war)
-	cluster.call(srvname,"war","startwar",profile1.pid,war.warid)
-	cluster.call(srvname,"war","startwar",profile2.pid,war.warid)
+	cluster.call(source,"war","startwar",profile1.pid,war.warid)
+	cluster.call(source,"war","startwar",profile2.pid,war.warid)
 	war:startwar()
 	war:s2csync()
 	return true
 end
 
-function CMD.query_profile(srvname)
-	assert(srvname == "warsrvmgr","Invalid srvname:" .. srvname)
+function CMD.query_profile(source)
+	assert(source == "warsrvmgr","Invalid source:" .. source)
 	local profile = {
 		num = warmgr.num,
 	}
 	return profile
 end
 
-function CMD.endwar(srvname,pid,warid)
-	assert(srvname == "warsrvmgr","Invalid srvname:" .. srvname)
+function CMD.endwar(source,pid,warid)
+	assert(source == "warsrvmgr","Invalid source:" .. source)
 	local war = warmgr.getwar(warid)
 	if not war then
-		logger.log("warning","war",string.format("#%d endwar(warid not exists),srvname=%d warid=%d",pid,srvname,warid))
+		logger.log("warning","war",string.format("#%d endwar(warid not exists),source=%d warid=%d",pid,source,warid))
 		return
 	end
-	warmgr.endwar(warid,2,2)
+	warmgr.endwar(warid,WAR_RESULT_TIE)
 end
 
 -- gamesrv --> warsrv
-function CMD.giveupwar(srvname,pid,warid)
+function CMD.giveupwar(source,warid,pid,request)
 	local war = warmgr.getwar(warid)
 	if not war then
-		logger.log("warning","war",string.format("#%d giveupwar(warid not exists),srvname=%d warid=%d",pid,srvname,warid))
+		logger.log("warning","war",string.format("#%d giveupwar(warid not exists),source=%d warid=%d",pid,source,warid))
 		return
 	end
 	local warobj = war:getwarobj(pid)
-	warmgr.endwar(warid,0,1)
+	warobj:endwar(WAR_RESULT_LOSE)
 end
 
-function CMD.confirm_handcard(srvname,pid,warid,poslist)
+function CMD.confirm_handcard(source,warid,pid,request)
 	local war = warmgr.getwar(warid)
 	if not war then
-		logger.log("warning","war",string.format("#%d confirm_handcard(warid not exists),srvname=%s warid=%d",pid,srvname,warid))
+		logger.log("warning","war",string.format("[warid=%s pid=%s srvname=%s] [warid not exist] playcard",warid,pid,source))
 		return
 	end
 	local warobj = war:getwarobj(pid)
+	if warobj.state ~= "init" then
+		return
+	end
+	local poslist = assert(request.poslist)
 	warobj:confirm_handcard(poslist)
 	if warobj.enemy.state == "confirm_handcard" then
 		if warobj.type == "attacker" then
@@ -71,83 +75,108 @@ function CMD.confirm_handcard(srvname,pid,warid,poslist)
 	end
 end
 
-function CMD.endround(srvname,pid,warid,roundcnt)
+function CMD.endround(source,warid,pid,request)
 	local war = warmgr.getwar(warid)
 	if not war then
-		logger.log("warning","war",string.format("#%d endround(warid not exists),srvname=%d warid=%d",pid,srvname,warid))
+		logger.log("warning","war",string.format("[warid=%s pid=%s srvname=%s] [warid not exist] endround",warid,pid,source))
 		return
 	end
 	local warobj = war:getwarobj(pid)
 	if warobj.state ~= "beginround" then
 		return
 	end
+local roundcnt = assert(request.roundcnt)
 	-- endround will call war:s2csync()
 	warobj:endround(roundcnt)
 end
 
-function CMD.playcard(srvname,pid,warid,warcardid,pos,targetid,choice)
+function CMD.playcard(source,warid,pid,request)
 	local war = warmgr.getwar(warid)
 	if not war then
-		logger.log("warning","war",string.format("#%d playcard(warid not exists),srvname=%d warid=%d",pid,srvname,warid))
+		logger.log("warning","war",string.format("[warid=%s pid=%s srvname=%s] [warid not exist] playcard",warid,pid,source))
 		return
 	end
 	local warobj = war:getwarobj(pid)
 	if warobj.state ~= "beginround" then
 		return
 	end
-	warobj:playcard(warcardid,pos,targetid,choice)
+local id = assert(request.id)
+	local pos = request.pos
+	local targetid = request.targetid
+	local choice = request.choice
+	warobj:playcard(id,pos,targetid,choice)
 	war:s2csync()
 end
 
-function CMD.launchattack(srvname,pid,warid,attackerid,targetid)
+function CMD.launchattack(source,warid,pid,request)
 	local war = warmgr.getwar(warid)
 	if not war then
-		logger.log("warning","war",string.format("#%d playcard(warid not exists),srvname=%d warid=%d",pid,srvname,warid))
+		logger.log("warning","war",string.format("[warid=%s pid=%s srvname=%s] [warid not exist] playcard",warid,pid,source))
 		return
 	end
 	local warobj = war:getwarobj(pid)
 	if warobj.state ~= "beginround" then
 		return
 	end
-	warobj:launchattack(attackerid,targetid)
+local id = assert(request.id)
+	local targetid = assert(request.targetid)
 	war:s2csync()
 end
 
-function CMD.hero_useskill(srvname,pid,warid,targetid)
+function CMD.hero_useskill(source,warid,pid,targetid)
 	local war = warmgr.getwar(warid)
 	if not war then
-		logger.log("warning","war",string.format("#%d playcard(warid not exists),srvname=%d warid=%d",pid,srvname,warid))
+		logger.log("warning","war",string.format("[warid=%s pid=%s srvname=%s] [warid not exist] hero_useskill",warid,pid,source))
 		return
 	end
 	local warobj = war:getwarobj(pid)
 	if warobj.state ~= "beginround" then
 		return
 	end
+local targetid = request.targetid
 	warobj:hero_useskill(targetid)
 	war:s2csync()
 end
 
-function CMD.lookcards_confirm(srvname,pid,warid,pos)
+function CMD.lookcards_confirm(source,warid,pid,request)
 	local war = warmgr.getwar(warid)
 	if not war then
-		logger.log("warning","war",string.format("#%d playcard(warid not exists),srvname=%d warid=%d",pid,srvname,warid))
+		logger.log("warning","war",string.format("[warid=%s pid=%s srvname=%s] [warid not exist] lookcards_confirm",warid,pid,source))
 		return
 	end
 	local warobj = war:getwarobj(pid)
 	if warobj.state ~= "beginround" then
 		return
 	end
+	local pos = assert(request.pos)
 	warobj:lookcards_confirm(pos)
 	war:s2csync()
 end
 
-function CMD.disconnect(srvname,pid,warid)
+function CMD.playcard(source,warid,pid,request)
+	local war = warmgr.getwar(warid)
+	if not war then
+		logger.log("warning","war",string.format("[warid=%s pid=%s srvname=%s] [warid not exist] lookcards_confirm",warid,pid,source))
+		return
+	end
+	local warobj = war:getwarobj(pid)
+	if warobj.state ~= "beginround" then
+		return
+	end
+	local id = assert(request.id)
+	local pos = request.pos
+	local targetid = request.targetid
+	local choice = request.choice
+	warobj:playcard(id,pos,targetid,choice)
 end
 
-function warsrv.dispatch(srvname,cmd,...)
-	assert(type(srvname)=="string","Invalid srvname:" .. tostring(srvname))
+function CMD.disconnect(source,warid,pid,request)
+end
+
+function warsrv.dispatch(source,cmd,...)
+	assert(type(source)=="string","Invalid source:" .. tostring(source))
 	local func = assert(CMD[cmd],"Unknow cmd:" .. tostring(cmd))
-	return func(srvname,...)
+	return func(source,...)
 end
 
 return warsrv

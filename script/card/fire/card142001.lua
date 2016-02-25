@@ -52,4 +52,22 @@ function ccard142001:save()
     return data
 end
 
+function ccard142001:before_attack(attacker,defenser)
+	local owner = self:getowner()
+	if owner:isenemy(defenser.id) then
+		return
+	end
+	if defenser.id ~= owner.id then
+		return
+	end
+	assert(defenser.inarea == "war")
+	assert(is_footman(defenser.type))
+	owner:delsecret(self.id,"trigger")
+	local sid = is_goldcard(self.sid) and 24006 or 14006
+	for i=1,3 do
+		local warcard = owner:newwarcard(sid)
+		owner:putinwar(warcard)
+	end
+end
+
 return ccard142001

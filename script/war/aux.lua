@@ -273,9 +273,13 @@ function is_weapon(type)
 	return math.floor(type/100) == 3
 end
 
+function is_goldcard(sid)
+	return sid >= 200000
+end
+
 MAGICCARD = {
 	NORMAL = 101,
-	SECRET = 102
+	SECRET = 102,
 	HURT = 103,
 	ADDHP = 104,
 	PICKCARD = 105,
@@ -354,6 +358,17 @@ YES = 1
 NO = 0
 
 MAX_ROUND = 60 -- 最大回合数
+
+VALID_STATE = {
+	magic_immune = true,
+	assault = true,
+	sneer = true,
+	shield = true,
+	sneak = true,
+	immune = true,
+	freeeze = true,
+	enrange = true,
+}
 
 
 return waraux
