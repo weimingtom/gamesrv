@@ -373,7 +373,9 @@ function cwarcard:hasstate(state)
 end
 
 function cwarcard:setstate(state,val)
-	self:set({state=val})
+	if val == 0 or val > self[state] then
+		self:set({state=val})
+	end
 end
 
 function cwarcard:get_magic_hurt()

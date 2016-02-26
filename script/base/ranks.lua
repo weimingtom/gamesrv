@@ -47,7 +47,7 @@ function cranks:getattr(rank,attrs)
 	return mod
 end
 
--- -<0--rank1需要排在rank2前面，0--rank1和rank2相等,>0--rank1需要排在rank2后面
+-- <0--rank1需要排在rank2前面，0--rank1和rank2相等,>0--rank1需要排在rank2后面
 function cranks:cmp(rank1,rank2)
 	local cmpvals1 = {}
 	for i,key in ipairs(self.sortids) do
@@ -169,15 +169,37 @@ function cranks:add(rank)
 	return true,rank
 end
 
-function cranks:del(id,ispos)
-	local rank = ispos and self.ranks[id] or self.id_rank[id]
+function cranks:del(...)
+	local id1 = ...
+	local ids = table.pack(...)
+	if type(id1) == "table" then
+		assert(#ids==1)
+		ids=id1
+	end
+	local id = self:__id(ids)
+	local rank = self.id_rank[id]
 	if not rank then
 		if self.callback and self.callback.ondel then
 			self.callback.ondel(false)
 		end
 		return false
 	end
-	id = self:id(rank)
+	self:__del(rank)
+end
+
+function cranks:delbypos(pos)
+	local rank = self.ranks[pos]
+	if not rank then
+		if self.callback and self.callback.ondel then
+			self.callback.ondel(false)
+		end
+		return false
+	end
+	self:__del(rank)
+end
+
+function cranks:__del(rank)
+	local id = self:id(rank)
 	local length = self:len()
 	local pos = rank.pos
 	self.id_rank[id] = nil
@@ -204,7 +226,9 @@ function cranks:update(newrank)
 	end
 	local oldpos = rank.pos
 	for k,v in pairs(newrank) do
-		rank[k] = v
+		if k ~= "pos" then
+			rank[k] = v
+		end
 	end
 	-- 插入排序
 	if self.ranks[oldpos-1] and self:cmp(self.ranks[oldpos-1],rank) > 0 then -- 尝试前移
@@ -222,7 +246,7 @@ function cranks:__sort(startpos,endpos)
 	--print(startpos,endpos)
 	local isgohead = startpos >= endpos
 	local rank = self.ranks[startpos]
-	assert(rank.pos==startpos)
+	assert(rank.pos==startpos,string.format("%s ~= %s",rank.pos,startpos))
 	local newpos = endpos
 	if isgohead then
 		for i = startpos-1,endpos,-1 do

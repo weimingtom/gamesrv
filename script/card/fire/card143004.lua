@@ -52,4 +52,20 @@ function ccard143004:save()
     return data
 end
 
+function ccard143004:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local magic_hurt = self:get_magic_hurt()
+	local pos = target.pos
+	local target_owner = target:getowner()
+	local ltargetid = target_owner.warcards[pos-1]
+	local rtargetid = target_owner.warcards[pos+1]
+	local ltarget = target_owner:gettarget(ltargetid)
+	if ltarget then
+		ltarget:addhp(-magic_)
+	end
+	target:addhp(-magic_hurt,self.id)
+
+end
+
 return ccard143004

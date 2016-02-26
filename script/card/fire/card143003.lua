@@ -52,4 +52,15 @@ function ccard143003:save()
     return data
 end
 
+function ccard143003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	for i,id in ipairs(owner.enemy.warcards) do
+		local warcard = owner:gettarget(id)
+		if warcard:hasstate("sneak") then
+			warcard:setstate("sneak",0)	
+		end
+	end
+	owner:pickcard_and_putinhand()
+end
+
 return ccard143003

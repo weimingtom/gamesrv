@@ -52,4 +52,26 @@ function ccard143002:save()
     return data
 end
 
+function ccard143002:before_attack(attacker,defenser)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner.hero.id == defenser.id then
+		self:delsecret(self.id)	
+		local allid = {}
+		table.insert(allid,owner.hero.id)
+		for i,id in ipairs(owner.warcards) do
+			table.insert(allid,id)
+		end
+		table.insert(allid,owner.enemy.hero.id)
+		for i,id in ipairs(owner.enemy.warcards) do
+			table.insert(allid,id)
+		end
+		local id = randlist(allid)
+		local target = owner:gettarget(id)
+		attacker:getowner():__launchattack(attacker,target)
+	end
+end
+
 return ccard143002

@@ -241,15 +241,19 @@ function cwarobj:beginround()
 		self:putinhand(warcard)
 		war:s2csync()
 	end
-	local warcard = self:pickcard()
+	self:pickcard_and_putinhand()
+	war:s2csync()
+	self:after_beginround()
+end
+
+function cwarobj:pickcard_and_putinhand(israndom)
+	local warcard = self:pickcard(israndom)
 	if not warcard then
 		self.tiredvalue = self.tiredvalue + 1
 		self.hero:addhp(-self.tiredvalue,0)
 	else
 		self:putinhand(warcard)
 	end
-	war:s2csync()
-	self:after_beginround()
 end
 
 function cwarobj:endround(roundcnt)
@@ -426,20 +430,24 @@ function cwarobj:launchattack(attackerid,defenserid)
 		return
 	end
 	self:before_attack(attacker,defenser)
-	if attackerid == self.hero.id then
+	self:__launchattack(attacker,defenser)	
+	self:after_attack(attacker,defenser)
+end
+
+function cwarobj:__launchattack(attacker,defenser)
+	if attacker.id == self.hero.id then
 		if defenserid == self.enemy.hero.id then
 			self:hero_attack_hero()
 		else
 			self:hero_attack_footman(defenser)
 		end
 	else
-		if defenserid == self.enemy.hero.id then
+		if defenser.id == self.enemy.hero.id then
 			self:footman_attack_hero(attacker)
 		else
 			self:footman_attack_footman(attacker,defenser)
 		end
 	end
-	self:after_attack(attacker,defenser)
 end
 
 function cwarobj:footman_attack_hero(warcard)

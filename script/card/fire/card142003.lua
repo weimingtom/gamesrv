@@ -52,4 +52,16 @@ function ccard142003:save()
     return data
 end
 
+function ccard142003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettaret(targetid)
+	target:addbuff({
+		srcid = self.id,
+		sid = self.sid,
+		addatk = 2,
+		immune = 1,
+		exceedround = owner.roundcnt + 1,
+	})
+end
+
 return ccard142003

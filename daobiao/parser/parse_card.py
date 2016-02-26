@@ -69,7 +69,11 @@ ccard%(sid)d = class("ccard%(sid)d",super,{
     crystalcost = %(crystalcost)d,
     targettype = %(targettype)d,
     desc = "%(desc)s",
-})
+    effect = {
+        onuse = %(onuse),
+        ondie = %(ondie),
+    },
+}
 
 function ccard%(sid)d:init(pid)
     super.init(self,pid)

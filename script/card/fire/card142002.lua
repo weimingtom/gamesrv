@@ -52,4 +52,14 @@ function ccard142002:save()
     return data
 end
 
+function ccard142002:before_attack(attacker,defenser)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner.hero.id == attacker.id then
+		owner.hero:setstate("immune",1)
+	end
+end
+
 return ccard142002

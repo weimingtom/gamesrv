@@ -52,4 +52,14 @@ function ccard143001:save()
     return data
 end
 
+function ccard143001:ondie()
+	local owner = self:getowner()
+	local pos = self.pos
+	local sid = is_goldcard(self.sid) and 24602 or 14602
+	for i=1 2 do
+		local warcard = owner:newwarcard(sid)
+		owner:putinwar(warcard,pos)
+	end
+end
+
 return ccard143001
