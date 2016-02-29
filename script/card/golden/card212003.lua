@@ -28,7 +28,29 @@ ccard212003 = class("ccard212003",super,{
     crystalcost = 3,
     targettype = 0,
     desc = "奥秘：当一个敌方法术以一个随从作为目标时,召唤一个1/3的随从并使其成为新目标",
-})
+    effect = {
+        onuse = nil,
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard212003:init(pid)
     super.init(self,pid)

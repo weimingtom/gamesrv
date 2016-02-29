@@ -28,7 +28,29 @@ ccard213004 = class("ccard213004",super,{
     crystalcost = 3,
     targettype = 23,
     desc = "战吼：在本回合中你使用的下一个奥秘的法力值消耗为0",
-})
+    effect = {
+        onuse = nil,
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard213004:init(pid)
     super.init(self,pid)

@@ -528,12 +528,12 @@ function cwarcard:onremovefromhand()
 	end
 end
 
-function cwarcard:onbeginround(roundcnt)
+function cwarcard:onbeginround()
 	self:set({leftatkcnt=self.atkcnt})
 	if not self:issilence() then
 		local cardcls = getclassbycardsid(self.sid)
 		if cardcls.onbeginround then
-			cardcls.onbeginround(self,roundcnt)
+			cardcls.onbeginround(self)
 		end
 	end
 end
@@ -556,15 +556,6 @@ function cwarcard:onattack(target)
 		local cardcls = getclassbycardsid(self.sid)
 		if cardcls.onattack then
 			cardcls.onattack(self,target)
-		end
-	end
-end
-
-function cwarcard:ondefense(attacker)
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.ondefense then
-			cardcls.ondefense(self,attacker)
 		end
 	end
 end
@@ -593,5 +584,13 @@ function cwarcard:ondie()
 		if cardcls.ondie then
 			cardcls.ondie(self)
 		end
+	end
+end
+
+-- 自身奥秘被触发
+function cwarcard:ontrigger()
+	local cardcls = getclassbycardsid(self.sid)
+	if cardcls.ontrigger then
+		cardcls.ontrigger(self)
 	end
 end

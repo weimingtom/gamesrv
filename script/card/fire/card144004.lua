@@ -28,7 +28,29 @@ ccard144004 = class("ccard144004",super,{
     crystalcost = 2,
     targettype = 0,
     desc = "奥秘：当1个敌对随从攻击时,让其返回到所有者手中,并令其消耗增加（2）",
-})
+    effect = {
+        onuse = nil,
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard144004:init(pid)
     super.init(self,pid)

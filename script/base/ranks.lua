@@ -154,7 +154,7 @@ function cranks:add(rank)
 		end
 	else
 		if self.maxlimit and length >= self.maxlimit then
-			self:del(length,true)
+			self:delbypos(length)
 		end
 		length = self:len()
 	end

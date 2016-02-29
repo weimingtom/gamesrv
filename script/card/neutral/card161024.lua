@@ -28,7 +28,29 @@ ccard161024 = class("ccard161024",super,{
     crystalcost = 7,
     targettype = 0,
     desc = "在你的回合结束时,对所有其他角色造成2点伤害。",
-})
+    effect = {
+        onuse = nil,
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = {costhp=2},
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard161024:init(pid)
     super.init(self,pid)

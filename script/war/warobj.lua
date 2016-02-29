@@ -224,7 +224,6 @@ function cwarobj:beginround()
 	self.roundcnt = self.roundcnt + 1
 	self:log("debug","war",string.format("beginround,roundcnt=%d",self.roundcnt))
 	self.state = "beginround"
-	self:before_beginround()
 	warmgr.refreshwar(self.warid,self.pid,"beginround",{
 		roundcnt = self.roundcnt,
 	})
@@ -233,7 +232,7 @@ function cwarobj:beginround()
 	end
 	self:setcrystal(self.empty_crystal-self.lockcrystal)
 	
-	self:__docmd("beginround")
+	self:onbeginround()
 	-- 抽卡
 	local war = warmgr.getwar(self.warid)
 	if self.roundcnt == 1 and self.type == "attacker" then
@@ -243,7 +242,6 @@ function cwarobj:beginround()
 	end
 	self:pickcard_and_putinhand()
 	war:s2csync()
-	self:after_beginround()
 end
 
 function cwarobj:pickcard_and_putinhand(israndom)
@@ -265,14 +263,12 @@ function cwarobj:endround(roundcnt)
 		return
 	end
 	self.state = "endround"
-	self:before_endround()
 	warmgr.refreshwar(self.warid,self.pid,"endround",{
 		roundcnt = self.roundcnt,
 	})
-	self:__docmd("endround")
+	self:onendround()
 	local war = warmgr.getwar(self.warid)
 	war:s2csync()
-	self:after_endround()
 	self.enemy:beginround()
 end
 
@@ -604,6 +600,9 @@ function cwarobj:delsecret(warcardid,reason)
 		if id == warcardid then
 			self:before_delscret(warcard,reason)
 			table.remove(self.secretcards,pos)
+			if reason == "trigger" then
+				warcard:ontrigger()
+			end
 			warmgr.refreshwar(self.warid,self.pid,"delsecret",{id=warcardid,sid=warcard.sid})
 			self:after_delscret(warcard,reason)
 			break
@@ -748,21 +747,13 @@ function cwarobj:__docmd(cmd,...)
 end
 
 -- 事件
-function cwarobj:before_beginround()
-	self:__docmd("before_beginround")
+
+function cwarobj:onbeginround()
+	self:__docmd("onbeginround")
 end
 
-function cwarobj:after_beginround()
-	self:__docmd("after_beginround")
-end
-
-function cwarobj:before_endround()
-	self:__docmd("before_endround")
-end
-
-
-function cwarobj:after_endround()
-	self:__docmd("after_endround")
+function cwarobj:onendround()
+	self:__docmd("onendround")
 end
 
 function cwarobj:before_playcard(warcard,pos,targetid,choice)

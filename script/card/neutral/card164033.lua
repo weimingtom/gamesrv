@@ -28,7 +28,29 @@ ccard164033 = class("ccard164033",super,{
     crystalcost = 2,
     targettype = 0,
     desc = "相邻的随从获得+1攻击力。",
-})
+    effect = {
+        onuse = nil,
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard164033:init(pid)
     super.init(self,pid)

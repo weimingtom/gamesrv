@@ -28,7 +28,29 @@ ccard154006 = class("ccard154006",super,{
     crystalcost = 3,
     targettype = 32,
     desc = "抉择：使一个随从获得+4攻击力；或者+4生命值并具有嘲讽。",
-})
+    effect = {
+        onuse = {choice1={addbuff={addatk=4}},choice2={addbuff={addmaxhp=4,addhp=4,sneer=60}}},
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard154006:init(pid)
     super.init(self,pid)

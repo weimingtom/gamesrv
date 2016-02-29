@@ -28,7 +28,29 @@ ccard161010 = class("ccard161010",super,{
     crystalcost = 2,
     targettype = 0,
     desc = "在你的回合开始时,你有50%的几率额外抽一张牌。",
-})
+    effect = {
+        onuse = nil,
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = {pickcard={num=1}},
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard161010:init(pid)
     super.init(self,pid)

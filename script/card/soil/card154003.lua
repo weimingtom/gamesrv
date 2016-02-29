@@ -28,7 +28,29 @@ ccard154003 = class("ccard154003",super,{
     crystalcost = 1,
     targettype = 32,
     desc = "消灭一个随从,你的对手抽两张牌。",
-})
+    effect = {
+        onuse = {pickcard={num=2}},
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard154003:init(pid)
     super.init(self,pid)

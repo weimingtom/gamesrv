@@ -46,7 +46,7 @@ war_launchattack 505 {
 	}
 }
 
-war_hero_useskill 506 {
+war_useskill 506 {
 	request {
 		targetid 0 : integer
 	}

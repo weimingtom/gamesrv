@@ -28,7 +28,29 @@ ccard254001 = class("ccard254001",super,{
     crystalcost = 4,
     targettype = 0,
     desc = "使你的随从获得“亡语：召唤一个2/2的树人。”",
-})
+    effect = {
+        onuse = {addfootman={sid=156004,num=2},
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard254001:init(pid)
     super.init(self,pid)

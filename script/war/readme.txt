@@ -40,3 +40,17 @@
 	+随从状态变化
 	+回合开始
 	+回合结束
+
+##流程##
+	before_beginround
+	beginround
+	after_beginround
+	before_playcard  before_attack
+		before_hurt before_recoverhp
+		after_hurt  after_recoverhp
+		before_die
+		after_die
+	after_playcard   after_attack
+
+	before_endround
+	after_endround

@@ -70,8 +70,26 @@ ccard%(sid)d = class("ccard%(sid)d",super,{
     targettype = %(targettype)d,
     desc = "%(desc)s",
     effect = {
-        onuse = %(onuse),
-        ondie = %(ondie),
+        onuse = %(onuse)s,
+        ondie = %(ondie)s,
+        onhurt = %(onhurt)s,
+        onrecorverhp = %(onrecoverhp)s,
+        onbeginround = %(onbeginround)s,
+        onendround = %(onendround)s,
+        before_die = %(before_die)s,
+        after_die = %(after_die)s,
+        before_hurt = %(before_hurt)s,
+        after_hurt = %(after_hurt)s,
+        before_recoverhp = %(before_recoverhp)s,
+        after_recoverhp = %(after_recoverhp)s,
+        before_beginround = %(before_beginround)s,
+        after_beginround = %(after_beginround)s,
+        before_endround = %(before_endround)s,
+        after_endround = %(after_endround)s,
+        before_atttack = %(before_attack)s,
+        after_attack = %(after_attack)s,
+        before_playcard = %(before_playcard)s,
+        after_playcard = %(after_playcard)s,
     },
 }
 
@@ -111,6 +129,34 @@ return ccard%d
     require_list = []
     assign_list = []
     sheet = CSheet(sheet_name,sheet)
+    def parse_ifnil(val):
+        if val == None:
+            return "nil"
+        return val
+    alleffects = {
+            "onuse",
+            "ondie",
+            "onhurt",
+            "onrecoverhp",
+            "onbeginround",
+            "onendround",
+            "before_die",
+            "after_die",
+            "before_hurt",
+            "after_hurt",
+            "before_recoverhp",
+            "after_recoverhp",
+            "before_beginround",
+            "after_beginround",
+            "before_endround",
+            "after_endround",
+            "before_attack",
+            "after_attack",
+            "before_playcard",
+            "after_playcard",
+    }
+    for name in iter(alleffects):
+        sheet.register_parser(ANY_ROW,name,parse_ifnil)
     parser = CParser(cfg,sheet)
     ignorerow = parser.m_cfg.get("ignorerows",0) 
     for row in range(ignorerow,sheet.rows()):

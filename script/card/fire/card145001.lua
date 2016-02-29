@@ -28,7 +28,29 @@ ccard145001 = class("ccard145001",super,{
     crystalcost = 1,
     targettype = 0,
     desc = "查看你卡堆顶部的3张牌,抽取1张,弃掉其它2张。",
-})
+    effect = {
+        onuse = nil,
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard145001:init(pid)
     super.init(self,pid)

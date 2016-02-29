@@ -28,7 +28,29 @@ ccard252003 = class("ccard252003",super,{
     crystalcost = 7,
     targettype = 0,
     desc = "抉择：抽2张牌；或恢复5点生命值。",
-})
+    effect = {
+        onuse = {choice1={pickcard={num=2}},choice2={addhp=5}},
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard252003:init(pid)
     super.init(self,pid)

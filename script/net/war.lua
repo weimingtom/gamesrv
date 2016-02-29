@@ -52,8 +52,8 @@ function REQUEST.launchattack(player,request)
 	return callwar(player,"launchattack",request)
 end
 
-function REQUEST.hero_useskill(player,request)
-	return callwar(player,"hero_useskill",request)
+function REQUEST.useskill(player,request)
+	return callwar(player,"useskill",request)
 end
 
 function REQUEST.giveupwar(player,request)

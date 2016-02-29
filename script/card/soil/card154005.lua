@@ -28,7 +28,29 @@ ccard154005 = class("ccard154005",super,{
     crystalcost = 2,
     targettype = 32,
     desc = "抉择：对一个随从造成3点伤害；或者造成1点伤害并抽一张牌。",
-})
+    effect = {
+        onuse = {choice1={addbuff={addatk=4}},choice2={addbuff={addmaxhp=4,addhp=4,sneer=60}}},
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard154005:init(pid)
     super.init(self,pid)

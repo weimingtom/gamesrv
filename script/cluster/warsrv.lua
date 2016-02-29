@@ -123,18 +123,18 @@ local id = assert(request.id)
 	war:s2csync()
 end
 
-function CMD.hero_useskill(source,warid,pid,targetid)
+function CMD.useskill(source,warid,pid,targetid)
 	local war = warmgr.getwar(warid)
 	if not war then
-		logger.log("warning","war",string.format("[warid=%s pid=%s srvname=%s] [warid not exist] hero_useskill",warid,pid,source))
+		logger.log("warning","war",string.format("[warid=%s pid=%s srvname=%s] [warid not exist] useskill",warid,pid,source))
 		return
 	end
 	local warobj = war:getwarobj(pid)
 	if warobj.state ~= "beginround" then
 		return
 	end
-local targetid = request.targetid
-	warobj:hero_useskill(targetid)
+	local targetid = request.targetid
+	warobj:useskill(targetid)
 	war:s2csync()
 end
 

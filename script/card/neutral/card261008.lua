@@ -28,7 +28,29 @@ ccard261008 = class("ccard261008",super,{
     crystalcost = 9,
     targettype = 0,
     desc = "战吼：召唤数个1/1的雏龙,直到你的随从数量达到上限。",
-})
+    effect = {
+        onuse = nil,
+        ondie = nil,
+        onhurt = nil,
+        onrecorverhp = nil,
+        onbeginround = nil,
+        onendround = nil,
+        before_die = nil,
+        after_die = nil,
+        before_hurt = nil,
+        after_hurt = nil,
+        before_recoverhp = nil,
+        after_recoverhp = nil,
+        before_beginround = nil,
+        after_beginround = nil,
+        before_endround = nil,
+        after_endround = nil,
+        before_atttack = nil,
+        after_attack = nil,
+        before_playcard = nil,
+        after_playcard = nil,
+    },
+}
 
 function ccard261008:init(pid)
     super.init(self,pid)
