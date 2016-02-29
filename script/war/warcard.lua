@@ -17,6 +17,9 @@ function cwarcard:init(conf)
 	self:initproperty()
 	self.hp = self.maxhp	
 	self.leftatkcnt = self.atkcnt
+	self:initstate()
+	self.effects = {} -- 注册的效果
+	self.bheid = 0  -- buff/halo/effects id
 end
 
 function cwarcard:initproperty()
@@ -42,6 +45,7 @@ function cwarcard:initstate()
 	local cardcls = getclassbycardsid(self.sid)
 	for k,_ in pairs(VALID_STATE) do
 		state = cardcls[k] or 0
+		self.baseattr[k] = state
 		self[k] = state
 	end
 end
@@ -49,6 +53,7 @@ end
 function cwarcard:clearallstate()
 	for k,_ in pairs(VALID_STATE) do
 		self[k] = 0
+		self.baseattr[k] = 0
 	end
 end
 
@@ -88,6 +93,7 @@ function cwarcard:addhp(value,srcid)
 	else
 		return 0
 	end
+	self:set({hp=self.hp})
 end
 
 function cwarcard:costhp(value,srcid)
@@ -172,14 +178,24 @@ function cwarcard:recompute(attr,ignore_add)
 end
 
 function cwarcard:set(attrs)
-	local updateattrs = {}
 	for k,v in pairs(attrs) do
 		if self[k] ~= v then
 			self[k] = v
-			updateattrs[k] = v
 		end
 	end
-	warmgr.refreshwar(self.warid,self.pid,"sync",updateattrs)
+	attrs.id = self.id
+	warmgr.refreshwar(self.warid,self.pid,"synccard",attrs)
+	if attrs.hp then
+		if not self:hasstate("enrage") then
+			if self.hp < self.maxhp then
+				self:setstate("enrage",1)
+			end
+		else
+			if self.hp >= self.maxhp then
+				self:setstate("enrage",0)
+			end
+		end
+	end
 end
 
 local NON_COMPUTE_ATTR ={
@@ -194,18 +210,27 @@ function cwarcard:cancompute(attr)
 	return not NON_COMPUTE_ATTR[attr]
 end
 
+function cwarcard:genbheid()
+	if self.buffid > MAX_NUMBER then
+		self.bheid = 0
+	end
+	self.bheid = self.bheid + 1
+	return self.bheid
+end
+
 function cwarcard:addbuff(buff)
+	local bheid = self:genbheid()
+	buff.bheid = bheid
 	buff.exceedround = buff.exceedround or MAX_ROUND
 	self:log("info","war",format("addbuff,buff=%s",buff))
 	table.insert(self.buffs,buff)
 	local syncattrs = {}
 	for k,v in pairs(buff) do
 		if not self:cancompute(k) then
+		elseif self:cancoststate(k) then
+			self:setstate(k,v)
 		elseif self:isstate(k) then
-			buff[k] = buff.exceedround
-			if buff[k] > self[k] then
-				syncattr[k] = buff[k]
-			end
+			self:setstate(k,self:recompute(k,true))
 		elseif k:sub(1,3) == "add" then
 			local attr = k:sub(3)
 			syncattrs[attr] = self:recompute(attr)
@@ -213,7 +238,10 @@ function cwarcard:addbuff(buff)
 			syncattrs[attr] = self:recompute(attr)
 		end
 	end
-	warmgr.refreshwar(self.warid,self.pid,"addbuff",buff)
+	warmgr.refreshwar(self.warid,self.pid,"addbuff",{
+		id = self.id,
+		buff = buff,
+	})
 	if buff.addhp then
 		syncattrs.hp = math.min(self.hp+buff.addhp,syncattrs.maxhp)
 	end
@@ -228,19 +256,34 @@ function cwarcard:delbuff(pos)
 		self:log("info","war",format("delbuff,pos=%s buff=%s",pos,buff))
 		local syncattrs = {}
 		if not self:cancompute(k) then
+		elseif self:cancoststate(k) then
 		elseif self:isstate(k) then
+			self:setstate(k,self:recompute(k,true))
 		elseif k:sub(1,3) == "add" then
 			local attr = k:sub(3)
 			syncattrs[attr] = self:recompute(attr)
 		else
 			syncattrs[attr] = self:recompute(attr)
 		end
-		warmgr.refreshwar(self.warid,self.pid,"delbuff",{pos=pos,})
+		warmgr.refreshwar(self.warid,self.pid,"delbuff",{
+			id = id,
+			pos = pos,
+		})
 		if syncattrs.maxhp then
 			syncattrs.hp = math.min(self.hp,syncattrs.maxhp)
 		end
 		if next(syncattrs) then
 			self:set(syncattrs)
+		end
+	end
+end
+
+function cwarcard:delbuffbyid(id)
+	for pos=#self.buffs,1,-1 do
+		local buff = self.buffs[pos]
+		if buff.id == id then
+			self:delbuff(pos)
+			return buff
 		end
 	end
 end
@@ -259,14 +302,19 @@ function cwarcard:delbuffbysrcid(srcid)
 end
 
 function cwarcard:addhalo(halo)
+	local bheid = self:genbheid()
+	halo.bheid = bheid
 	halo.exceedround = halo.exceedround or MAX_ROUND
 	self:log("info","war",format("addhalo,halo=%s",halo))
 	table.insert(self.halofrom,halo)
 	local syncattrs = {}
 	for k,v in pairs(halo) do
 		if not self:cancompute(k) then
+		elseif self:cancoststate(k) then
+			-- 光环不能生成"可消耗属性"
+			error("invalid halo attrubitue:" .. k)
 		elseif self:isstate(k) then
-			-- 光环生成的状态无法被受益者消耗
+			self:setstate(k,self:recompute(k,true))
 		elseif k:sub(1,3) == "add" then
 			local attr = k:sub(3)
 			syncattrs[attr] = self:recompute(attr)
@@ -274,7 +322,10 @@ function cwarcard:addhalo(halo)
 			syncattrs[attr] = self:recompute(attr)
 		end
 	end
-	warmgr.refreshwar(self.warid,self.pid,"addhalo",halo)
+	warmgr.refreshwar(self.warid,self.pid,"addhalo",{
+		id = self.id,
+		halo = halo,
+	})
 	if halo.addhp then
 		syncattrs.hp = math.min(self.hp+halo.addhp,syncattrs.maxhp)
 	end
@@ -289,14 +340,21 @@ function cwarcard:delhalo(pos)
 		self:log("info","war",format("delhalo,pos=%s halo=%s",pos,halo))
 		local syncattrs = {}
 		if not self:cancompute(k) then
+		elseif self:cancoststate(k) then
+			-- 光环不能生成"可消耗属性"
+			error("invalid halo attrubitue:" .. k)
 		elseif self:isstate(k) then
+			self:setstate(k,self:recompute(k,true))
 		elseif k:sub(1,3) == "add" then
 			local attr = k:sub(3)
 			syncattrs[attr] = self:recompute(attr)
 		else
 			syncattrs[attr] = self:recompute(attr)
 		end
-		warmgr.refreshwar(self.warid,self.pid,"delhalo",{pos=pos})
+		warmgr.refreshwar(self.warid,self.pid,"delhalo",{
+			id = self.id,
+			pos = pos,
+		})
 		if syncattrs.maxhp then
 			syncattrs.hp = math.min(self.hp,syncattrs.maxhp)
 		end
@@ -351,7 +409,7 @@ end
 
 function cwarcard:checkstate()
 	local updateattrs = {}
-	for k,_ in pairs(VALID_STATE) do
+	for k,_ in pairs(CAN_COST_STATE) do
 		local exceedround = self[k]
 		if exceedround >= self.roundcnt then
 			self[k] = 0
@@ -359,6 +417,74 @@ function cwarcard:checkstate()
 		end
 	end
 	warmgr.refreshwar(self.warid,self.pid,"sync",updateattrs)
+end
+
+function cwarcard:packeffect(effect)
+	local tbl = {}
+	for k,v in pairs(effect) do
+		if type(v) ~= "function" then
+			tbl[k] = v
+		end
+	end
+	return tbl
+end
+
+function cwarcard:addeffect(effect)
+	local name = assert(effect.name)
+	if not effect.bheid then
+		local bheid = self:genbheid()
+		effect.bheid = self.bheid
+	end
+	local packeffect = self:packeffect(effect)
+	self:log("info","war",format("addeffect,effect=%s",packeffect))
+	if not self.effects[name] then
+		self.effects[name] = {}
+	end
+	table.insert(self.effects[name],effect)
+	warmgr.refreshwar(self.warid,self.pid,"addeffect",{
+		id = self.id,
+		effect = packeffect,
+	})
+end
+
+function cwarcard:cloneeffect(id,name)
+	local owner = self:getowner()
+	local target = owner:gettarget(id)
+	if not target:issilence() then
+		local cardcls = getclassbycardsid(target.sid)
+		if cardcls[name] then
+			local effect = {
+				name = name,
+				srcid = id,
+				sid = target.sid,
+				func = cardcls[name],
+			}
+			self:addeffect(effect)
+		end
+	end
+	if target.effects[name] then
+		for i,effect in ipairs(target.effects[name]) do
+			self:addeffect(effect)
+		end
+	end
+end
+
+function cwarcard:cleareffect(name)
+	if name then
+		if self.effects[name] then
+			self.effects[name] = {}
+		end
+	else
+		self.effects = {}
+	end
+end
+
+function cwarcard:cancoststate(attr)
+	return CAN_COST_ATTR[attr]
+end
+
+function cwarcard:isstate(state)
+	return VALID_STATE[state]
 end
 
 function cwarcard:getstate(state)
@@ -374,7 +500,9 @@ end
 
 function cwarcard:setstate(state,val)
 	if val == 0 or val > self[state] then
+		local oldval = self[state] or 0
 		self:set({state=val})
+		self:onchangestate(state,oldval,val)
 	end
 end
 
@@ -420,6 +548,7 @@ function cwarcard:silence()
 	self:initproperty()
 	-- 去掉状态属性
 	self:clearallstate()
+	self:cleareffect()
 	self.atkcnt = 1
 	self.leftatckcnt = math.min(self.leftatkcnt,self.atkcnt)
 	self.magic_hurt_adden = 0
@@ -436,6 +565,12 @@ function cwarcard:silence()
 end
 
 function cwarcard:pack()
+	local effects = {}
+	for name,list in ipairs(self.effects) do
+		for i,effect in ipairs(list) do
+			table.insert(effects,self:packeffect(effect))
+		end
+	end
 	local data = {
 		id = self.id,
 		sid = self.sid,
@@ -448,6 +583,7 @@ function cwarcard:pack()
 		haloto = table.keys(self.haloto),
 		halofrom = self.halofrom,
 		buffs = self.buffs,
+		effects = effects,
 		atkcnt = self.atkcnt,
 		leftatkcnt = self.leftatkcnt,
 		type = self.type,
@@ -536,6 +672,11 @@ function cwarcard:onbeginround()
 			cardcls.onbeginround(self)
 		end
 	end
+	if self.effects.onbeginround then
+		for i,func in ipairs(self.effects.onbeginround) do
+			func(self)
+		end
+	end
 end
 
 
@@ -549,13 +690,9 @@ function cwarcard:onendround(hero)
 			cardcls.onendround(self,roundcnt)
 		end
 	end
-end
-
-function cwarcard:onattack(target)
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onattack then
-			cardcls.onattack(self,target)
+	if self.effects.onendround then
+		for i,func in ipairs(self.effects.onendround) do
+			func(self)
 		end
 	end
 end
@@ -567,6 +704,11 @@ function cwarcard:onhurt(hurtvalue,srcid)
 			cardcls.onhurt(self,hurtvalue,srcid)
 		end
 	end
+	if self.effects.onhurt then
+		for i,func in ipairs(self.effects.onhurt) do
+			func(self)
+		end
+	end
 end
 
 function cwarcard:onrecoverhp(hurtvalue,srcid)
@@ -574,6 +716,11 @@ function cwarcard:onrecoverhp(hurtvalue,srcid)
 		local cardcls = getclassbycardsid(self.sid)
 		if cardcls.onrecoverhp then
 			cardcls.onrecoverhp(self,hurtvalue,srcid)
+		end
+	end
+	if self.effects.onrecoverhp then
+		for i,func in ipairs(self.effects.onrecoverhp) do
+			func(self)
 		end
 	end
 end
@@ -585,6 +732,11 @@ function cwarcard:ondie()
 			cardcls.ondie(self)
 		end
 	end
+	if self.effects.ondie then
+		for i,func in ipairs(self.effects.ondie) do
+			func(self)
+		end
+	end
 end
 
 -- 自身奥秘被触发
@@ -592,5 +744,10 @@ function cwarcard:ontrigger()
 	local cardcls = getclassbycardsid(self.sid)
 	if cardcls.ontrigger then
 		cardcls.ontrigger(self)
+	end
+	if self.effects.ontrigger then
+		for i,func in ipairs(self.effects.ontrigger) do
+			func(self)
+		end
 	end
 end

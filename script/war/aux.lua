@@ -370,5 +370,17 @@ VALID_STATE = {
 	enrange = true,
 }
 
+-- 可消耗属性：血量、潜行、圣盾（这类属性光环无法增加)
+CAN_COST_ATTR = {
+	hp = true,
+	sneak = true,
+	shield = true,
+}
+
+CAN_COST_STATE = {
+	sneak = true,
+	shield = true,
+}
+
 
 return waraux
