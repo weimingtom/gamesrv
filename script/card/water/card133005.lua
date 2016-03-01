@@ -17,7 +17,7 @@ ccard133005 = class("ccard133005",super,{
     magic_hurt_adden = 0,
     magic_hurt = 0,
     recoverhp = 3,
-    cure_to_hurt = 0,
+    cure_to_hurt = 1,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
     max_amount = 2,
@@ -27,6 +27,7 @@ ccard133005 = class("ccard133005",super,{
     hp = 5,
     crystalcost = 2,
     targettype = 0,
+    halo = nil,
     desc = "在你的回合开始时,随机为一个受到伤害的友方角色恢复3点生命值。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard133005 = class("ccard133005",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard133005 = class("ccard133005",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard133005:init(pid)
     super.init(self,pid)

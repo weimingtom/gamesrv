@@ -27,6 +27,7 @@ ccard161021 = class("ccard161021",super,{
     hp = 5,
     crystalcost = 5,
     targettype = 0,
+    halo = nil,
     desc = "战吼：使你的武器获得+1/+1。",
     effect = {
         onuse = {addbuff={addatk=1,addmaxphp=1,addhp=1}},
@@ -35,6 +36,11 @@ ccard161021 = class("ccard161021",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard161021 = class("ccard161021",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard161021:init(pid)
     super.init(self,pid)

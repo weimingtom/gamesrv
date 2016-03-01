@@ -27,6 +27,7 @@ ccard214004 = class("ccard214004",super,{
     hp = 3,
     crystalcost = 1,
     targettype = 23,
+    halo = nil,
     desc = "每当你施放一个法术时,便获得+1攻击力",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard214004 = class("ccard214004",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -48,9 +54,23 @@ ccard214004 = class("ccard214004",super,{
         before_atttack = nil,
         after_attack = nil,
         before_playcard = nil,
-        after_playcard = nil,
+        after_playcard = {addbuff={addatk=1}},
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard214004:init(pid)
     super.init(self,pid)

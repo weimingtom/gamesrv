@@ -27,6 +27,7 @@ ccard261024 = class("ccard261024",super,{
     hp = 5,
     crystalcost = 7,
     targettype = 0,
+    halo = nil,
     desc = "在你的回合结束时,对所有其他角色造成2点伤害。",
     effect = {
         onuse = nil,
@@ -34,7 +35,12 @@ ccard261024 = class("ccard261024",super,{
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,
-        onendround = nil,
+        onendround = {costhp=2},
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard261024 = class("ccard261024",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard261024:init(pid)
     super.init(self,pid)

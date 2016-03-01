@@ -27,6 +27,7 @@ ccard263021 = class("ccard263021",super,{
     hp = 5,
     crystalcost = 3,
     targettype = 0,
+    halo = nil,
     desc = "在你的回合结束时,对该随从造成1点伤害,并召唤一个1/1的小鬼。",
     effect = {
         onuse = nil,
@@ -34,7 +35,12 @@ ccard263021 = class("ccard263021",super,{
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,
-        onendround = nil,
+        onendround = {costhp=1,addfootman={166007,num=1}},
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard263021 = class("ccard263021",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard263021:init(pid)
     super.init(self,pid)

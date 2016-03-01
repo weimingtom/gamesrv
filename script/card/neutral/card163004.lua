@@ -27,6 +27,7 @@ ccard163004 = class("ccard163004",super,{
     hp = 2,
     crystalcost = 2,
     targettype = 0,
+    halo = nil,
     desc = "每当你施放一个法术时,对所有随从造成1点伤害。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard163004 = class("ccard163004",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard163004 = class("ccard163004",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = {costhp=1},
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard163004:init(pid)
     super.init(self,pid)

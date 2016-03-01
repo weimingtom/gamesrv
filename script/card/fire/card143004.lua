@@ -27,14 +27,20 @@ ccard143004 = class("ccard143004",super,{
     hp = 0,
     crystalcost = 5,
     targettype = 22,
+    halo = nil,
     desc = "对1个随从造成5点伤害,并对相邻目标造成2点伤害。",
     effect = {
-        onuse = nil,
+        onuse = {magic_hurt=5,lr_magic_hurt=2},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard143004 = class("ccard143004",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard143004:init(pid)
     super.init(self,pid)
@@ -77,17 +97,22 @@ end
 function ccard143004:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local target = owner:gettarget(targetid)
-	local magic_hurt = self:get_magic_hurt()
+	local magic_hurt = ccard143004.onuse.magic_hurt
+	local lr_magic_hurt = ccard143004.onuse.lr_magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	lr_magic_hurt = self:get_magic_hurt(lr_magic_hurt)
 	local pos = target.pos
 	local target_owner = target:getowner()
 	local ltargetid = target_owner.warcards[pos-1]
 	local rtargetid = target_owner.warcards[pos+1]
 	local ltarget = target_owner:gettarget(ltargetid)
 	if ltarget then
-		ltarget:addhp(-magic_)
+		ltarget:addhp(-lr_magic_hurt,self.id)
+	end
+	if rtarget then
+		ltarget:addhp(-lr_magic_hurt,self.id)
 	end
 	target:addhp(-magic_hurt,self.id)
-
 end
 
 return ccard143004

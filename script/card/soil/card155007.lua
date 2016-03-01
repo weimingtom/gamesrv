@@ -27,6 +27,7 @@ ccard155007 = class("ccard155007",super,{
     hp = 0,
     crystalcost = 3,
     targettype = 0,
+    halo = nil,
     desc = "在本回合中,使你的所有角色获得+2攻击力。",
     effect = {
         onuse = {addbuff={addatk=2}},
@@ -35,6 +36,11 @@ ccard155007 = class("ccard155007",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard155007 = class("ccard155007",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard155007:init(pid)
     super.init(self,pid)

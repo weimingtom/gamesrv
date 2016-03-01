@@ -27,6 +27,7 @@ ccard114002 = class("ccard114002",super,{
     hp = 0,
     crystalcost = 3,
     targettype = 11,
+    halo = nil,
     desc = "奥秘：当你的英雄受到攻击时,获得8点护甲值",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard114002 = class("ccard114002",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -45,12 +51,26 @@ ccard114002 = class("ccard114002",super,{
         after_beginround = nil,
         before_endround = nil,
         after_endround = nil,
-        before_atttack = nil,
+        before_atttack = {adddef=8},
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard114002:init(pid)
     super.init(self,pid)

@@ -382,5 +382,8 @@ CAN_COST_STATE = {
 	shield = true,
 }
 
+function togoldsidif(sid,isgold)
+	return isgold and sid + 100000 or sid
+end
 
 return waraux

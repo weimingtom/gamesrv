@@ -27,6 +27,7 @@ ccard145007 = class("ccard145007",super,{
     hp = 2,
     crystalcost = 5,
     targettype = 0,
+    halo = nil,
     desc = "你每召唤1个野兽,抽1张牌。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard145007 = class("ccard145007",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard145007 = class("ccard145007",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = {pickcard={num=1}},
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = {pickcard={num=1}},
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard145007:init(pid)
     super.init(self,pid)

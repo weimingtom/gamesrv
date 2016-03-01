@@ -27,6 +27,7 @@ ccard163006 = class("ccard163006",super,{
     hp = 1,
     crystalcost = 4,
     targettype = 0,
+    halo = nil,
     desc = "战吼：你的每张手牌都会令暮光幼龙获得一次+1（生命值）效果",
     effect = {
         onuse = {addbuff={addmaxhp=1,addhp=1}},
@@ -35,6 +36,11 @@ ccard163006 = class("ccard163006",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard163006 = class("ccard163006",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard163006:init(pid)
     super.init(self,pid)

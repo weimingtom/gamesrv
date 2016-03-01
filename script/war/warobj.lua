@@ -451,23 +451,23 @@ function cwarobj:footman_attack_hero(warcard)
 	local target = self.enemy.hero
 	warcard:addleftatkcnt(-1)
 	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=warcard.id,targetid=target.id})
-	target:addhp(-warcard:getatk(),warcardid)
-	--warcard:addhp(target:getatk(),target.id)
+	target:addhp(-warcard:gete4e(),warcardid)
+	warcard:addhp(-target:gete4e(),target.id)
 end
 
 function cwarobj:footman_attack_footman(warcard,target)
 	assert(warcard.inarea == "war")
 	warcard:addleftatkcnt(-1)
 	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=warcardid,targetid=target.id,})
-	target:addhp(-warcard:getatk(),warcard.id)
-	warcard:addhp(-target:getatk(),targetid)
+	target:addhp(-warcard:gete4e(),warcard.id)
+	warcard:addhp(-target:gete4e(),targetid)
 end
 
 function cwarobj:hero_attack_footman(target)
 	self.hero:addleftatkcnt(-1)
 	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=self.hero.id,targetid=target.id,})
-	target:addhp(-self.hero:getatk(),self.hero.id)
-	self.hero:addhp(-target:getatk(),target.id)
+	target:addhp(-self.hero:gete4e(),self.hero.id)
+	self.hero:addhp(-target:gete4e(),target.id)
 	local weapon = self.hero.weapon
 	if weapon then
 		weapon:addhp(-1)
@@ -478,8 +478,8 @@ function cwarobj:hero_attack_hero()
 	self.hero:addleftatkcnt(-1)
 	local target = self.enemy.hero
 	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=self.hero.id,targetid=target.id})
-	target:addhp(-self.hero:getatk(),self.hero.id)
-	--self.hero:addhp(-target:getatk(),target.id)
+	target:addhp(-self.hero:gete4e(),self.hero.id)
+	self.hero:addhp(-target:gete4e(),target.id)
 	local weapon = self.hero.weapon
 	if weapon then
 		weapon:addhp(-1)
@@ -588,6 +588,9 @@ function cwarobj:addsecret(warcard)
 	self:log("debug","war",string.format("addsecret,id=%d",warcard.id))
 	self:before_addscret(warcard)
 	table.insert(self.secretcards,warcard.id)
+	if warcard.onaddsecret then
+		warcard:onaddsecret()
+	end
 	warmgr.refreshwar(self.warid,self.pid,"addsecret",{id=warcard.id,})
 	self:after_addscret(warcard)
 end
@@ -600,8 +603,8 @@ function cwarobj:delsecret(warcardid,reason)
 		if id == warcardid then
 			self:before_delscret(warcard,reason)
 			table.remove(self.secretcards,pos)
-			if reason == "trigger" then
-				warcard:ontrigger()
+			if warcard.ondelsecret then
+				warcard:ondelsecret(reason)
 			end
 			warmgr.refreshwar(self.warid,self.pid,"delsecret",{id=warcardid,sid=warcard.sid})
 			self:after_delscret(warcard,reason)

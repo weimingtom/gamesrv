@@ -27,6 +27,7 @@ ccard142002 = class("ccard142002",super,{
     hp = 2,
     crystalcost = 7,
     targettype = 0,
+    halo = nil,
     desc = "你的英雄在攻击时具有免疫。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard142002 = class("ccard142002",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -45,12 +51,26 @@ ccard142002 = class("ccard142002",super,{
         after_beginround = nil,
         before_endround = nil,
         after_endround = nil,
-        before_atttack = nil,
-        after_attack = nil,
+        before_atttack = {immune=1},
+        after_attack = {immune=0},
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard142002:init(pid)
     super.init(self,pid)
@@ -80,7 +100,19 @@ function ccard142002:before_attack(attacker,defenser)
 	end
 	local owner = self:getowner()
 	if owner.hero.id == attacker.id then
-		owner.hero:setstate("immune",1)
+		local state = ccard142002.effect.before_attack.immune
+		owner.hero:setstate("immune",state)
+	end
+end
+
+function ccard142002:after_attack(attacker,defenser)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner.hero.id == attacker.id then
+		local state = ccard142002.effect.after_attack.immune
+		owner.hero:setstate("immune",state)
 	end
 end
 

@@ -27,14 +27,20 @@ ccard142003 = class("ccard142003",super,{
     hp = 0,
     crystalcost = 1,
     targettype = 32,
+    halo = nil,
     desc = "在本回合内,使1个野兽获得+2攻击和免疫。",
     effect = {
-        onuse = nil,
+        onuse = {addbuff={addatk=2,immune=1,lifecircle=1},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard142003 = class("ccard142003",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard142003:init(pid)
     super.init(self,pid)
@@ -77,13 +97,12 @@ end
 function ccard142003:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local target = owner:gettaret(targetid)
-	target:addbuff({
-		srcid = self.id,
-		sid = self.sid,
-		addatk = 2,
-		immune = 1,
-		exceedround = owner.roundcnt + 1,
-	})
+	local buff = deepcopy(ccard142003.onuse.addbuff)
+	buff.exceedround = buff.lifecircle + owner.roundcnt
+	buff.lifecircle = nil
+	buff.srcid = self.id
+	buff.sid = self.sid
+	target:addbuff(buff)
 end
 
 return ccard142003

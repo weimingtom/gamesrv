@@ -27,6 +27,7 @@ ccard142001 = class("ccard142001",super,{
     hp = 0,
     crystalcost = 2,
     targettype = 0,
+    halo = nil,
     desc = "奥秘：当你的1个随从遭到攻击时,召唤3条1/1毒蛇。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard142001 = class("ccard142001",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -45,12 +51,26 @@ ccard142001 = class("ccard142001",super,{
         after_beginround = nil,
         before_endround = nil,
         after_endround = nil,
-        before_atttack = nil,
+        before_atttack = {addfootman={sid=146006,num=3}},
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard142001:init(pid)
     super.init(self,pid)
@@ -79,14 +99,17 @@ function ccard142001:before_attack(attacker,defenser)
 	if owner:isenemy(defenser.id) then
 		return
 	end
-	if defenser.id ~= owner.id then
+	if defenser.id == owner.hero.id then
 		return
 	end
 	assert(defenser.inarea == "war")
 	assert(is_footman(defenser.type))
 	owner:delsecret(self.id,"trigger")
-	local sid = is_goldcard(self.sid) and 24006 or 14006
-	for i=1,3 do
+	local sid = is_goldcard(self.sid) and 24
+	local num = ccard142001.effect.addfootman.num
+	local sid = ccard142001.effect.addfootman.sid
+	sid = togoldsidif(sid,is_goldcard(self.sid))
+	for i=1,num do
 		local warcard = owner:newwarcard(sid)
 		owner:putinwar(warcard)
 	end

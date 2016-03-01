@@ -27,6 +27,7 @@ ccard253001 = class("ccard253001",super,{
     hp = 0,
     crystalcost = 5,
     targettype = 0,
+    halo = nil,
     desc = "抉择：对一个随从造成5点伤害；或者对所有敌方随从造成2点伤害。",
     effect = {
         onuse = {choice1={costhp=5},choice2={costhp=2}},
@@ -35,6 +36,11 @@ ccard253001 = class("ccard253001",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard253001 = class("ccard253001",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard253001:init(pid)
     super.init(self,pid)

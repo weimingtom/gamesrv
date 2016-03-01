@@ -27,6 +27,7 @@ ccard255008 = class("ccard255008",super,{
     hp = 0,
     crystalcost = 4,
     targettype = 23,
+    halo = nil,
     desc = "对一个敌人造成4点伤害,并对所有其他敌人造成1点伤害。",
     effect = {
         onuse = {magic_hurt=4,other_magic_hurt=1},
@@ -35,6 +36,11 @@ ccard255008 = class("ccard255008",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard255008 = class("ccard255008",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard255008:init(pid)
     super.init(self,pid)

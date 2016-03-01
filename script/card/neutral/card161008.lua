@@ -27,6 +27,7 @@ ccard161008 = class("ccard161008",super,{
     hp = 8,
     crystalcost = 9,
     targettype = 0,
+    halo = nil,
     desc = "战吼：召唤数个1/1的雏龙,直到你的随从数量达到上限。",
     effect = {
         onuse = {addfootman={sid=166019}},
@@ -35,6 +36,11 @@ ccard161008 = class("ccard161008",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard161008 = class("ccard161008",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard161008:init(pid)
     super.init(self,pid)

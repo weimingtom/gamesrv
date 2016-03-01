@@ -27,6 +27,7 @@ ccard252002 = class("ccard252002",super,{
     hp = 5,
     crystalcost = 7,
     targettype = 0,
+    halo = nil,
     desc = "抉择：+5生命值并具有嘲讽；或者+5攻击力。",
     effect = {
         onuse = {choice1={addbuff={addmaxhp=5,addhp=5,sneer=60}},choice={addatk=5}},
@@ -35,6 +36,11 @@ ccard252002 = class("ccard252002",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard252002 = class("ccard252002",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard252002:init(pid)
     super.init(self,pid)

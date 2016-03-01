@@ -27,6 +27,7 @@ ccard161010 = class("ccard161010",super,{
     hp = 4,
     crystalcost = 2,
     targettype = 0,
+    halo = nil,
     desc = "在你的回合开始时,你有50%的几率额外抽一张牌。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard161010 = class("ccard161010",super,{
         onrecorverhp = nil,
         onbeginround = {pickcard={num=1}},
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard161010 = class("ccard161010",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard161010:init(pid)
     super.init(self,pid)

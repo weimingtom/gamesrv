@@ -506,7 +506,7 @@ function cwarcard:setstate(state,val)
 	end
 end
 
-function cwarcard:get_magic_hurt()
+function cwarcard:get_magic_hurt(magic_hurt)
 	local owner = self:getowner()
 	-- 只有自身战场随从会影响加成
 	local magic_hurt_adden = 0	
@@ -520,10 +520,10 @@ function cwarcard:get_magic_hurt()
 		local warcard = owner.id_card[id]
 		magic_hurt_multi = magic_hurt_multi * warcard.magic_hurt_multi
 	end
-	return (self.magic_hurt + magic_hurt_adden) * magic_hurt_multi
+	return (magic_hurt + magic_hurt_adden) * magic_hurt_multi
 end
 
-function cwarcard:getrecoverhp()
+function cwarcard:getrecoverhp(recoverhp)
 	-- 只有自身战场随从会影响倍率
 	local owner = self:getowner()
 	local recoverhp_multi = 1
@@ -531,7 +531,12 @@ function cwarcard:getrecoverhp()
 		local warcard = owner.id_card[id]
 		recoverhp_multi = recoverhp_multi * warcard.recoverhp_multi
 	end
-	return self.recoverhp * recoverhp_multi
+	return recoverhp * recoverhp_multi
+end
+
+-- 得到复仇值(eye for eye):被攻击时对对方造成的伤害
+function cwarcard:gete4e()
+	return self.atk
 end
 
 function cwarcard:issilence()
@@ -560,7 +565,6 @@ function cwarcard:silence()
 	if self.cannotattack then
 		self.cannotattack = nil
 	end
-
 	warmgr.refreshwar(self.warid,self.pid,"synccard",{warcard=self:pack(),})
 end
 
@@ -617,11 +621,18 @@ end
 
 
 function cwarcard:die()
-	if self.inarea == "war" then
-		self:getowner():removefromwar(self)
-	end
+	assert(self.inarea=="war")
+	local owner = self:getowner()
+	owner:before_die(self)
 	self.inarea = "graveyard"
 	self:ondie()
+	owner:after_die(self)
+	if is_footman(self.type) then
+		owner:removefromwar(self)
+	elseif is_weapon(self.type) then
+		owner:delweapon()
+	else
+	end
 end
 
 -- 随从牌(战吼)/法术牌(使用效果） 
@@ -751,3 +762,5 @@ function cwarcard:ontrigger()
 		end
 	end
 end
+
+return cwarcard

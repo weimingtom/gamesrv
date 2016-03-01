@@ -27,6 +27,7 @@ ccard161013 = class("ccard161013",super,{
     hp = 4,
     crystalcost = 2,
     targettype = 0,
+    halo = nil,
     desc = "每当一个玩家施放一个法术时,复制该法术,将其置入另一个玩家的手牌。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard161013 = class("ccard161013",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard161013 = class("ccard161013",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard161013:init(pid)
     super.init(self,pid)

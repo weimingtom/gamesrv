@@ -27,6 +27,7 @@ ccard135001 = class("ccard135001",super,{
     hp = 0,
     crystalcost = 10,
     targettype = 22,
+    halo = nil,
     desc = "获得一个敌方随从的控制权。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard135001 = class("ccard135001",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard135001 = class("ccard135001",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard135001:init(pid)
     super.init(self,pid)

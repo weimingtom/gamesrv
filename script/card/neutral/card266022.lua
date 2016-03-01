@@ -27,6 +27,7 @@ ccard266022 = class("ccard266022",super,{
     hp = 3,
     crystalcost = 1,
     targettype = 0,
+    halo = nil,
     desc = "在你回合的结束阶段,为一个受到伤害的角色回复6点生命值。",
     effect = {
         onuse = nil,
@@ -34,7 +35,12 @@ ccard266022 = class("ccard266022",super,{
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,
-        onendround = nil,
+        onendround = {recoverhp=6},
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard266022 = class("ccard266022",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard266022:init(pid)
     super.init(self,pid)

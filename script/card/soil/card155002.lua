@@ -27,6 +27,7 @@ ccard155002 = class("ccard155002",super,{
     hp = 0,
     crystalcost = 2,
     targettype = 32,
+    halo = nil,
     desc = "使1个随从获得嘲讽以及+2/+2。（+2攻击/+2生命）",
     effect = {
         onuse = {addbuff={sneer=60,addatk=2,addmaxhp=2,addhp=2}},
@@ -35,6 +36,11 @@ ccard155002 = class("ccard155002",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard155002 = class("ccard155002",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard155002:init(pid)
     super.init(self,pid)

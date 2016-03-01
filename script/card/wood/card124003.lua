@@ -27,6 +27,7 @@ ccard124003 = class("ccard124003",super,{
     hp = 0,
     crystalcost = 1,
     targettype = 0,
+    halo = nil,
     desc = "奥秘：每当一个敌人攻击时,召唤一个2/1的防御者,并使其成为攻击的目标。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard124003 = class("ccard124003",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -45,12 +51,26 @@ ccard124003 = class("ccard124003",super,{
         after_beginround = nil,
         before_endround = nil,
         after_endround = nil,
-        before_atttack = nil,
+        before_atttack = {addfootman={sid=126001,num=1}},
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard124003:init(pid)
     super.init(self,pid)

@@ -27,14 +27,20 @@ ccard143001 = class("ccard143001",super,{
     hp = 5,
     crystalcost = 6,
     targettype = 0,
+    halo = nil,
     desc = "亡语：召唤2只2/2土狼。",
     effect = {
         onuse = nil,
-        ondie = nil,
+        ondie = {addfootman={sid=146002,num=2}},
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard143001 = class("ccard143001",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard143001:init(pid)
     super.init(self,pid)
@@ -76,11 +96,12 @@ end
 
 function ccard143001:ondie()
 	local owner = self:getowner()
-	local pos = self.pos
-	local sid = is_goldcard(self.sid) and 24602 or 14602
-	for i=1 2 do
+	local num = ccard143001.effect.ondie.addfootman.num
+	local sid = ccard143001.effect.ondie.addfootman.sid
+	sid = togoldsidif(sid,is_goldcard(self.sid))
+	for i=1,num do
 		local warcard = owner:newwarcard(sid)
-		owner:putinwar(warcard,pos)
+		owner:putinwar(warcard,self.pos)
 	end
 end
 

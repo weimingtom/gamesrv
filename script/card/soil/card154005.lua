@@ -27,6 +27,7 @@ ccard154005 = class("ccard154005",super,{
     hp = 0,
     crystalcost = 2,
     targettype = 32,
+    halo = nil,
     desc = "抉择：对一个随从造成3点伤害；或者造成1点伤害并抽一张牌。",
     effect = {
         onuse = {choice1={addbuff={addatk=4}},choice2={addbuff={addmaxhp=4,addhp=4,sneer=60}}},
@@ -35,6 +36,11 @@ ccard154005 = class("ccard154005",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard154005 = class("ccard154005",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard154005:init(pid)
     super.init(self,pid)

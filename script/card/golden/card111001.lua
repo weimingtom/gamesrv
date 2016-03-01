@@ -27,6 +27,7 @@ ccard111001 = class("ccard111001",super,{
     hp = 7,
     crystalcost = 7,
     targettype = 23,
+    halo = nil,
     desc = "每当你施放一个法术时,将一张‘火球术’置入你的手牌",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard111001 = class("ccard111001",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -48,9 +54,23 @@ ccard111001 = class("ccard111001",super,{
         before_atttack = nil,
         after_attack = nil,
         before_playcard = nil,
-        after_playcard = nil,
+        after_playcard = {putinhand={sid=115002,num=1}},
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard111001:init(pid)
     super.init(self,pid)

@@ -27,6 +27,7 @@ ccard263005 = class("ccard263005",super,{
     hp = 5,
     crystalcost = 4,
     targettype = 0,
+    halo = nil,
     desc = "每当你施放一个法术时,召唤一个1/1的紫罗兰学徒。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard263005 = class("ccard263005",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -48,9 +54,23 @@ ccard263005 = class("ccard263005",super,{
         before_atttack = nil,
         after_attack = nil,
         before_playcard = nil,
-        after_playcard = nil,
+        after_playcard = {addfootman={sid=166006,num=1}},
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard263005:init(pid)
     super.init(self,pid)

@@ -27,6 +27,7 @@ ccard261006 = class("ccard261006",super,{
     hp = 5,
     crystalcost = 5,
     targettype = 0,
+    halo = nil,
     desc = "战吼：让两位玩家都具有摇滚的能力！（双方各获得一张强力和弦牌）",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard261006 = class("ccard261006",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard261006 = class("ccard261006",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard261006:init(pid)
     super.init(self,pid)

@@ -68,6 +68,7 @@ ccard%(sid)d = class("ccard%(sid)d",super,{
     hp = %(hp)d,
     crystalcost = %(crystalcost)d,
     targettype = %(targettype)d,
+    halo = %(halo)s,
     desc = "%(desc)s",
     effect = {
         onuse = %(onuse)s,
@@ -76,6 +77,11 @@ ccard%(sid)d = class("ccard%(sid)d",super,{
         onrecorverhp = %(onrecoverhp)s,
         onbeginround = %(onbeginround)s,
         onendround = %(onendround)s,
+        ondelsecret = %(ondelsecret)s,
+        onputinwar = %(onputinwar)s,
+        onremovefromwar = %(onremovefromwar)s,
+        onaddweapon = %(onaddweapon)s,
+        onputinhand = %(onputinhand)s,
         before_die = %(before_die)s,
         after_die = %(after_die)s,
         before_hurt = %(before_hurt)s,
@@ -90,8 +96,22 @@ ccard%(sid)d = class("ccard%(sid)d",super,{
         after_attack = %(after_attack)s,
         before_playcard = %(before_playcard)s,
         after_playcard = %(after_playcard)s,
+        before_putinwar = %(before_putinwar)s,
+        after_putinwar = %(after_putinwar)s,
+        before_removefromwar = %(before_removefromwar)s,
+        after_removefromwar = %(after_removefromwar)s,
+        before_addsecret = %(before_addsecret)s,
+        after_addsecret = %(after_addsecret)s,
+        before_addweapon = %(before_addweapon)s,
+        after_addweapon = %(after_addweapon)s,
+        before_delweapon = %(before_delweapon)s,
+        after_delweapon = %(after_delweapon)s,
+        before_putinwar = %(before_putinwar)s,
+        after_putinwar = %(after_putinwar)s,
+        before_removefromhand = %(before_removefromhand)s,
+        after_removefromhand = %(after_removefromhand)s,
     },
-}
+})
 
 function ccard%(sid)d:init(pid)
     super.init(self,pid)
@@ -140,6 +160,12 @@ return ccard%d
             "onrecoverhp",
             "onbeginround",
             "onendround",
+            "ondelsecret",
+            "onremovefromwar",
+            "onputinwar",
+            "onremovefromwar",
+            "onaddweapon",
+            "onputinhand",
             "before_die",
             "after_die",
             "before_hurt",
@@ -154,7 +180,22 @@ return ccard%d
             "after_attack",
             "before_playcard",
             "after_playcard",
+            "before_putinwar",
+            "after_putinwar",
+            "before_removefromwar",
+            "after_removefromwar",
+            "before_addsecret",
+            "after_addsecret",
+            "before_addweapon",
+            "after_addweapon",
+            "before_delweapon",
+            "after_delweapon",
+            "before_putinwar",
+            "after_putinwar",
+            "before_removefromhand",
+            "after_removefromhand",
     }
+    sheet.register_parser(ANY_ROW,"halo",parse_ifnil)
     for name in iter(alleffects):
         sheet.register_parser(ANY_ROW,name,parse_ifnil)
     parser = CParser(cfg,sheet)

@@ -27,6 +27,7 @@ ccard261017 = class("ccard261017",super,{
     hp = 4,
     crystalcost = 6,
     targettype = 0,
+    halo = nil,
     desc = "在你的回合结束时,召唤一个2/2并具有嘲讽的豺狼人。",
     effect = {
         onuse = nil,
@@ -34,7 +35,12 @@ ccard261017 = class("ccard261017",super,{
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,
-        onendround = nil,
+        onendround = {addfootman={sid=166021,num=1}},
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard261017 = class("ccard261017",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard261017:init(pid)
     super.init(self,pid)

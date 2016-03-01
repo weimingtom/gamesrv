@@ -27,14 +27,20 @@ ccard143003 = class("ccard143003",super,{
     hp = 0,
     crystalcost = 1,
     targettype = 0,
+    halo = nil,
     desc = "使所有随从失去潜行效果。摧毁敌方所有奥秘。抽1张牌。",
     effect = {
-        onuse = nil,
+        onuse = {pickcard={num=1}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard143003 = class("ccard143003",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard143003:init(pid)
     super.init(self,pid)
@@ -82,7 +102,14 @@ function ccard143003:onuse(pos,targetid,choice)
 			warcard:setstate("sneak",0)	
 		end
 	end
-	owner:pickcard_and_putinhand()
+	local secretcards = copy(owner.enemy.secretcards)
+	for i,id in ipairs(secretcards) do
+		owner.enemy:delsecret(id,"destory")
+	end
+	local num = ccard143003.effect.onuse.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
 end
 
 return ccard143003

@@ -27,6 +27,7 @@ ccard214006 = class("ccard214006",super,{
     hp = 2,
     crystalcost = 2,
     targettype = 23,
+    halo = nil,
     desc = "你的法术的法力值消耗减少1点",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard214006 = class("ccard214006",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -49,8 +55,22 @@ ccard214006 = class("ccard214006",super,{
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard214006:init(pid)
     super.init(self,pid)

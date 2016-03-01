@@ -27,6 +27,7 @@ ccard261016 = class("ccard261016",super,{
     hp = 5,
     crystalcost = 6,
     targettype = 0,
+    halo = nil,
     desc = "每当你使用一张牌时,召唤一个2/1的埃辛诺斯烈焰。",
     effect = {
         onuse = nil,
@@ -35,6 +36,11 @@ ccard261016 = class("ccard261016",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
+        ondelsecret = nil,
+        onputinwar = nil,
+        onremovefromwar = nil,
+        onaddweapon = nil,
+        onputinhand = nil,
         before_die = nil,
         after_die = nil,
         before_hurt = nil,
@@ -47,10 +53,24 @@ ccard261016 = class("ccard261016",super,{
         after_endround = nil,
         before_atttack = nil,
         after_attack = nil,
-        before_playcard = nil,
+        before_playcard = {addfootman={sid=166020,num=1}},
         after_playcard = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromwar = nil,
+        after_removefromwar = nil,
+        before_addsecret = nil,
+        after_addsecret = nil,
+        before_addweapon = nil,
+        after_addweapon = nil,
+        before_delweapon = nil,
+        after_delweapon = nil,
+        before_putinwar = nil,
+        after_putinwar = nil,
+        before_removefromhand = nil,
+        after_removefromhand = nil,
     },
-}
+})
 
 function ccard261016:init(pid)
     super.init(self,pid)
