@@ -94,4 +94,23 @@ function ccard143005:save()
     return data
 end
 
+function ccard143005:after_delsecret(warcard,reason)
+	if reason ~= "trigger" then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(warcard.id) then
+		return
+	end
+	local weapon = owner.hero:getweapon()
+	if weapon then
+		weapon:addbuff({
+			srcid = warcard.id,
+			sid = warcard.sid,
+			addmaxhp = 1,
+			addhp = 1,
+		})
+	end
+end
+
 return ccard143005

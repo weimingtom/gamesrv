@@ -94,4 +94,13 @@ function ccard144002:save()
     return data
 end
 
+function ccard144002:after_putinwar(footman)
+	local owner = self:getowner()
+	if not owner:isenmey(footman.id) then
+		return
+	end
+	local costhp = ccard144002.effect.after_putinwar.costhp
+	footman:addhp(-costhp,self.id)
+end
+
 return ccard144002

@@ -95,6 +95,9 @@ function ccard142001:save()
 end
 
 function ccard142001:before_attack(attacker,defenser)
+	if self.inarea ~= "war" then
+		return
+	end
 	local owner = self:getowner()
 	if owner:isenemy(defenser.id) then
 		return
@@ -107,12 +110,14 @@ function ccard142001:before_attack(attacker,defenser)
 	owner:delsecret(self.id,"trigger")
 	local sid = is_goldcard(self.sid) and 24
 	local num = ccard142001.effect.addfootman.num
+	num = math.min(num,owner:getfreespace("warcard"))
 	local sid = ccard142001.effect.addfootman.sid
 	sid = togoldsidif(sid,is_goldcard(self.sid))
 	for i=1,num do
 		local warcard = owner:newwarcard(sid)
 		owner:putinwar(warcard)
 	end
+	return
 end
 
 return ccard142001

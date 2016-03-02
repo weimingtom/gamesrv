@@ -386,4 +386,20 @@ function togoldsidif(sid,isgold)
 	return isgold and sid + 100000 or sid
 end
 
+IGNORE_NONE = 0
+IGNORE_LATER_EVENT = 1
+IGNORE_LATER_ACTION = 1
+
+function ignore_later_action(result)
+	return result % 10 == 1
+end
+
+function ignore_later_event(result)
+	return math.floor(result/10) == 1
+end
+
+function eventresult(result1,result2)
+	return result1 * 10 + result2
+end
+
 return waraux

@@ -103,6 +103,7 @@ function ccard142003:onuse(pos,targetid,choice)
 	buff.srcid = self.id
 	buff.sid = self.sid
 	target:addbuff(buff)
+	return
 end
 
 return ccard142003

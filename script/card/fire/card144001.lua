@@ -94,4 +94,15 @@ function ccard144001:save()
     return data
 end
 
+function ccard144001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local num = math.min(#owner.enemy.warcards,owner:getfreespace("warcard"))
+	local sid = ccard144001.effect.onuse.addfootman.sid
+	sid = togoldsidif(sid,is_goldcard(sid))
+	for i=1,num do
+		local warcard = owner:newwarcard(sid)
+		owner:putinwar(warcard)
+	end
+end
+
 return ccard144001

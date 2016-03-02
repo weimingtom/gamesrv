@@ -96,13 +96,14 @@ end
 
 function ccard142002:before_attack(attacker,defenser)
 	if self.inarea ~= "war" then
-		return
+		return true,true
 	end
 	local owner = self:getowner()
 	if owner.hero.id == attacker.id then
 		local state = ccard142002.effect.before_attack.immune
 		owner.hero:setstate("immune",state)
 	end
+	return true,true
 end
 
 function ccard142002:after_attack(attacker,defenser)
@@ -114,6 +115,7 @@ function ccard142002:after_attack(attacker,defenser)
 		local state = ccard142002.effect.after_attack.immune
 		owner.hero:setstate("immune",state)
 	end
+	return
 end
 
 return ccard142002

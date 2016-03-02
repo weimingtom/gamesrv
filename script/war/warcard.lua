@@ -202,6 +202,7 @@ local NON_COMPUTE_ATTR ={
 	id = true,
 	sid = true,
 	srcid = true,
+	lifecircle = true,
 	exceedround = true,
 	addhp = true,
 }
@@ -221,6 +222,10 @@ end
 function cwarcard:addbuff(buff)
 	local bheid = self:genbheid()
 	buff.bheid = bheid
+	if buff.lifecircle then
+		buff.exceedround = self.roundcnt + buff.lifecircle
+		buff.lifecircle = nil
+	end
 	buff.exceedround = buff.exceedround or MAX_ROUND
 	self:log("info","war",format("addbuff,buff=%s",buff))
 	table.insert(self.buffs,buff)
@@ -677,17 +682,6 @@ end
 
 function cwarcard:onbeginround()
 	self:set({leftatkcnt=self.atkcnt})
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onbeginround then
-			cardcls.onbeginround(self)
-		end
-	end
-	if self.effects.onbeginround then
-		for i,func in ipairs(self.effects.onbeginround) do
-			func(self)
-		end
-	end
 end
 
 
@@ -695,72 +689,46 @@ function cwarcard:onendround(hero)
 	self:checkhalo()
 	self:checkbuffs()
 	self:checkstate()
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onendround then
-			cardcls.onendround(self,roundcnt)
-		end
-	end
-	if self.effects.onendround then
-		for i,func in ipairs(self.effects.onendround) do
-			func(self)
-		end
-	end
 end
 
-function cwarcard:onhurt(hurtvalue,srcid)
+
+function cwarcard:execute(cmd,...)
+	local noexec_later_action = false
+	local func = self[cmd]
+	if func then
+		local ignore_later_event,ignore_later_action = func(...)
+		if ignore_later_action then
+			noexec_later_action = true
+		end
+		if ignore_later_event then
+			return true,noexec_later_action
+		end
+	end
 	if not self:issilence() then
 		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onhurt then
-			cardcls.onhurt(self,hurtvalue,srcid)
+		local func = cardcls[cmd]
+		if func then
+			local ignore_later_event,ignore_later_action = func(...)
+			if ignore_later_action then
+				noexec_later_action = true
+			end
+			if ignore_later_event then
+				return true,noexec_later_action
+			end
 		end
 	end
-	if self.effects.onhurt then
-		for i,func in ipairs(self.effects.onhurt) do
-			func(self)
+	if self.effects[cmd] then
+		for i,func in ipairs(self.effects[cmd]) do
+			local ignore_later_event,ignore_later_action = func(...)
+			if ignore_later_action then
+				noexec_later_action = true
+			end
+			if ignore_later_event then
+				return true,noexec_later_action
+			end
 		end
 	end
-end
-
-function cwarcard:onrecoverhp(hurtvalue,srcid)
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onrecoverhp then
-			cardcls.onrecoverhp(self,hurtvalue,srcid)
-		end
-	end
-	if self.effects.onrecoverhp then
-		for i,func in ipairs(self.effects.onrecoverhp) do
-			func(self)
-		end
-	end
-end
-
-function cwarcard:ondie()
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.ondie then
-			cardcls.ondie(self)
-		end
-	end
-	if self.effects.ondie then
-		for i,func in ipairs(self.effects.ondie) do
-			func(self)
-		end
-	end
-end
-
--- 自身奥秘被触发
-function cwarcard:ontrigger()
-	local cardcls = getclassbycardsid(self.sid)
-	if cardcls.ontrigger then
-		cardcls.ontrigger(self)
-	end
-	if self.effects.ontrigger then
-		for i,func in ipairs(self.effects.ontrigger) do
-			func(self)
-		end
-	end
+	return false,noexec_later_action
 end
 
 return cwarcard

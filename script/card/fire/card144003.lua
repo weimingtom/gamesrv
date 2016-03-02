@@ -94,4 +94,18 @@ function ccard144003:save()
     return data
 end
 
+function ccard144003:after_die(footman)
+	if footman.type ~= FOOTMAN.ANIMAL then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(footman.id) then
+		return
+	end
+	local buff = deepcopy(ccard144003.effect.after_die.addbuff)
+	buff.srcid = footman.id
+	buff.sid = footman.sid
+	self:addbuff(buff)
+end
+
 return ccard144003

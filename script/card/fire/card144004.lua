@@ -94,4 +94,15 @@ function ccard144004:save()
     return data
 end
 
+function ccard144004:before_attack(attacker,defenser)
+	local owner = self:getowner()
+	if not owner:isenemy(attacker.id) then
+		return
+	end
+	if owner.enemy.hero.id == attacker.id then
+		return
+	end
+	
+end
+
 return ccard144004

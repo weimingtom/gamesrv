@@ -113,6 +113,7 @@ function ccard143002:before_attack(attacker,defenser)
 		local id = randlist(allid)
 		local target = owner:gettarget(id)
 		attacker:getowner():__launchattack(attacker,target)
+		return
 	end
 end
 
