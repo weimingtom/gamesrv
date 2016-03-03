@@ -65,8 +65,8 @@ ccard142003 = class("ccard142003",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -97,13 +97,8 @@ end
 function ccard142003:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local target = owner:gettaret(targetid)
-	local buff = deepcopy(ccard142003.onuse.addbuff)
-	buff.exceedround = buff.lifecircle + owner.roundcnt
-	buff.lifecircle = nil
-	buff.srcid = self.id
-	buff.sid = self.sid
+	local buff = self:newbuff(ccard142003.effect.onuse.addbuff)
 	target:addbuff(buff)
-	return
 end
 
 return ccard142003

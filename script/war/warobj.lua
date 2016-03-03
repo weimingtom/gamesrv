@@ -105,6 +105,17 @@ function cwarobj:newwarcard(sid)
 	return warcard
 end
 
+function cwarobj:clone(warcard)
+	local clone_warcard = self:newwarcard(warcard.sid)
+	local cloneattr = deepcopy(warcard)
+	for k,v in pairs(cloneattr) do
+		if k ~= "id" then
+			clone_warcard[k] = v
+		end
+	end
+	return clone_warcard
+end
+
 function cwarobj:pickcard(israndom)
 	local pos = #self.leftcards
 	if pos == 0 then
@@ -341,6 +352,9 @@ function cwarobj:playcard(warcardid,pos,targetid,choice)
 		self:log("warning","war",string.format("[no handcard] playcard,id=%d",self.pid,warcardid))
 		return
 	end
+	if not warcard:canplay(pos,targetid,choice) then
+		return
+	end
 	local crystalcost = warcard:getcrystalcost()
 	if crystalcost > self.crystal then
 		return
@@ -364,9 +378,14 @@ function cwarobj:playcard(warcardid,pos,targetid,choice)
 	end
 	self:addcrystal(-crystalcost)
 	self:removefromhand(warcard)
+	self:__playcard(warcard,pos,targetid,choice)
+end
+
+function cwarobj:__playcard(warcard,pos,targetid,choice)
 	if not self:before_playcard(warcard,pos,targetid,choice) then
 		return
 	end
+	warcard.enterwar_roundcnt = self.roundcnt
 	local war = warmgr.getwar(self.warid)
 	if is_magiccard(warcard.type) then
 		if warcard.type == MAGICCARD.SECRET then
@@ -374,7 +393,7 @@ function cwarobj:playcard(warcardid,pos,targetid,choice)
 		else
 		end
 	elseif is_footman(warcard.type) then
-		self:putinwar(warcard)
+		self:putinwar(warcard,pos,"playcard")
 	else
 		assert(is_weapon(warcard.type))
 		self:addweapon(warcard)
@@ -454,7 +473,7 @@ function cwarobj:footman_attack_hero(warcard)
 	local target = self.enemy.hero
 	warcard:addleftatkcnt(-1)
 	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=warcard.id,targetid=target.id})
-	target:addhp(-warcard:gete4e(),warcardid)
+	target:addhp(-warcard:getatk(),warcardid)
 	warcard:addhp(-target:gete4e(),target.id)
 end
 
@@ -462,14 +481,14 @@ function cwarobj:footman_attack_footman(warcard,target)
 	assert(warcard.inarea == "war")
 	warcard:addleftatkcnt(-1)
 	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=warcardid,targetid=target.id,})
-	target:addhp(-warcard:gete4e(),warcard.id)
+	target:addhp(-warcard:getatk(),warcard.id)
 	warcard:addhp(-target:gete4e(),targetid)
 end
 
 function cwarobj:hero_attack_footman(target)
 	self.hero:addleftatkcnt(-1)
 	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=self.hero.id,targetid=target.id,})
-	target:addhp(-self.hero:gete4e(),self.hero.id)
+	target:addhp(-self.hero:getatk(),self.hero.id)
 	self.hero:addhp(-target:gete4e(),target.id)
 	local weapon = self.hero.weapon
 	if weapon then
@@ -481,7 +500,7 @@ function cwarobj:hero_attack_hero()
 	self.hero:addleftatkcnt(-1)
 	local target = self.enemy.hero
 	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=self.hero.id,targetid=target.id})
-	target:addhp(-self.hero:gete4e(),self.hero.id)
+	target:addhp(-self.hero:getatk(),self.hero.id)
 	self.hero:addhp(-target:gete4e(),target.id)
 	local weapon = self.hero.weapon
 	if weapon then
@@ -551,7 +570,7 @@ function cwarobj:getfreespace(typ)
 	end
 end
 
-function cwarobj:putinwar(warcard,pos)
+function cwarobj:putinwar(warcard,pos,reason)
 	pos = pos or (#self.warcards + 1)
 	assert(1 <= pos and pos <= #self.warcards+1,"Invalid pos:" .. tostring(pos))
 	assert(is_footman(warcard.type),"Invalid type:" .. tostring(warcard.type))
@@ -559,10 +578,10 @@ function cwarobj:putinwar(warcard,pos)
 		self:destroycard(warcard.id)
 		return
 	end
-	if not self:before_putinwar(warcard,pos) then
+	if not self:before_putinwar(warcard,pos,reason) then
 		return
 	end
-	self:log("debug","war",string.format("putinwar,id=%d,sid=%d,pos=%d",warcard.id,warcard.sid,pos))
+	self:log("debug","war",string.format("putinwar,id=%d,sid=%d,pos=%d",warcard.id,warcard.sid,pos,reason))
 	warcard.inarea = "war"
 	for i = pos,num do
 		local id = self.warcards[i]
@@ -574,9 +593,9 @@ function cwarobj:putinwar(warcard,pos)
 	-- 不是从手牌置入战场的牌也需要纳入管理 
 	warmgr.refreshwar(self.warid,self.pid,"putinwar",{pos=pos,warcard=warcard:pack()})
 	if warcard.onputinwar then
-		warcard:onputinwar()
+		warcard:onputinwar(pos,reason)
 	end
-	self:after_putinwar(warcard,pos)
+	self:after_putinwar(warcard,pos,reason)
 	return true
 end
 
@@ -601,6 +620,7 @@ function cwarobj:removefromwar(warcard)
 		warcard:onremovefromwar()
 	end
 	self:after_removefromwar(warcard)
+	return true
 end
 
 function cwarobj:addsecret(warcard)
@@ -615,6 +635,7 @@ function cwarobj:addsecret(warcard)
 	end
 	warmgr.refreshwar(self.warid,self.pid,"addsecret",{id=warcard.id,})
 	self:after_addscret(warcard)
+	return true
 end
 
 
@@ -774,6 +795,7 @@ function cwarobj:onbeginround()
 end
 
 function cwarobj:onendround()
+	self.lookcards = nil
 	self:execute("onendround")
 end
 

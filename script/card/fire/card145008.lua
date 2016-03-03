@@ -65,8 +65,8 @@ ccard145008 = class("ccard145008",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,27 @@ function ccard145008:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard145008:onuse(pos,targetid,choice)
+	local owner = getowner()
+	local target = owner:gettarget(targetid)
+	local hasanimal = false
+	for i,id in ipairs(owner.warcards) do
+		local warcard = owner:gettarget(id)
+		if warcard.type == FOOTMAN.ANIMAL then
+			hasanimal = true
+			break
+		end
+	end
+	local magic_hurt
+	if hasanimal then
+		magic_hurt = ccard145008.onuse.magic_hurt2
+	else
+		magic_hurt = ccard145008.onse.magic_hurt
+	end
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	target:addhp(-magic_hurt,self.id)
 end
 
 return ccard145008

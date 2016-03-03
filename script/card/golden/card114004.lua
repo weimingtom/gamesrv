@@ -65,8 +65,8 @@ ccard114004 = class("ccard114004",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,21 @@ function ccard114004:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard114004:after_playcard(warcard,pos,targetid,choice)
+	if self.inarea ~= "war" then
+		return
+	end
+	if not is_magiccard(warcard.id) then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(warcard.id) then
+		return
+	end
+	local buff = self:newbuff(ccard114004.effect.after_playcard.addbuff)
+	self:addbuff(buff)
 end
 
 return ccard114004

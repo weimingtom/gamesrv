@@ -65,8 +65,8 @@ ccard145002 = class("ccard145002",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,42 @@ function ccard145002:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard145002:provide_halo()
+	local owner = self:getowner()
+	local pos = self.pos
+	local left_id = owner.warcards[pos-1]
+	if left_id then
+		local left_target = owner:gettarget(left_id)
+		self:addhaloto(left_target)
+	end
+	local right_id = owner.warcards[pos+1]
+	if right_id then
+		local right_target = owner:gettarget(right_id)
+		self:addhaloto(right_target)
+	end
+end
+
+
+function ccard145002:onputinwar(pos,reason)
+	ccard145002:provide_halo(self)
+end
+
+
+function ccard145002:after_putinwar(footman,pos,reason)
+	pos = footman.pos
+	if pos == self.pos + 1 or pos == self.pos - 1 then
+		self:clearhaloto()
+		ccard145002.provide_halo(self)
+	end
+end
+
+function ccard145002:after_removefromwar(footman,pos,reason)
+	if self.haloto[footman.id] then
+		self:clearhaloto()
+		ccard145002.provide_halo(self)
+	end
 end
 
 return ccard145002

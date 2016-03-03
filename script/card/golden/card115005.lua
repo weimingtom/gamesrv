@@ -65,8 +65,8 @@ ccard115005 = class("ccard115005",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,17 @@ function ccard115005:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard115005:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local magic_hurt = ccard115005.effect.onuse.magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	local ids = deepcopy(owner.enemy.warcards)
+	for i,id in ipairs(ids) do
+		local warcard = owner:gettarget(id)
+		warcard:addhp(-magic_hurt,self.id)
+	end
 end
 
 return ccard115005

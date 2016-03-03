@@ -65,8 +65,8 @@ ccard144004 = class("ccard144004",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -95,6 +95,9 @@ function ccard144004:save()
 end
 
 function ccard144004:before_attack(attacker,defenser)
+	if self.inarea ~= "war" then
+		return
+	end
 	local owner = self:getowner()
 	if not owner:isenemy(attacker.id) then
 		return
@@ -102,7 +105,14 @@ function ccard144004:before_attack(attacker,defenser)
 	if owner.enemy.hero.id == attacker.id then
 		return
 	end
-	
+	local footman = attacker
+	if footman:getowner():removefromwar(attacker) then
+		footman:reinit()
+		local buff = self:newbuff(ccard144004.effect.before_attack.addbuff)
+		footman:addbuff(buff)
+		footman:getowner():putinhand(footman)
+	end
+	return true,true
 end
 
 return ccard144004

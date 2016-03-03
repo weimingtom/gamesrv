@@ -65,8 +65,8 @@ ccard145001 = class("ccard145001",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,22 @@ function ccard145001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard145001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local num = 3
+	local warcards = {}
+	local ids = {}
+	for i=1,num do
+		local warcard = owner:pickcard()
+		if warcard then
+			table.insert(warcards,warcard)
+			table.insert(ids,warcard.id)
+		end
+	end
+	owner.lookcards = warcards	
+	warmgr.refreshwar(self.warid,self.pid,"lookcards",ids)
 end
 
 return ccard145001

@@ -65,8 +65,8 @@ ccard113005 = class("ccard113005",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,22 @@ function ccard113005:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard113005:before_attack(attacker,defenser)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if attacker.id == owner.enemy.hero.id then
+		return
+	end
+	if defenser.id ~= owner.hero.id then
+		return
+	end
+	owner:delsecret(self.id,"trigger")
+	attacker:die()
+	return true,true
 end
 
 return ccard113005

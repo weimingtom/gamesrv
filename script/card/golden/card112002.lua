@@ -65,8 +65,8 @@ ccard112002 = class("ccard112002",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,14 @@ function ccard112002:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard112002:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local magic_hurt = ccard112002.effect.onuse.magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	target:addhp(-magic_hurt,self.id)
 end
 
 return ccard112002

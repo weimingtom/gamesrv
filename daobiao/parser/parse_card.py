@@ -106,8 +106,8 @@ ccard%(sid)d = class("ccard%(sid)d",super,{
         after_addweapon = %(after_addweapon)s,
         before_delweapon = %(before_delweapon)s,
         after_delweapon = %(after_delweapon)s,
-        before_putinwar = %(before_putinwar)s,
-        after_putinwar = %(after_putinwar)s,
+        before_putinhand = %(before_putinhand)s,
+        after_putinhand = %(after_putinhand)s,
         before_removefromhand = %(before_removefromhand)s,
         after_removefromhand = %(after_removefromhand)s,
     },
@@ -190,11 +190,11 @@ return ccard%d
             "after_addweapon",
             "before_delweapon",
             "after_delweapon",
-            "before_putinwar",
-            "after_putinwar",
+            "before_putinhand",
+            "after_putinhand",
             "before_removefromhand",
             "after_removefromhand",
-    }
+            }
     sheet.register_parser(ANY_ROW,"halo",parse_ifnil)
     for name in iter(alleffects):
         sheet.register_parser(ANY_ROW,name,parse_ifnil)

@@ -30,7 +30,7 @@ ccard114003 = class("ccard114003",super,{
     halo = nil,
     desc = "使一个角色冻结,如果它已经冻结则改为造成4点伤害",
     effect = {
-        onuse = {magic_hurt=4,addbuff={freeze=1,lifecircle=1}},
+        onuse = {magic_hurt=4,addbuff={freeze=1,lifecircle=2}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -65,8 +65,8 @@ ccard114003 = class("ccard114003",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,19 @@ function ccard114003:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard114003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	if target:hasstate("freeze") then
+		local magic_hurt = ccard114003.effect.onuse.magic_hurt
+		magic_hurt = self:get_magic_hurt(magic_hurt)
+		target:addhp(-magic_hurt,self.id)
+	else
+		local buff = self:newbuff(ccard114003.effect.onuse.addbuff)
+		target:addbuff(buff)
+	end
 end
 
 return ccard114003

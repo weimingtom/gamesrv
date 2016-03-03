@@ -65,8 +65,8 @@ ccard145003 = class("ccard145003",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,24 @@ function ccard145003:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard145003:canplaycard(pos,targetid,choice)
+	local owner = self:getowner()
+	if #owner.enemy.warcards < 2 then
+		return false
+	end
+	return true
+end
+
+function ccard145003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local hitids = shuffle(owner.enemy.warcards,false,2)
+	local costhp = ccard145003.effect.onuse.costhp
+	for i,id in ipairs(hitids) do
+		local target = owner:gettarget(id)
+		target:addhp(-costhp,self.id)
+	end
 end
 
 return ccard145003

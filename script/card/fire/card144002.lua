@@ -65,8 +65,8 @@ ccard144002 = class("ccard144002",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = {costhp=4},
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -94,7 +94,13 @@ function ccard144002:save()
     return data
 end
 
-function ccard144002:after_putinwar(footman)
+function ccard144002:after_putinwar(footman,pos,reason)
+	if reason ~= "playcard" then
+		return
+	end
+	if self.inarea ~= "war" then
+		return
+	end
 	local owner = self:getowner()
 	if not owner:isenmey(footman.id) then
 		return

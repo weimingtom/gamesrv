@@ -14,7 +14,7 @@ function cwarcard:init(conf)
 	self.haloto = {} -- 光环收益对象:{[id]=true}
 	self.halofrom = {}
 	self.buffs = {}
-	self:initproperty()
+	self:reinit()
 	self.hp = self.maxhp	
 	self.leftatkcnt = self.atkcnt
 	self:initstate()
@@ -22,7 +22,7 @@ function cwarcard:init(conf)
 	self.bheid = 0  -- buff/halo/effects id
 end
 
-function cwarcard:initproperty()
+function cwarcard:reinit()
 	local cardcls = getclassbycardsid(self.sid)
 	self.type =  cardcls.type
 	self.targettype = cardcls.targettype
@@ -50,7 +50,7 @@ function cwarcard:initstate()
 	end
 end
 
-function cwarcard:clearallstate()
+function cwarcard:clearstate()
 	for k,_ in pairs(VALID_STATE) do
 		self[k] = 0
 		self.baseattr[k] = 0
@@ -98,11 +98,16 @@ end
 
 function cwarcard:costhp(value,srcid)
 	assert(value > 0)
+	local owner = self:getowner()
+	if not owner:before_hurt(self,value,srcid) then
+		return 0
+	end
 	self.hp = math.max(0,self.hp - value)
 	self:onhurt(value,srcid)
 	if self.hp <= 0 then
 		self:die()
 	end
+	owner:after_hurt(self,value,srcid)
 	return value
 end
 
@@ -110,8 +115,13 @@ function cwarcard:recoverhp(value,srcid)
 	assert(value > 0)
 	local recoverhp = math.min(value,self.maxhp-self.hp)
 	if recoverhp > 0 then
+		local owner =  self:getowner()
+		if not owner:before_recoverhp(self,recoverhp,srcid) then
+			return 0
+		end
 		self:onrecoverhp(recoverhp,srcid)
 		self.hp = self.hp + recoverhp
+		owner:after_recoverhp(self,recoverhp,srcid)
 	end
 	return recoverhp
 end
@@ -219,6 +229,13 @@ function cwarcard:genbheid()
 	return self.bheid
 end
 
+function cwarcard:newbuff(buff)
+	buff = deepcopy(buff)
+	buff.srcid = self.id
+	buff.sid  = self.sid
+	return buff
+end
+
 function cwarcard:addbuff(buff)
 	local bheid = self:genbheid()
 	buff.bheid = bheid
@@ -226,7 +243,6 @@ function cwarcard:addbuff(buff)
 		buff.exceedround = self.roundcnt + buff.lifecircle
 		buff.lifecircle = nil
 	end
-	buff.exceedround = buff.exceedround or MAX_ROUND
 	self:log("info","war",format("addbuff,buff=%s",buff))
 	table.insert(self.buffs,buff)
 	local syncattrs = {}
@@ -306,10 +322,25 @@ function cwarcard:delbuffbysrcid(srcid)
 	end
 end
 
+function cwarcard:addhaloto(warcard)
+	local cardcls = getclassbycardsid(self.sid)
+	if not cardcls.halo then
+		return
+	end
+	local halo = deepcopy(cardcls.halo)
+	halo.srcid = self.id
+	halo.sid = self.sid
+	self.haloto[warcard.id] = true
+	warcard:addhalo(halo)
+end
+
 function cwarcard:addhalo(halo)
 	local bheid = self:genbheid()
 	halo.bheid = bheid
-	halo.exceedround = halo.exceedround or MAX_ROUND
+	if halo.lifecircle then
+		halo.exceedround = self.roundcnt + halo.lifecircle
+		halo.lifecircle = nil
+	end
 	self:log("info","war",format("addhalo,halo=%s",halo))
 	table.insert(self.halofrom,halo)
 	local syncattrs = {}
@@ -382,7 +413,7 @@ function cwarcard:delhalobysrcid(srcid)
 	end
 end
 
-function cwarcard:checkbuffs()
+function cwarcard:checkbuff()
 	local owner = self:getowner()
 	local delbuffs = {}
 	for pos,buff in ipairs(self.buffs) do
@@ -400,7 +431,6 @@ function cwarcard:checkhalo()
 	local owner = self:getowner()
 	if self.halo.exceedround and self.halo.exceedround >= owner.roundcnt then
 		local haloto = self.haloto
-		self.halo = {}
 		self.haloto = {}
 		local owner = self:getowner()
 		for id,_ in pairs(haloto) do
@@ -422,6 +452,39 @@ function cwarcard:checkstate()
 		end
 	end
 	warmgr.refreshwar(self.warid,self.pid,"sync",updateattrs)
+end
+
+function cwarcard:clearbuff()
+	self.buffs = {}
+end
+
+function cwarcard:clearhalo()
+	self:clearhaloto()
+	self:clearhalofrom()
+end
+
+function cwarcard:clearhaloto()
+	if next(self.haloto) then
+		local haloto = self.haloto
+		self.haloto = {}
+		for id,_ in pairs(haloto) do
+			local target = self:gettarget(id)
+			target:delhalobysrcid(self.id)
+		end
+	end
+end
+
+function cwarcard:clearhalofrom()
+	self.halofrom = {}
+end
+
+function cwarcard:clear()
+	self:clearbuff()
+	self:clearhalo()
+	self:clearstate()
+	self:cleareffect()
+	self.bsilence = nil
+	self.cannotattack = nil
 end
 
 function cwarcard:packeffect(effect)
@@ -504,8 +567,12 @@ function cwarcard:hasstate(state)
 end
 
 function cwarcard:setstate(state,val)
+	val = val == 0 and val or val + self.roundcnt
+	local oldval = self[state] or 0
+	if val == oldval then
+		return
+	end
 	if val == 0 or val > self[state] then
-		local oldval = self[state] or 0
 		self:set({state=val})
 		self:onchangestate(state,oldval,val)
 	end
@@ -539,9 +606,13 @@ function cwarcard:getrecoverhp(recoverhp)
 	return recoverhp * recoverhp_multi
 end
 
+function cwarcard:getatk()
+	return self.atk
+end
+
 -- 得到复仇值(eye for eye):被攻击时对对方造成的伤害
 function cwarcard:gete4e()
-	return self.atk
+	return self:getatk()
 end
 
 function cwarcard:issilence()
@@ -550,15 +621,10 @@ end
 
 function cwarcard:silence()
 	logger.log("debug","war",string.format("[warid=%d] #%d card.silence,cardid=%d",self.warid,self.pid,self.id))
+	self:clear()
 	self.bsilence = true
-	self.buffs = {}
-	self.halo = {}
-	self.haloto = {}
 	-- 恢复成初始属性
-	self:initproperty()
-	-- 去掉状态属性
-	self:clearallstate()
-	self:cleareffect()
+	self:reinit()
 	self.atkcnt = 1
 	self.leftatckcnt = math.min(self.leftatkcnt,self.atkcnt)
 	self.magic_hurt_adden = 0
@@ -566,10 +632,6 @@ function cwarcard:silence()
 	self.recoverhp_multi = 1
 	self.magic_hurt_multi = 1
 	self.hp = math.min(self.hp,self.maxhp)
-	-- 特殊标记
-	if self.cannotattack then
-		self.cannotattack = nil
-	end
 	warmgr.refreshwar(self.warid,self.pid,"synccard",{warcard=self:pack(),})
 end
 
@@ -612,19 +674,6 @@ function cwarcard:pack()
 	return data
 end
 
-function cwarcard:clone()
-	local owner = self:getowner()
-	local warcard = owner:newwarcard(self.sid)
-	local cloneattr = deepcopy(self)
-	for k,v in pairs(cloneattr) do
-		if k ~= "id" then
-			warcard[k] = v
-		end
-	end
-	return warcard
-end
-
-
 function cwarcard:die()
 	assert(self.inarea=="war")
 	local owner = self:getowner()
@@ -640,55 +689,30 @@ function cwarcard:die()
 	end
 end
 
--- 随从牌(战吼)/法术牌(使用效果） 
-function cwarcard:onuse(target)
+function cwarcard:canplaycard(pos,targetid,choice)
 	local cardcls = getclassbycardsid(self.sid)
-	if cardcls.onuse then
-		cardcls.onuse(self,target)
+	if cardcls.canplaycard then
+		return cardcls.canplaycard(self,pos,targetid,choice)
 	end
-end
-
-function cwarcard:onputinwar()
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onputinwar then
-			cardcls.onputinwar(self)
-		end
-	end
-end
-
-function cwarcard:onremovefromwar()
-	if not self:issilence() then
-		local cardcls = getclassbycardsid(self.sid)
-		if cardcls.onremovefromwar then
-			cardcls.onremovefromwar(self)
-		end
-	end
-end
-
-function cwarcard:onputinhand()
-	local cardcls = getclassbycardsid(self.sid)
-	if cardcls.onputinhand then
-		cardcls.onputinhand(self)
-	end
-end
-
-function cwarcard:onremovefromhand()
-	local cardcls = getclassbycardsid(self.sid)
-	if cardcls.onremovefromhand then
-		cardcls.onremovefromhand(self)
-	end
+	return true
 end
 
 function cwarcard:onbeginround()
 	self:set({leftatkcnt=self.atkcnt})
+	self:checkbuff()
+	self:checkhalo()
+	self:checkstate()
 end
 
 
 function cwarcard:onendround(hero)
+	self:checkbuff()
 	self:checkhalo()
-	self:checkbuffs()
 	self:checkstate()
+end
+
+function cwarcard:onremovefromwar()
+	self:clear()
 end
 
 

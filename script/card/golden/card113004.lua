@@ -65,8 +65,8 @@ ccard113004 = class("ccard113004",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,45 @@ function ccard113004:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard113004:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	for i,id in ipairs(owner.handcards) do
+		local warcard = owner:gettarget(id)
+		if is_secretcard(warcard.type) then
+			local buff = self:newbuff(ccard113004.effect.onuse.addbuff)
+			warcard:addbuff(buff)
+		end
+	end
+end
+
+function ccard113004:after_playcard(warcard,pos,targetid,choice)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if self.enterwar_roundcnt ~= owner.roundcnt then
+		return
+	end
+	if owner:isenemy(warcard.id) then
+		return
+	end
+	local isfirst_playcard = false
+	for i,buff in ipairs(warcard.buffs) do
+		if buff.srcid == self.id then
+			isfirst_playcard = true
+			break
+		end
+	end
+	if isfirst_playcard then
+		for i,id in ipairs(owner.handcards) do
+			local handcard = owner:gettarget(id)
+			if is_secretcard(handcard.type) then
+				handcard:delbuffbysrcid(self.id)
+			end
+		end
+	end
 end
 
 return ccard113004

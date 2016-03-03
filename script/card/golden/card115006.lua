@@ -65,8 +65,8 @@ ccard115006 = class("ccard115006",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,19 @@ function ccard115006:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard115006:after_hurt(obj,hurtval,srcid)
+	if srcid ~= self.id then
+		return
+	end
+	if 
+	local buff = self:newbuff({
+		freeze = 1,
+		lifecircle = 2,
+	})
+	obj:add
+
 end
 
 return ccard115006

@@ -65,8 +65,8 @@ ccard145004 = class("ccard145004",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,13 @@ function ccard145004:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard145004:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local buff = self:newbuff(ccard145004.effect.onuse.addbuff)
+	target:addbuff(buff)
 end
 
 return ccard145004

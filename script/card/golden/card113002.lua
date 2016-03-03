@@ -30,7 +30,7 @@ ccard113002 = class("ccard113002",super,{
     halo = nil,
     desc = "对所有敌方随从造成2点伤害,并使其冻结",
     effect = {
-        onuse = {magic_hurt=2,addbuff={freeze=1,lifecircle=1}},
+        onuse = {magic_hurt=2,addbuff={freeze=1,lifecircle=2}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -65,8 +65,8 @@ ccard113002 = class("ccard113002",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,19 @@ function ccard113002:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard113002:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local ids = deepcopy(owner.enemy.warcards)
+	local magic_hurt = ccard113002.effect.onuse.magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	for i,id in ipairs(ids) do
+		local footman = owner:gettarget(id)
+		footman:addhp(-magic_hurt,self.id)
+		local buff = self:newbuff(ccard113002.effect.onuse.addbuff)
+		footman:addbuff(buff)
+	end
 end
 
 return ccard113002

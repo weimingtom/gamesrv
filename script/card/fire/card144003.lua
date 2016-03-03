@@ -65,8 +65,8 @@ ccard144003 = class("ccard144003",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -95,6 +95,9 @@ function ccard144003:save()
 end
 
 function ccard144003:after_die(footman)
+	if self.inarea ~= "war" then
+		return
+	end
 	if footman.type ~= FOOTMAN.ANIMAL then
 		return
 	end

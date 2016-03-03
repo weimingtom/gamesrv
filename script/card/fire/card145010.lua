@@ -65,8 +65,8 @@ ccard145010 = class("ccard145010",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,13 @@ function ccard145010:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard145010:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local sid = randlist({146003,146004,146005})
+	local warcard = owner:newwarcard(sid)
+	owner:putinwar(warcard)
 end
 
 return ccard145010

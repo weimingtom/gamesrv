@@ -30,7 +30,7 @@ ccard114001 = class("ccard114001",super,{
     halo = nil,
     desc = "冻结一个随从和其相邻随从,并对他们造成1点伤害",
     effect = {
-        onuse = {magic_hurt=1,addbuff={freeze=1,lifecircle=1}},
+        onuse = {magic_hurt=1,addbuff={freeze=1,lifecircle=2}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -65,8 +65,8 @@ ccard114001 = class("ccard114001",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,31 @@ function ccard114001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard114001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	assert(owner:isenemy(target.id))
+	local magic_hurt = ccard114001.effect.onuse.magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	local left_id = owner.enemy.warcards[target.pos-1]
+	local right_id = owner.enemy.warcards[target.pos+1]
+	if left_id then
+		local left_target = owner:gettarget(left_id)
+		local buff = self:newbuff(ccard114001.effect.onuse.addbuff)
+		left_target:addbuff(buff)
+		left_target:addhp(-magic_hurt,self.id)
+	end
+	if right_id then
+		local right_target = owner:gettarget(right_id)
+		local buff = self:newbuff(ccard114001.effect.onuse.addbuff)
+		right_target:addbuff(buff)
+		right_target:addhp(-magic_hurt,self.id)
+	end
+	local buff = self:newbuff(ccard114001.effect.onuse.addbuff)
+	target:addbuff(buff)
+	target:addhp(-magic_hurt,self.id)
 end
 
 return ccard114001

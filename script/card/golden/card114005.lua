@@ -65,8 +65,8 @@ ccard114005 = class("ccard114005",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,21 @@ function ccard114005:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard114005:after_putinwar(footman,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
+	if reason ~= "playcard" then
+		return
+	end
+	local owner = self:getowner()
+	if not owner:isenemy(footman.id) then
+		return
+	end
+	local clone_footman = owner:clone(footman)
+	owner:putinwar(clone_footman)
 end
 
 return ccard114005

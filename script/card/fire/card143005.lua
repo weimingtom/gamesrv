@@ -65,8 +65,8 @@ ccard143005 = class("ccard143005",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -95,6 +95,9 @@ function ccard143005:save()
 end
 
 function ccard143005:after_delsecret(warcard,reason)
+	if self.inarea ~= "war" then
+		return
+	end
 	if reason ~= "trigger" then
 		return
 	end

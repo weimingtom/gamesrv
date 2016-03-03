@@ -65,8 +65,8 @@ ccard112001 = class("ccard112001",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,21 @@ function ccard112001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard112001:before_hurt(obj,hurtval,srcid)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner.hero.id ~= obj.id then
+		return
+	end
+	if owner.hero.hp <= hurtval then
+		local state = ccard112001.effect.before_hurt.immnue
+		owner.hero:setstate("immune",state)
+		return true,true
+	end
 end
 
 return ccard112001

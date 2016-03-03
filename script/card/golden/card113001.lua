@@ -65,8 +65,8 @@ ccard113001 = class("ccard113001",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,15 @@ function ccard113001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard113001:onendround()
+	local owner = self:getowner()
+	if #owner.secretcards <= 0 then
+		return
+	end
+	local buff = self:newbuff(ccard113001.effect.onendround.addbuff)
+	self:addbuff(buff)
 end
 
 return ccard113001

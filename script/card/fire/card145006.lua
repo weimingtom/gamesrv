@@ -27,7 +27,7 @@ ccard145006 = class("ccard145006",super,{
     hp = 5,
     crystalcost = 5,
     targettype = 0,
-    halo = nil,
+    halo = {assault=1},
     desc = "使你的野兽获得冲锋。",
     effect = {
         onuse = nil,
@@ -65,8 +65,8 @@ ccard145006 = class("ccard145006",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,27 @@ function ccard145006:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard145006:onputinwar(pos,reason)
+	local owner = self:getowner()
+	for i,id in ipairs(owner.warcards) do
+		if id ~= self.id then
+			local target = owner:gettarget(id)
+			if target.type == FOOTMAN.ANIMAL then
+				self:addhaloto(target)
+			end
+		end
+	end
+end
+
+function ccard145006:after_putinwar(footman,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
+	if footman.type ~= FOOTMAN.ANIMAL then
+	end
+	self:addhaloto(footman)
 end
 
 return ccard145006

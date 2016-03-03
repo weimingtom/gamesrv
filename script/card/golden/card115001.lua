@@ -65,8 +65,8 @@ ccard115001 = class("ccard115001",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = nil,
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,17 @@ function ccard115001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard115001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local pos = target.pos
+	local target_owner = target:getowner()
+	target_owner:removefromwar(target)
+	local sid = ccard115001.effect.onuse.addfootman.sid
+	local footman = target_owner:newwarcard(sid)
+	target_owner:putinwar(footman,pos)
 end
 
 return ccard115001

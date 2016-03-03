@@ -65,8 +65,8 @@ ccard145007 = class("ccard145007",super,{
         after_addweapon = nil,
         before_delweapon = nil,
         after_delweapon = nil,
-        before_putinwar = nil,
-        after_putinwar = {pickcard={num=1}},
+        before_putinhand = nil,
+        after_putinhand = nil,
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -92,6 +92,23 @@ function ccard145007:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard145007:after_putinwar(footman,pos,reason)
+	if reason ~= "playcard" then
+		return
+	end
+	if self.inarea ~= "war" then
+		return
+	end
+	if footman.type ~= FOOTMAN.ANIMAL then
+		return
+	end
+	local owner = self:getowner()
+	local num = ccard145007.effect.after_putinwar.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
 end
 
 return ccard145007
