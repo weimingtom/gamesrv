@@ -27,10 +27,8 @@ function cwarcard:reinit()
 	self.type =  cardcls.type
 	self.targettype = cardcls.targettype
 	self.choice = cardcls.choice
-	self.maxhp = cardcls.hp
+	self.maxhp = cardcls.maxhp
 	self.atk = cardcls.atk
-	self.magic_hurt = cardcls.magic_hurt
-	self.recoverhp = cardcls.recoverhp
 	self.crystalcost = cardcls.crystalcost
 	self.magic_hurt_adden = cardcls.magic_hurt_adden
 	self.atkcnt = cardcls.atkcnt
@@ -86,14 +84,17 @@ function cwarcard:addleftatkcnt(addval)
 end
 
 function cwarcard:addhp(value,srcid)
-	if value < 0 then
-		return self:costhp(-value,srcid)
-	elseif value > 0 then
-		return self:recoverhp(value,srcid)
-	else
+	if value == 0 then
 		return 0
 	end
+	local ret
+	if value < 0 then
+		ret = self:costhp(-value,srcid)
+	else
+		ret = self:recoverhp(value,srcid)
+	end
 	self:set({hp=self.hp})
+	return ret
 end
 
 function cwarcard:costhp(value,srcid)
@@ -103,7 +104,7 @@ function cwarcard:costhp(value,srcid)
 		return 0
 	end
 	self.hp = math.max(0,self.hp - value)
-	self:onhurt(value,srcid)
+	self:execute("onhurt",value,srcid)
 	if self.hp <= 0 then
 		self:die()
 	end
@@ -119,7 +120,7 @@ function cwarcard:recoverhp(value,srcid)
 		if not owner:before_recoverhp(self,recoverhp,srcid) then
 			return 0
 		end
-		self:onrecoverhp(recoverhp,srcid)
+		self:execute("onrecorverhp",recoverhp,srcid)
 		self.hp = self.hp + recoverhp
 		owner:after_recoverhp(self,recoverhp,srcid)
 	end
@@ -194,7 +195,7 @@ function cwarcard:set(attrs)
 		end
 	end
 	attrs.id = self.id
-	warmgr.refreshwar(self.warid,self.pid,"synccard",attrs)
+	warmgr.refreshwar(self.warid,self.pid,"updatecard",attrs)
 	if attrs.hp then
 		if not self:hasstate("enrage") then
 			if self.hp < self.maxhp then
@@ -446,12 +447,17 @@ function cwarcard:checkstate()
 	local updateattrs = {}
 	for k,_ in pairs(CAN_COST_STATE) do
 		local exceedround = self[k]
-		if exceedround >= self.roundcnt then
-			self[k] = 0
-			updateattrs[k] = self[k]
+		if exceedround then
+			if exceedround ~= 0 and exceedround <= self.roundcnt then
+				self[k] = 0
+				updateattrs[k] = self[k]
+			end
 		end
 	end
-	warmgr.refreshwar(self.warid,self.pid,"sync",updateattrs)
+	if next(updateattrs) then
+		updateattrs.id = self.id
+		warmgr.refreshwar(self.warid,self.pid,"updatecard",updateattrs)
+	end
 end
 
 function cwarcard:clearbuff()
@@ -572,9 +578,9 @@ function cwarcard:setstate(state,val)
 	if val == oldval then
 		return
 	end
-	if val == 0 or val > self[state] then
+	if val == 0 or val > oldval then
 		self:set({state=val})
-		self:onchangestate(state,oldval,val)
+		self:execute("onchangestate",state,oldval,val)
 	end
 end
 
@@ -615,6 +621,12 @@ function cwarcard:gete4e()
 	return self:getatk()
 end
 
+function cwarcard:getsidbychoice(choice)
+	local key = string.format("choice%d",choice)
+	local cardcls = getclassbycardsid(self.sid)
+	return cardcls.effect.onuse[key]
+end
+
 function cwarcard:issilence()
 	return self.bsilence
 end
@@ -632,7 +644,7 @@ function cwarcard:silence()
 	self.recoverhp_multi = 1
 	self.magic_hurt_multi = 1
 	self.hp = math.min(self.hp,self.maxhp)
-	warmgr.refreshwar(self.warid,self.pid,"synccard",{warcard=self:pack(),})
+	warmgr.refreshwar(self.warid,self.pid,"synccard",{card=self:pack(),})
 end
 
 function cwarcard:pack()
@@ -679,7 +691,7 @@ function cwarcard:die()
 	local owner = self:getowner()
 	owner:before_die(self)
 	self.inarea = "graveyard"
-	self:ondie()
+	self:execute("ondie")
 	owner:after_die(self)
 	if is_footman(self.type) then
 		owner:removefromwar(self)
@@ -720,7 +732,7 @@ function cwarcard:execute(cmd,...)
 	local noexec_later_action = false
 	local func = self[cmd]
 	if func then
-		local ignore_later_event,ignore_later_action = func(...)
+		local ignore_later_event,ignore_later_action = func(self,...)
 		if ignore_later_action then
 			noexec_later_action = true
 		end
@@ -732,7 +744,7 @@ function cwarcard:execute(cmd,...)
 		local cardcls = getclassbycardsid(self.sid)
 		local func = cardcls[cmd]
 		if func then
-			local ignore_later_event,ignore_later_action = func(...)
+			local ignore_later_event,ignore_later_action = func(self,...)
 			if ignore_later_action then
 				noexec_later_action = true
 			end
@@ -742,8 +754,9 @@ function cwarcard:execute(cmd,...)
 		end
 	end
 	if self.effects[cmd] then
-		for i,func in ipairs(self.effects[cmd]) do
-			local ignore_later_event,ignore_later_action = func(...)
+		for i,effect in ipairs(self.effects[cmd]) do
+			local func = effect.callback
+			local ignore_later_event,ignore_later_action = func(self,...)
 			if ignore_later_action then
 				noexec_later_action = true
 			end

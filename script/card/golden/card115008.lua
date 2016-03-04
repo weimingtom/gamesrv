@@ -15,8 +15,6 @@ ccard115008 = class("ccard115008",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 3,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,7 +22,7 @@ ccard115008 = class("ccard115008",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 2,
     targettype = 33,
     halo = nil,
@@ -92,6 +90,21 @@ function ccard115008:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard115008:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local magic_hurt = ccard115008.effect.onuse.magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	local buff = self:newbuff(ccard115008.effect.onuse.addbuff)
+	if targetid == owner.hero.id or targetid == owner.enemy.hero.id then
+		local lifecircle = buff.lifecircle or buff.freeze
+		target:setstate("freeze",lifecircle)
+	else
+		target:addbuff(buff)
+	end
+	target:addhp(-magic_hurt,self.id)
 end
 
 return ccard115008

@@ -15,8 +15,6 @@ ccard155008 = class("ccard155008",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 4,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,7 +22,7 @@ ccard155008 = class("ccard155008",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 4,
     targettype = 23,
     halo = nil,
@@ -92,6 +90,23 @@ function ccard155008:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard155008:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local magic_hurt = ccard155008.effect.onuse.magic_hurt
+	local other_magic_hurt = ccard155008.effect.onuse.other_magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	other_magic_hurt = self:get_magic_hurt(other_magic_hurt)
+	local target = owner:gettarget(targetid)
+	target:addhp(-magic_hurt,self.id)
+	local ids = owner.enemy.warcards
+	for i,id in ipairs(ids) do
+		local warcard = owner:gettarget(id)
+		if warcard.id ~= target.id then
+			warcard:addhp(-other_magic_hurt,self.id)
+		end
+	end
 end
 
 return ccard155008

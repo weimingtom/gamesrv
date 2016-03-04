@@ -615,6 +615,23 @@ require "script.card.soil.card156001"
 require "script.card.soil.card156002"
 require "script.card.soil.card156003"
 require "script.card.soil.card156004"
+require "script.card.soil.card156005"
+require "script.card.soil.card156006"
+require "script.card.soil.card156007"
+require "script.card.soil.card156008"
+require "script.card.soil.card156009"
+require "script.card.soil.card156010"
+require "script.card.soil.card156011"
+require "script.card.soil.card156012"
+require "script.card.soil.card156013"
+require "script.card.soil.card156014"
+require "script.card.soil.card156015"
+require "script.card.soil.card156016"
+require "script.card.soil.card156017"
+require "script.card.soil.card156018"
+require "script.card.soil.card156019"
+require "script.card.soil.card156020"
+require "script.card.soil.card156021"
 require "script.card.soil.card251001"
 require "script.card.soil.card252001"
 require "script.card.soil.card252002"
@@ -644,6 +661,23 @@ require "script.card.soil.card256001"
 require "script.card.soil.card256002"
 require "script.card.soil.card256003"
 require "script.card.soil.card256004"
+require "script.card.soil.card256005"
+require "script.card.soil.card256006"
+require "script.card.soil.card256007"
+require "script.card.soil.card256008"
+require "script.card.soil.card256009"
+require "script.card.soil.card256010"
+require "script.card.soil.card256011"
+require "script.card.soil.card256012"
+require "script.card.soil.card256013"
+require "script.card.soil.card256014"
+require "script.card.soil.card256015"
+require "script.card.soil.card256016"
+require "script.card.soil.card256017"
+require "script.card.soil.card256018"
+require "script.card.soil.card256019"
+require "script.card.soil.card256020"
+require "script.card.soil.card256021"
 cardmodule[161000] = ccard161000
 cardmodule[161001] = ccard161001
 cardmodule[161002] = ccard161002
@@ -1259,6 +1293,23 @@ cardmodule[156001] = ccard156001
 cardmodule[156002] = ccard156002
 cardmodule[156003] = ccard156003
 cardmodule[156004] = ccard156004
+cardmodule[156005] = ccard156005
+cardmodule[156006] = ccard156006
+cardmodule[156007] = ccard156007
+cardmodule[156008] = ccard156008
+cardmodule[156009] = ccard156009
+cardmodule[156010] = ccard156010
+cardmodule[156011] = ccard156011
+cardmodule[156012] = ccard156012
+cardmodule[156013] = ccard156013
+cardmodule[156014] = ccard156014
+cardmodule[156015] = ccard156015
+cardmodule[156016] = ccard156016
+cardmodule[156017] = ccard156017
+cardmodule[156018] = ccard156018
+cardmodule[156019] = ccard156019
+cardmodule[156020] = ccard156020
+cardmodule[156021] = ccard156021
 cardmodule[251001] = ccard251001
 cardmodule[252001] = ccard252001
 cardmodule[252002] = ccard252002
@@ -1288,5 +1339,22 @@ cardmodule[256001] = ccard256001
 cardmodule[256002] = ccard256002
 cardmodule[256003] = ccard256003
 cardmodule[256004] = ccard256004
+cardmodule[256005] = ccard256005
+cardmodule[256006] = ccard256006
+cardmodule[256007] = ccard256007
+cardmodule[256008] = ccard256008
+cardmodule[256009] = ccard256009
+cardmodule[256010] = ccard256010
+cardmodule[256011] = ccard256011
+cardmodule[256012] = ccard256012
+cardmodule[256013] = ccard256013
+cardmodule[256014] = ccard256014
+cardmodule[256015] = ccard256015
+cardmodule[256016] = ccard256016
+cardmodule[256017] = ccard256017
+cardmodule[256018] = ccard256018
+cardmodule[256019] = ccard256019
+cardmodule[256020] = ccard256020
+cardmodule[256021] = ccard256021
 return cardmodule
 --<<card 导表结束>>

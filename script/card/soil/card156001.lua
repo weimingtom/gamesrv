@@ -4,33 +4,31 @@ local super = require "script.card.init"
 ccard156001 = class("ccard156001",super,{
     sid = 156001,
     race = 5,
-    name = "猎豹",
-    type = 201,
+    name = "塞纳留斯（抉择1）",
+    type = 101,
     magic_immune = 0,
     assault = 0,
     sneer = 0,
-    atkcnt = 1,
+    atkcnt = 0,
     shield = 0,
     warcry = 0,
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
-    recoverhp_multi = 1,
-    magic_hurt_multi = 1,
+    recoverhp_multi = 0,
+    magic_hurt_multi = 0,
     max_amount = 0,
     composechip = 0,
     decomposechip = 0,
-    atk = 3,
-    hp = 2,
-    crystalcost = 2,
+    atk = 0,
+    maxhp = 0,
+    crystalcost = 9,
     targettype = 0,
     halo = nil,
-    desc = "None",
+    desc = "使你的所有其他随从获得+2/+2",
     effect = {
-        onuse = nil,
+        onuse = {addbuff={addatk=2,addmaxhp=2,addhp=2}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -92,6 +90,15 @@ function ccard156001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard156001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local buff = self:newbuff(ccard156001.effect.onuse.addbuff)
+	for i,id in ipairs(owner.enemy.warcards) do
+		local warcard = owner:gettarget(id)
+		warcard:addbuff(buff)
+	end
 end
 
 return ccard156001

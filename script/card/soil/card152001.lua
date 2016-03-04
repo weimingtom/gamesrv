@@ -15,8 +15,6 @@ ccard152001 = class("ccard152001",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,13 +22,13 @@ ccard152001 = class("ccard152001",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 6,
     targettype = 0,
     halo = nil,
     desc = "召唤3个2/2并具有冲锋的树人,在回合结束时,消灭这些树人。",
     effect = {
-        onuse = {addfootman={sid=156004,num=3},
+        onuse = {addfootman={sid=156021,num=3},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -92,6 +90,17 @@ function ccard152001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard152001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local sid = ccard152001.effect.onuse.sid
+	local num = ccard152001.effect.onuse.num
+	num = math.min(num,owner:getfreespace("warcard"))
+	for i=1,num do
+		local warcard = owner:newwarcard(sid)
+		owner:putinwar(warcard)
+	end
 end
 
 return ccard152001

@@ -15,8 +15,6 @@ ccard155003 = class("ccard155003",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,13 +22,13 @@ ccard155003 = class("ccard155003",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 0,
     targettype = 0,
     halo = nil,
     desc = "仅在本回合中,获得2个法力水晶。",
     effect = {
-        onuse = {addcrystalcost=2},
+        onuse = {addcrystal=2},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -92,6 +90,12 @@ function ccard155003:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard155003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local addval = ccard155003.effect.onuse.addcrystal
+	owner:addcrystal(addval)
 end
 
 return ccard155003

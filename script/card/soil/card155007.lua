@@ -15,8 +15,6 @@ ccard155007 = class("ccard155007",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,13 +22,13 @@ ccard155007 = class("ccard155007",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 3,
     targettype = 0,
     halo = nil,
     desc = "在本回合中,使你的所有角色获得+2攻击力。",
     effect = {
-        onuse = {addbuff={addatk=2}},
+        onuse = {addbuff={addatk=2,lifecircle=1}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -92,6 +90,16 @@ function ccard155007:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard155007:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local buff = self:newbuff(ccard155007.effect.onuse.addbuff)
+	owner.hero:addatk(buff.addatk)
+	for i,id in ipairs(owner.warcards) do
+		local warcard = owner:gettarget(id)
+		warcard:addbuff(buff)
+	end
 end
 
 return ccard155007

@@ -15,8 +15,6 @@ ccard153005 = class("ccard153005",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,7 +22,7 @@ ccard153005 = class("ccard153005",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 4,
     targettype = 0,
     halo = nil,
@@ -92,6 +90,14 @@ function ccard153005:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard153005:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local addatk = ccard153005.effect.onuse.addatk
+	local adddef = ccard153005.effect.onuse.adddef
+	owner.hero:addatk(addatk) -- 给英雄增加的攻击力只会生效一回合
+	owner.hero:adddef(adddef)
 end
 
 return ccard153005

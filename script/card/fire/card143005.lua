@@ -15,8 +15,6 @@ ccard143005 = class("ccard143005",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,7 +22,7 @@ ccard143005 = class("ccard143005",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 3,
-    hp = 2,
+    maxhp = 2,
     crystalcost = 3,
     targettype = 0,
     halo = nil,
@@ -105,7 +103,7 @@ function ccard143005:after_delsecret(warcard,reason)
 	if owner:isenemy(warcard.id) then
 		return
 	end
-	local weapon = owner.hero:getweapon()
+	local weapon = owner.hero.weapon
 	if weapon then
 		weapon:addbuff({
 			srcid = warcard.id,

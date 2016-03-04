@@ -15,8 +15,6 @@ ccard115007 = class("ccard115007",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,7 +22,7 @@ ccard115007 = class("ccard115007",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 1,
     targettype = 0,
     halo = nil,
@@ -92,6 +90,17 @@ function ccard115007:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard115007:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local sid = ccard115007.effect.onuse.addfootman.sid
+	local num = ccard115007.effect.onuse.addfootman.num
+	num = math.min(num,owner:getfreespace("warcard"))
+	for i=1,num do
+		local warcard = owner:newwarcard(sid)
+		owner:putinwar(warcard)
+	end
 end
 
 return ccard115007

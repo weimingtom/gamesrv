@@ -15,8 +15,6 @@ ccard114003 = class("ccard114003",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,7 +22,7 @@ ccard114003 = class("ccard114003",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 1,
     targettype = 33,
     halo = nil,
@@ -103,7 +101,12 @@ function ccard114003:onuse(pos,targetid,choice)
 		target:addhp(-magic_hurt,self.id)
 	else
 		local buff = self:newbuff(ccard114003.effect.onuse.addbuff)
-		target:addbuff(buff)
+		if targetid == owner.hero.id or targetid == owner.enemy.hero.id then
+			local lifecircle = buff.lifecircle or buff.freeze
+			target:setstate("freeze",lifecircle)
+		else
+			target:addbuff(buff)
+		end
 	end
 end
 

@@ -15,8 +15,6 @@ ccard155001 = class("ccard155001",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,13 +22,13 @@ ccard155001 = class("ccard155001",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 2,
     targettype = 0,
     halo = nil,
     desc = "获得一颗空的法力水晶。",
     effect = {
-        onuse = {addemptycrystalcost=1},
+        onuse = {addemptycrystal=1},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -92,6 +90,12 @@ function ccard155001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard155001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local addval = ccard155001.effect.onuse.addemptycrystal
+	owner:addemptycrystal(addval)
 end
 
 return ccard155001

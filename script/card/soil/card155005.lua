@@ -15,8 +15,6 @@ ccard155005 = class("ccard155005",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,7 +22,7 @@ ccard155005 = class("ccard155005",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 1,
     targettype = 0,
     halo = nil,
@@ -92,6 +90,14 @@ function ccard155005:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard155005:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local addatk = ccard155005.effect.onuse.addatk
+	local adddef = ccard155005.effect.onuse.adddef
+	owner.hero:addatk(addatk)
+	owner.hero:adddef(adddef)
 end
 
 return ccard155005

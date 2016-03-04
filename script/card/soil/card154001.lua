@@ -15,8 +15,6 @@ ccard154001 = class("ccard154001",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,13 +22,13 @@ ccard154001 = class("ccard154001",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 0,
-    hp = 0,
+    maxhp = 0,
     crystalcost = 4,
     targettype = 0,
     halo = nil,
     desc = "使你的随从获得“亡语：召唤一个2/2的树人。”",
     effect = {
-        onuse = {addfootman={sid=156004,num=2},
+        onuse = {addfootman={sid=156021,num=1},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -92,6 +90,29 @@ function ccard154001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard154001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	for i,id in ipairs(owner.warcards) do
+		local warcard = owner:gettarget(id)
+		warcard:addeffect({
+			name = "ondie",
+			srcid = self.id,
+			sid = self.sid,
+			callback = function (self)
+				local owner = self:getowner()
+				local pos = self.pos
+				local sid = ccard154001.effect.onuse.addfootman.sid
+				local num = ccard154001.effect.onuse.addfootman.num
+				num = math.min(num,owner:getfreespace("warcard"))
+				for i=1,num do
+					local footman = owner:newwarcard(sid)
+					owner:putinwar(footman,pos)
+				end
+			end
+		})
+	end
 end
 
 return ccard154001

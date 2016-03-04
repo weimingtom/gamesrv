@@ -17,7 +17,7 @@ function cwarobj:init(conf,warid)
 	-- xxx
 	self.crystal = 0
 	self.lockcrystal = 0
-	self.empty_crystal = 0
+	self.emptycrystal = 0
 	self.warid = warid
 	self.tiredvalue = 0
 	self.roundcnt = 0
@@ -238,10 +238,10 @@ function cwarobj:beginround()
 	warmgr.refreshwar(self.warid,self.pid,"beginround",{
 		roundcnt = self.roundcnt,
 	})
-	if self.empty_crystal < 10 then
-		self:add_empty_crystal(1)
+	if self.emptycrystal < 10 then
+		self:addemptycrystal(1)
 	end
-	self:setcrystal(self.empty_crystal-self.lockcrystal)
+	self:setcrystal(self.emptycrystal-self.lockcrystal)
 	
 	self:onbeginround()
 	-- 抽卡
@@ -249,7 +249,6 @@ function cwarobj:beginround()
 	if self.roundcnt == 1 and self.type == "attacker" then
 		local warcard = self:newwarcard(161000)
 		self:putinhand(warcard)
-		war:s2csync()
 	end
 	self:pickcard_and_putinhand()
 	war:s2csync()
@@ -348,22 +347,20 @@ function cwarobj:playcard(warcardid,pos,targetid,choice)
 		self:log("warning","war",string.format("[non-exist card] playcard,id=%s",warcardid))
 		return
 	end
-	if warcard.inarea ~= "hand" then
+	if not warcard.choice and warcard.inarea ~= "hand" then
 		self:log("warning","war",string.format("[no handcard] playcard,id=%d",self.pid,warcardid))
 		return
 	end
 	if not warcard:canplay(pos,targetid,choice) then
 		return
 	end
-	local crystalcost = warcard:getcrystalcost()
-	if crystalcost > self.crystal then
-		return
+	if not warcard.choice then
+		local crystalcost = warcard:getcrystalcost()
+		if crystalcost > self.crystal then
+			return
+		end
 	end
 	self:log("debug","war",string.format("playcard,id=%d sid=%d pos=%s targetid=%s",warcard.id,warcard.sid,pos,targetid))
-	-- 抉择（抉择相当于销毁当前卡，并立即使用获得的新卡
-	if choice then
-		-- TODO:
-	end
 	local cardcls = getclassbycardsid(warcard.sid)
 	local target
 	if warcard.targettype ~= 0 and targetid then
@@ -376,13 +373,22 @@ function cwarobj:playcard(warcardid,pos,targetid,choice)
 			return
 		end
 	end
-	self:addcrystal(-crystalcost)
-	self:removefromhand(warcard)
+	if not warcard.choice then
+		self:addcrystal(-crystalcost)
+		self:removefromhand(warcard)
+	end
 	self:__playcard(warcard,pos,targetid,choice)
 end
 
 function cwarobj:__playcard(warcard,pos,targetid,choice)
 	if not self:before_playcard(warcard,pos,targetid,choice) then
+		return
+	end
+	if choice then
+		local sid = warcard:getsidbychoice(choice)
+		local tmp_warcard = self:newwarcard(sid)
+		tmp_warcard.choice = choice
+		warmgr.refreshwar(self.warid,self.pid,"choice",{id=tmp_warcard.id})
 		return
 	end
 	warcard.enterwar_roundcnt = self.roundcnt
@@ -712,16 +718,22 @@ function cwarobj:setcrystal(value)
 	warmgr.refreshwar(self.warid,self.pid,"sync",{crystal=self.crystal,})
 end
 
-function cwarobj:set_empty_crystal(value)
-	self:log("debug","war",string.format("set_empty_crystal %d",value))
-	self.empty_crystal = value
-	warmgr.refreshwar(self.warid,self.pid,"sync",{empty_crystal=self.empty_crystal})
+function cwarobj:setemptycrystal(value)
+	self:log("debug","war",string.format("set_emptycrystal %d",value))
+	self.emptycrystal = value
+	warmgr.refreshwar(self.warid,self.pid,"sync",{emptycrystal=self.emptycrystal})
 end
 
-function cwarobj:add_empty_crystal(value)
-	self:log("debug","war",string.format("add_empty_crystal %d+%d=%d",self.empty_crystal,value,self.empty_crystal+value))
-	self.empty_crystal = self.empty_crystal + value
-	warmgr.refreshwar(self.warid,self.pid,"sync",{empty_crystal=self.empty_crystal,})
+function cwarobj:addemptycrystal(value)
+	self:log("debug","war",string.format("addemptycrystal %d+%d=%d",self.emptycrystal,value,self.emptycrystal+value))
+	self.emptycrystal = self.emptycrystal + value
+	warmgr.refreshwar(self.warid,self.pid,"sync",{emptycrystal=self.emptycrystal,})
+end
+
+function cwarobj:addlockcrystal(value)
+	self:log("debug","war",string.format("addlockcrystal %d+%d=%d",self.lockcrystal,value,self.lockcrystal+value))
+	self.lockcrystal = self.lockcrystal + value
+	warmgr.refreshwar(self.warid,self.pid,"sync",{lockcrystal=self.lockcrystal})
 end
 
 function cwarobj:execute(cmd,...)

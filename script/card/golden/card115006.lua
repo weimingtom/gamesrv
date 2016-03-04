@@ -15,8 +15,6 @@ ccard115006 = class("ccard115006",super,{
     dieeffect = 0,
     sneak = 0,
     magic_hurt_adden = 0,
-    magic_hurt = 0,
-    recoverhp = 0,
     cure_to_hurt = 0,
     recoverhp_multi = 1,
     magic_hurt_multi = 1,
@@ -24,7 +22,7 @@ ccard115006 = class("ccard115006",super,{
     composechip = 100,
     decomposechip = 10,
     atk = 3,
-    hp = 6,
+    maxhp = 6,
     crystalcost = 4,
     targettype = 23,
     halo = nil,
@@ -98,13 +96,16 @@ function ccard115006:after_hurt(obj,hurtval,srcid)
 	if srcid ~= self.id then
 		return
 	end
-	if 
-	local buff = self:newbuff({
-		freeze = 1,
-		lifecircle = 2,
-	})
-	obj:add
-
+	local owner = self:getowner()
+	if obj.id == owner.hero.id or obj.id == owner.enemy.hero.id then
+		obj:setstate("freeze",2)
+	else
+		local buff = self:newbuff({
+			freeze = 1,
+			lifecircle = 2,
+		})
+		obj:addbuff(buff)
+	end
 end
 
 return ccard115006
