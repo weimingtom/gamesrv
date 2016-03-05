@@ -92,4 +92,15 @@ function ccard133001:save()
     return data
 end
 
+function ccard133001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner;gettarget(targetid)
+	local magic_hurt = ccard133001.effect.onuse.magic_hurt
+	local recoverhp = ccard133001.effect.onuse.recoverhp
+	magic_hurt = owner:get_magic_hurt(magic_hurt)
+	recoverhp = owner:getrecoverhp(recoverhp)
+	target:addhp(-magic_hurt,self.id)
+	owner.hero:addhp(recoverhp,self.id)
+end
+
 return ccard133001

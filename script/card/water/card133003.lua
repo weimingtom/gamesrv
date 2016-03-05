@@ -92,4 +92,16 @@ function ccard133003:save()
     return data
 end
 
+function ccard133003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	for i,id in ipairs(owner.enemy.warcards) do
+		local warcard = owner:gettarget(id)
+		warcard:silence()
+	end
+	local num = ccard133003.effect.onuse.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
 return ccard133003

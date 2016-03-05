@@ -92,4 +92,17 @@ function ccard122001:save()
     return data
 end
 
+function ccard122001:after_putinwar(footman,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(footman) then
+		return
+	end
+	local buff = self:newbuff(ccard122001.effect.after_putinwar.addbuff)
+	footman:addbuff(buff)
+	self:addhp(-1)
+end
+
 return ccard122001

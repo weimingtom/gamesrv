@@ -19,8 +19,8 @@ war_search_opponent 501 {
 
 war_confirm_handcard 502 {
 	request {
-		# 放弃的手牌
-		poslist 0 : *integer
+		# 留下的手牌
+		ids 0 : *integer
 	}
 }
 
@@ -59,7 +59,7 @@ war_giveupwar 507 {
 
 war_lookcards_confirm 508 {
 	request {
-		pos 0 : integer
+		id 0 : integer
 	}
 }
 

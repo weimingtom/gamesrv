@@ -111,7 +111,7 @@ function ccard113004:after_playcard(warcard,pos,targetid,choice)
 	if self.enterwar_roundcnt ~= owner.roundcnt then
 		return
 	end
-	if owner:isenemy(warcard.id) then
+	if owner:isenemy(warcard) then
 		return
 	end
 	local isfirst_playcard = false

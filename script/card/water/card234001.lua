@@ -28,7 +28,7 @@ ccard234001 = class("ccard234001",super,{
     halo = nil,
     desc = "战吼：使一个友方随从获得+3生命值。",
     effect = {
-        onuse = nil,
+        onuse = {addbuff={addmaxhp=3,addhp=3}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

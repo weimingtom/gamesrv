@@ -110,7 +110,7 @@ function ccard114006:after_putinhand(handcard)
 		return
 	end
 	local owner = self:getowner()
-	if owner:isenemy(handcard.id) then
+	if owner:isenemy(handcard) then
 		return
 	end
 	self:addhaloto(handcard)

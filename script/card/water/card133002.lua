@@ -92,4 +92,30 @@ function ccard133002:save()
     return data
 end
 
+function ccard133002:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if owner:getfreespace("warcard") <= 0 then
+		return
+	end
+	local target = onwer:gettarget(targetid)
+	if target:getowner():removefromwar(target) then
+		target.pid = owner.pid
+		local effect = self:neweffect({
+			name = "onendround",
+		})
+		local effectid = target:addeffect(effect)
+		effect.callback = function (self)
+			local owner = self:getowner()
+			self:deleffectbyid(effectid)
+			if owner.enemy:getfreespace("warcard") <= 0 then
+				return
+			end
+			if owner:removefromwar(self) then
+				owner.enemy:putinwar(self)
+			end
+		end
+		owner:putinwar(target)
+	end
+end
+
 return ccard133002

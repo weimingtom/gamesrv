@@ -100,7 +100,7 @@ function ccard144003:after_die(footman)
 		return
 	end
 	local owner = self:getowner()
-	if owner:isenemy(footman.id) then
+	if owner:isenemy(footman) then
 		return
 	end
 	local buff = deepcopy(ccard144003.effect.after_die.addbuff)

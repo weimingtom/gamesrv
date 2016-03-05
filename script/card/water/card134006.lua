@@ -92,4 +92,14 @@ function ccard134006:save()
     return data
 end
 
+function ccard134006:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local ids = shuffle(owner.enemy.leftcards,false,2)
+	for i,id in ipairs(ids) do
+		local warcard = owner:gettarget(id)
+		local clone_warcard = owner:clone(warcard)
+		owner:putinhand(clone_warcard.id)
+	end
+end
+
 return ccard134006

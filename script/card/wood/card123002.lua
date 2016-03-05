@@ -92,4 +92,17 @@ function ccard123002:save()
     return data
 end
 
+function ccard123002:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local buff = self:newbuff(ccard123002.effect.onuse.addbuff)
+	for i,id in ipairs(owner.warcards) do
+		local warcard = owner:gettarget(id)
+		warcard:addbuff(buff)
+	end
+	for i,id in ipairs(owner.enemy.warcards) do
+		local warcard = owner:gettarget(id)
+		warcard:addbuff(buff)
+	end
+end
+
 return ccard123002

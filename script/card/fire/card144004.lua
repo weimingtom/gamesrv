@@ -97,7 +97,7 @@ function ccard144004:before_attack(attacker,defenser)
 		return
 	end
 	local owner = self:getowner()
-	if not owner:isenemy(attacker.id) then
+	if not owner:isenemy(attacker) then
 		return
 	end
 	if owner.enemy.hero.id == attacker.id then
@@ -105,10 +105,12 @@ function ccard144004:before_attack(attacker,defenser)
 	end
 	local footman = attacker
 	if footman:getowner():removefromwar(attacker) then
+		footman:clear()
 		footman:reinit()
 		local buff = self:newbuff(ccard144004.effect.before_attack.addbuff)
 		footman:addbuff(buff)
-		footman:getowner():putinhand(footman)
+		warmgr.refreshwar(self.warid,self.pid,"synccard",{card=footman:pack()})
+		footman:getowner():putinhand(footman.id)
 	end
 	return true,true
 end

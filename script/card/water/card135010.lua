@@ -92,4 +92,15 @@ function ccard135010:save()
     return data
 end
 
+function ccard135010:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if not next(owner.enemy.handcards) then
+		return
+	end
+	local id = randlist(owner.enemy.handcards)
+	local warcard = owner:gettarget(id)
+	local clone_warcard = owner:clone(id)
+	owner:putinhand(clone_warcard.id)
+end
+
 return ccard135010

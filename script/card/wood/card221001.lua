@@ -29,7 +29,7 @@ ccard221001 = class("ccard221001",super,{
     desc = "圣盾,嘲讽,亡语：装备一把5/3的灰烬使者。",
     effect = {
         onuse = nil,
-        ondie = nil,
+        ondie = {addweapon={sid=126003}},
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,

@@ -104,7 +104,7 @@ function ccard111001:after_playcard(warcard,pos,targetid,choice)
 	local num = ccard111001.effect.after_playcard.putinhand.num
 	for i=1,num do
 		local warcard = owner:newwarcard(sid)
-		owner:putinhand(warcard)
+		owner:putinhand(warcard.id)
 	end
 end
 

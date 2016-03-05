@@ -63,8 +63,8 @@ function CMD.confirm_handcard(source,warid,pid,request)
 	if warobj.state ~= "init" then
 		return
 	end
-	local poslist = assert(request.poslist)
-	warobj:confirm_handcard(poslist)
+	local ids = assert(request.ids)
+	warobj:confirm_handcard(ids)
 	if warobj.enemy.state == "confirm_handcard" then
 		if warobj.type == "attacker" then
 			warobj:beginround()

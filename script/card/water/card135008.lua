@@ -92,4 +92,15 @@ function ccard135008:save()
     return data
 end
 
+function ccard135008:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local buff = self:newbuff(ccard135008.effect.onuse.addbuff)
+	local num = ccard135008.effect.onuse.pickcard.num
+	target:addbuff(buff)
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
 return ccard135008

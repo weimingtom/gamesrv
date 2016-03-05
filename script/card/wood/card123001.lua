@@ -92,4 +92,15 @@ function ccard123001:save()
     return data
 end
 
+function ccard123001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local id = owner:pickcard()
+	if not id then
+		return
+	end
+	local warcard = owner:gettarget(id)
+	local costhp = warcard.baseattr.crystalcost
+	owner.enemy.hero:addhp(-costhp,self.id)
+end
+
 return ccard123001

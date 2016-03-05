@@ -92,4 +92,16 @@ function ccard135007:save()
     return data
 end
 
+function ccard135007:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local addmaxhp = target.baseattr.maxhp
+	local addhp = target.hp
+	local buff = self:newbuff({
+		addmaxhp = addmaxhp,
+		addhp = addhp,
+	})
+	target:addbuff(buff)
+end
+
 return ccard135007

@@ -92,4 +92,17 @@ function ccard122003:save()
     return data
 end
 
+function ccard122003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local magic_hurt = ccard122003.effect.onuse.magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	local id_hp = {}
+	id_hp[owner.enemy.hero.id] = owner.enemy.hero.hp
+	for i,id in ipairs(owner.enemy.warcards) do
+		local warcard = owner:gettarget(id)
+		id_hp[id] = warcard.hp
+	end
+	alloc_hurt(magic_hurt,id_hp)
+end
+
 return ccard122003

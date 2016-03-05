@@ -95,7 +95,7 @@ end
 function ccard114001:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local target = owner:gettarget(targetid)
-	assert(owner:isenemy(target.id))
+	assert(owner:isenemy(target))
 	local magic_hurt = ccard114001.effect.onuse.magic_hurt
 	magic_hurt = self:get_magic_hurt(magic_hurt)
 	local left_id = owner.enemy.warcards[target.pos-1]

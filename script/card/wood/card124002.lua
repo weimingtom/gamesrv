@@ -92,4 +92,20 @@ function ccard124002:save()
     return data
 end
 
+function ccard124002:after_die(footman)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(footman) then
+		return
+	end
+	-- 对方回合死亡时才触发
+	if owner.state == "beginround" then
+		return
+	end
+	footman:set({hp=1})
+	owner:putinwar(footman,footman.pos)
+end
+
 return ccard124002

@@ -92,4 +92,20 @@ function ccard134005:save()
     return data
 end
 
+function ccard134005:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local ids = deepcopy(owner.warcards)
+	local ids2 = deepcopy(owner.enemy.warcards)
+	local recoverhp = ccard134005.effect.onuse.recoverhp
+	recoverhp = self:getrecoverhp(recoverhp)
+	for i,id in ipairs(ids) do
+		local warcard = owner:gettarget(id)
+		warcard:addhp(recoverhp,self.id)
+	end
+	for i,id in ipairs(ids2) do
+		local warcard = owner.enemy:gettarget(id)
+		warcard:addhp(recoverhp,self.id)
+	end
+end
+
 return ccard134005

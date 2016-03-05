@@ -92,4 +92,15 @@ function ccard132001:save()
     return data
 end
 
+function ccard132001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	if target:getowner():removefromwar(target) then
+		local clone_target = owner:clone(target)
+		clone_target.haloto = {}
+		clone_target.halofrom = {}
+		owner:putinwar(clone_target,self.pos+1)
+	end
+end
+
 return ccard132001

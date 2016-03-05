@@ -100,7 +100,7 @@ function ccard113003:before_playcard(warcard,pos,targetid,choice)
 		return
 	end
 	local owner = self:getowner()
-	if not owner:isenemy(warcard.id) then
+	if not owner:isenemy(warcard) then
 		return
 	end
 	return true,true

@@ -92,4 +92,24 @@ function ccard135005:save()
     return data
 end
 
+function ccard135005:after_recoverhp(obj,recoverhp,srcid)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner:ishero(obj) then
+		return
+	end
+	if not is_footman(obj.type) then
+		return
+	end
+	if owner:isenemy(obj) then
+		return
+	end
+	local num = ccard135005.effect.after_recoverhp.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
 return ccard135005

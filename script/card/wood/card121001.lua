@@ -29,7 +29,7 @@ ccard121001 = class("ccard121001",super,{
     desc = "圣盾,嘲讽,亡语：装备一把5/3的灰烬使者。",
     effect = {
         onuse = nil,
-        ondie = nil,
+        ondie = {addweapon={sid=126003}},
         onhurt = nil,
         onrecorverhp = nil,
         onbeginround = nil,
@@ -90,6 +90,13 @@ function ccard121001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard121001:ondie()
+	local owner = self:getowner()
+	local sid = ccard121001.effect.ondie.addweapon.sid
+	local weapon = owner:newwarcard(sid)
+	owner:addweapon(weapon)
 end
 
 return ccard121001

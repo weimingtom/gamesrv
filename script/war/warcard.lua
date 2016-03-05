@@ -129,8 +129,14 @@ end
 
 function cwarcard:getowner(id)
 	id = id or self.id
-	local war = warmgr.getwar(self.id)
-	return war:getowner(id)
+	local war = warmgr.getwar(self.warid)
+	local card = self:gettarget(id)
+	if card.pid == war.attacker.pid then
+		return war.attacker
+	else
+		assert(card.pid == war.defenser.pid)
+		return war.defenser
+	end
 end
 
 function cwarcard:get(halos_or_buffs,attr,startpos)
@@ -503,6 +509,13 @@ function cwarcard:packeffect(effect)
 	return tbl
 end
 
+function cwarcard:neweffect(effect)
+	effect = deepcopy(effect)
+	effect.srcid = self.id
+	effect.sid = self.sid
+	return effect
+end
+
 function cwarcard:addeffect(effect)
 	local name = assert(effect.name)
 	if not effect.bheid then
@@ -519,6 +532,7 @@ function cwarcard:addeffect(effect)
 		id = self.id,
 		effect = packeffect,
 	})
+	return effect.bheid
 end
 
 function cwarcard:cloneeffect(id,name)
@@ -550,6 +564,47 @@ function cwarcard:cleareffect(name)
 		end
 	else
 		self.effects = {}
+	end
+end
+
+function cwarcard:deleffectbyid(bheid,name)
+	if name then
+		return self:__deleffectbysrcid(bheid,self.effects[name])
+	else
+		for i,effects in ipairs(self.effects) do
+			local effect = self__deleffectbyid(bheid,effects)
+			if effect then
+				return effect
+			end
+		end
+	end
+end
+
+function cwarcard:__deleffectbyid(bheid,effects)
+	for pos=#effects,1,-1 do
+		local effect = effects[pos]
+		if effect.bheid == bheid then
+			return table.remove(effects,pos)
+		end
+	end
+end
+
+function cwarcard:deleffectbysrcid(srcid,name)
+	if name then
+		self:__deleffectbysrcid(srcid,self.effects[name])
+	else
+		for name,effects in ipairs(self.effects) do
+			self:__deleffectbysrcid(srcid,effects)
+		end
+	end
+end
+
+function cwarcard:__deleffectbysrcid(srcid,effects)
+	for pos=#effects,1,-1 do
+		local effect = effects[pos]
+		if effect.srcid == srcid then
+			table.remove(effects,pos)
+		end
 	end
 end
 
@@ -724,7 +779,7 @@ function cwarcard:onendround(hero)
 end
 
 function cwarcard:onremovefromwar()
-	self:clear()
+	self:clearhalo()
 end
 
 

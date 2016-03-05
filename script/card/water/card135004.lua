@@ -92,4 +92,19 @@ function ccard135004:save()
     return data
 end
 
+function ccard135004:canplaycard(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	if target.atk > 3 then
+		return false
+	end
+	return true
+end
+
+function ccard135004:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	target:die()
+end
+
 return ccard135004

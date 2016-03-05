@@ -97,7 +97,7 @@ function ccard142001:before_attack(attacker,defenser)
 		return
 	end
 	local owner = self:getowner()
-	if owner:isenemy(defenser.id) then
+	if owner:isenemy(defenser) then
 		return
 	end
 	if defenser.id == owner.hero.id then

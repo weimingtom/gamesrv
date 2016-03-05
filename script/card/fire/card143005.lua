@@ -100,7 +100,7 @@ function ccard143005:after_delsecret(warcard,reason)
 		return
 	end
 	local owner = self:getowner()
-	if owner:isenemy(warcard.id) then
+	if owner:isenemy(warcard) then
 		return
 	end
 	local weapon = owner.hero.weapon

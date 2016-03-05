@@ -28,7 +28,7 @@ ccard134001 = class("ccard134001",super,{
     halo = nil,
     desc = "战吼：使一个友方随从获得+3生命值。",
     effect = {
-        onuse = nil,
+        onuse = {addbuff={addmaxhp=3,addhp=3}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -90,6 +90,13 @@ function ccard134001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard134001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local buff = self:newbuff(ccard134001.effect.onuse.addbuff)
+	target:addbuff(buff)
 end
 
 return ccard134001

@@ -92,4 +92,16 @@ function ccard135001:save()
     return data
 end
 
+function ccard135001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if owner:getfreespace("warcard") <= 0 then
+		return
+	end
+	local target = owner:gettarget(targetid)
+	if target:getowner():removefromwar(target) then
+		target.pid = owner.pid
+		owner:putinwar(target)
+	end
+end
+
 return ccard135001

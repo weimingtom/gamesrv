@@ -100,7 +100,7 @@ function ccard114005:after_putinwar(footman,pos,reason)
 		return
 	end
 	local owner = self:getowner()
-	if not owner:isenemy(footman.id) then
+	if not owner:isenemy(footman) then
 		return
 	end
 	local clone_footman = owner:clone(footman)

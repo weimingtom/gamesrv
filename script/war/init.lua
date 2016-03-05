@@ -26,6 +26,7 @@ function cwar:init(profile1,profile2)
 	})
 	self.data = {}
 	self.warid = genwarid()
+	self.cardid = CARD_MIN_ID
 	self.inorder = 0 -- 随从置入战场顺序
 	self.attacker = cwarobj.new(profile1,self.warid)
 	self.defenser = cwarobj.new(profile2,self.warid)
@@ -45,6 +46,15 @@ end
 function cwar:gen_inorder()
 	self.inorder = self.inorder + 1
 	return self.inorder
+end
+
+function cwar:gencardid()
+	if self.cardid >= CARD_MAX_ID then
+		self:endwar(WARRESULT_TIE)
+		return
+	end
+	self.cardid = self.cardid + 1
+	return self.cardid
 end
 
 function cwar:adds2c(pid,cmd,args)
@@ -110,17 +120,6 @@ function cwar:getwarobj(pid)
 		assert(self.defenser.pid == pid,"Invalid pid:" .. tostring(pid))
 		return self.defenser
 	end
-end
-
-function cwar:getowner(id)
-	if self.attacker.init_warcardid <= id and id <= self.attacker.warcardid then
-		return self.attacker 
-	elseif self.defenser.init_warcardid <= id and id <= self.defenser.warcardid then
-		return self.defenser
-	else
-		error("Invalid id:" .. tostring(id))
-	end
-
 end
 
 function cwar:startwar()

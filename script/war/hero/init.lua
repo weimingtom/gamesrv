@@ -22,6 +22,7 @@ function chero:init(conf)
 	self.atkcnt = 1
 	self.leftatkcnt = 0
 	self.weapon = nil
+	self.anyin = 0 -- 0:非暗影形态，1--暗影形态，2--高级暗影形态（英雄技能造成3点伤害)
 end
 
 function chero:canattack()
@@ -47,12 +48,14 @@ function cwarcard:addleftatkcnt(addval)
 	})
 end
 
-function chero:getowner()
+function chero:getowner(id)
+	id = id or self.id
 	local war = warmgr.getwar(self.warid)
-	if war.attacker.hero.id == self.id then
+	local card = self:gettarget(id)
+	if card.pid == war.attacker.pid then
 		return war.attacker
 	else
-		assert(war.defenser.hero.id == self.id)
+		assert(card.pid == war.defenser.pid)
 		return war.defenser
 	end
 end
@@ -109,6 +112,22 @@ function chero:checkstate()
 		updateattrs.id = self.id
 		warmgr.refreshwar(self.warid,self.pid,"updatehero",updateattrs)
 	end
+end
+
+function chero:setanyin(isopen)
+	if not isopen then
+		self.anyin = 0
+	else
+		if self.anyin == 1 then
+			self.anyin = 2
+		else
+			self.anyin = 1
+		end
+	end
+	warmgr.refreshwar(self.warid,self.pid,"updatehero",{
+		id = self.id,
+		anyin = self.anyin,
+	})
 end
 
 function chero:addmaxhp(addval)
@@ -200,6 +219,24 @@ function chero:addatk(addval)
 		id = self.id,
 		atk = self.atk,
 	})
+end
+
+function chero:delweapon()
+	if self.weapon then
+		local weapon = self.weapon
+		self.weapon = nil
+		weapon:die()
+	end
+end
+
+function chero:addweapon(weapon)
+	if self.weapon then
+		self:delweapon()
+	end
+	self.weapon = weapon
+end
+
+function chero:useskill(targetid)
 end
 
 function chero:onbeginround()

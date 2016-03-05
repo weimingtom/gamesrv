@@ -100,7 +100,7 @@ function ccard114004:after_playcard(warcard,pos,targetid,choice)
 		return
 	end
 	local owner = self:getowner()
-	if owner:isenemy(warcard.id) then
+	if owner:isenemy(warcard) then
 		return
 	end
 	local buff = self:newbuff(ccard114004.effect.after_playcard.addbuff)

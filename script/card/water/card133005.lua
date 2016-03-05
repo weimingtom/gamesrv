@@ -32,7 +32,7 @@ ccard133005 = class("ccard133005",super,{
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
-        onbeginround = nil,
+        onbeginround = {recoverhp=3},
         onendround = nil,
         ondelsecret = nil,
         onputinwar = nil,
@@ -90,6 +90,25 @@ function ccard133005:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard133005:onbeginround()
+	local owner = self:getowner()
+	local hitids = {}
+	for i,id in ipairs(owner.warcards) do
+		local warcard = owner:gettarget(id)
+		if warcard.hp < warcard.maxhp then
+			table.insert(hitids,id)
+		end
+	end
+	if owner.hero.hp < owner.hero.maxhp then
+		table.insert(owner.hero.id)
+	end
+	local id = randlist(hitids)
+	local target = owner:gettarget(id)
+	local recoverhp = ccard133005.effect.onbeginround.recoverhp
+	recoverhp = self:getrecoverhp(recoverhp)
+	target:addhp(recoverhp,self.id)
 end
 
 return ccard133005

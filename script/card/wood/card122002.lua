@@ -92,4 +92,17 @@ function ccard122002:save()
     return data
 end
 
+function ccard122002:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local recoverhp = ccard122002.effect.onuse.recoverhp
+	local num = ccard122002.effect.onuse.pickcard.num
+	recoverhp = self:getrecoverhp(recoverhp)
+	target:addhp(recoverhp,self.id)
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+	
+end
+
 return ccard122002

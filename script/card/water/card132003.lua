@@ -92,4 +92,9 @@ function ccard132003:save()
     return data
 end
 
+function ccard132003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	owner.hero:setanyin(true)
+end
+
 return ccard132003

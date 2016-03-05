@@ -92,4 +92,22 @@ function ccard132002:save()
     return data
 end
 
+function ccard132002:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if owner:getfreespace("warcard") <= 0 then
+		return
+	end
+	local hitids = {}
+	for i,id in ipairs(owner.enemy.leftcards) do
+		local warcard = owner:gettarget(id)
+		if is_footman(warcard.type) then
+			table.insert(hitids,id)
+		end
+	end
+	local id = randlist(hitids)
+	local warcard = owner:gettarget(id)
+	local footman = owner:clone(warcard)
+	owner:putinwar(footman)
+end
+
 return ccard132002
