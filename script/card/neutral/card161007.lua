@@ -92,4 +92,22 @@ function ccard161007:save()
     return data
 end
 
+function ccard161007:onputinwar(pos,reason)
+	self:set({cannotattack=true})
+end
+
+function ccard161007:onendhuodong()
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	local costhp = ccard161007.effect.onendhuodong.costhp
+	local ids = deepcopy(owner.enemy.warcards)
+	table.insert(ids,owner.enemy.id)
+	local id = randlist(ids)
+	local target = owner:gettarget(id)
+	target:addhp(-costhp,self.id)
+
+end
+
 return ccard161007

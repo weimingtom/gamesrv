@@ -243,6 +243,14 @@ function cwarcard:newbuff(buff)
 	return buff
 end
 
+function cwarcard:getbuff(buffid)
+	for i,buff in ipairs(self.buffs) do
+		if buff.bheid == buffid then
+			return buff
+		end
+	end
+end
+
 function cwarcard:addbuff(buff)
 	local bheid = self:genbheid()
 	buff.bheid = bheid
@@ -278,7 +286,7 @@ function cwarcard:addbuff(buff)
 	end
 end
 
-function cwarcard:delbuff(pos)
+function cwarcard:delbuffbypos(pos)
 	local buff = table.remove(self.buffs,pos)
 	if buff then
 		self:log("info","war",format("delbuff,pos=%s buff=%s",pos,buff))
@@ -306,11 +314,11 @@ function cwarcard:delbuff(pos)
 	end
 end
 
-function cwarcard:delbuffbyid(id)
+function cwarcard:delbuff(id)
 	for pos=#self.buffs,1,-1 do
 		local buff = self.buffs[pos]
 		if buff.id == id then
-			self:delbuff(pos)
+			self:delbuffbypos(pos)
 			return buff
 		end
 	end
@@ -325,7 +333,7 @@ function cwarcard:delbuffbysrcid(srcid)
 		end
 	end
 	for i,pos in ipairs(self.delbuffs) do
-		self:delbuff(pos)
+		self:delbuffbypos(pos)
 	end
 end
 
@@ -377,7 +385,7 @@ function cwarcard:addhalo(halo)
 	end
 end
 
-function cwarcard:delhalo(pos)
+function cwarcard:delhalobypos(pos)
 	local halo = table.remove(self.halofrom,pos)
 	if halo then
 		self:log("info","war",format("delhalo,pos=%s halo=%s",pos,halo))
@@ -416,7 +424,7 @@ function cwarcard:delhalobysrcid(srcid)
 		end
 	end
 	for i,pos in ipairs(self.delhalos) do
-		self:delhalo(pos)
+		self:delhalobypos(pos)
 	end
 end
 
@@ -430,7 +438,7 @@ function cwarcard:checkbuff()
 	end
 	for i=#delbuffs,1,-1 do
 		local pos = delbuffs[i]	
-		self:delbuff(pos)
+		self:delbuffbypos(pos)
 	end
 end
 

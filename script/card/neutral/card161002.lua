@@ -92,4 +92,17 @@ function ccard161002:save()
     return data
 end
 
+function ccard161002:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = self:gettarget(targetid)
+	local target_owner = target:getowner()
+	if target_owner:removefromwar(target) then
+		local pos = target.pos
+		local sid = ishit(50,100) and 166013 or 166014
+		sid = togoldsidif(sid,is_goldcard(self.sid))
+		local warcard = target_owner:newwarcard(sid)
+		target_owner:putinwar(warcard,pos)
+	end
+end
+
 return ccard161002

@@ -92,4 +92,16 @@ function ccard125009:save()
     return data
 end
 
+function ccard125009:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local magic_hurt = ccard125009.effect.onuse.magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	local ids = deepcopy(owner.enemy.warcards)
+	for i,id in ipairs(ids) do
+		local warcard = owner:gettarget(id)
+		warcard:addhp(-magic_hurt,self.id)
+	end
+	owner.enemy.hero:addhp(-magic_hurt,self.id)
+end
+
 return ccard125009

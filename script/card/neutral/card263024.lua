@@ -28,7 +28,7 @@ ccard263024 = class("ccard263024",super,{
     halo = nil,
     desc = "战吼：使相邻的随从获得+1/+1和嘲讽。",
     effect = {
-        onuse = {addbuff={addatk=1,addmaxhp=1,addhp=1,sneer=60},
+        onuse = {addbuff={addatk=1,addmaxhp=1,addhp=1,sneer=60}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

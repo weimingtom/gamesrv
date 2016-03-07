@@ -92,4 +92,15 @@ function ccard161010:save()
     return data
 end
 
+function ccard161010:onbeginround()
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	local num = ccard161010.effect.onbeginround.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
 return ccard161010

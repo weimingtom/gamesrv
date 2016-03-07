@@ -49,7 +49,7 @@ ccard124003 = class("ccard124003",super,{
         after_beginround = nil,
         before_endround = nil,
         after_endround = nil,
-        before_atttack = {addfootman={sid=126001,num=1}},
+        before_atttack = {addfootman={sid=126001}},
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
@@ -90,6 +90,28 @@ function ccard124003:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard124003:before_attack(attacker,defenser)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if not owner:isenemy(attacker) then
+		return
+	end
+	if owner.hero.id ~= defenser.id then
+		return
+	end
+	if owner:getfreespace("warcard") <= 0 then
+		return
+	end
+	owner:delsecret(self.id,"trigger")
+	local sid = ccard124003.effect.before_attack.sid
+	local footman = owner:newwarcard(sid)
+	owner:putinwar(footman)
+	attacker:getowner():__launchattack(attacker,footman)
+	return true,true
 end
 
 return ccard124003

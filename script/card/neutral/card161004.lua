@@ -92,4 +92,15 @@ function ccard161004:save()
     return data
 end
 
+function ccard161004:ondie()
+	local owner = self:getowner()
+	local sid = ccard161004.effect.ondie.addfootman.sid
+	local num = ccard161004.effect.ondie.addfootman.num
+	num = math.min(num,owner.enemy:getfreespace("warcard"))
+	for i=1,num do
+		local warcard = owner.enemy:newwarcard(sid)
+		owner.enemy:putinwar(warcard)
+	end
+end
+
 return ccard161004

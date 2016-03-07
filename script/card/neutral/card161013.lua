@@ -92,4 +92,17 @@ function ccard161013:save()
     return data
 end
 
+function ccard161013:before_playcard(warcard,pos,targetid,choice)
+	if self.inarea ~= "war" then
+		return
+	end
+	-- 忽略：抉择生成的牌
+	if warcard.choice then
+		return
+	end
+	local owner = self:getowner()
+	local card = owner:newwarcard(warcard.sid)
+	owner:putinhand(card.id)
+end
+
 return ccard161013

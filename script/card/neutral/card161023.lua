@@ -92,4 +92,12 @@ function ccard161023:save()
     return data
 end
 
+function ccard161023:ondie()
+	local owner = self:getowner()
+	local num = ccard161023.effect.ondie.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
 return ccard161023

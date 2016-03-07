@@ -92,4 +92,12 @@ function ccard161022:save()
     return data
 end
 
+function ccard161022:ondie()
+	local owner = self:getowner()
+	local sid = ccard161022.effect.ondie.addfootman.sid
+	local num = ccard161022.effect.ondie.addfootman.num
+	sid = togoldsidif(sid,is_goldcard(self.sid))
+	num = math.min(num,owner:getfreespace("warcard"))
+end
+
 return ccard161022

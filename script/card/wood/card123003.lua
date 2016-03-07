@@ -92,7 +92,7 @@ function ccard123003:save()
     return data
 end
 
-function ccard12300:onuse(pos,targetid,choice)
+function ccard123003:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local num = #owner.enemy.handcards
 	for i=1,num do

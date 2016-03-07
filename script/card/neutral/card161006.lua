@@ -92,4 +92,14 @@ function ccard161006:save()
     return data
 end
 
+function ccard161006:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local sid = randlist({166024})
+	sid = togoldsidif(sid,is_goldcard(self.sid))
+	local warcard = owner:newwarcard(sid)
+	owner:putinhand(warcard.id)
+	warcard = owner.enemy:newwarcard(sid)
+	owner.enemy:putinhand(warcard.id)
+end
+
 return ccard161006

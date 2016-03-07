@@ -28,7 +28,7 @@ ccard125004 = class("ccard125004",super,{
     halo = nil,
     desc = "造成3点伤害,抽一张牌。",
     effect = {
-        onuse = {addbuff={addatk=3}},
+        onuse = {magic_hurt=3,pickcard={num=1}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -90,6 +90,18 @@ function ccard125004:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard125004:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local magic_hurt = ccard125004.effect.onuse.magic_hurt
+	local num = ccard125004.effect.onuse.pickcard.num
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	target:addhp(-magic_hurt,self.id)
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
 end
 
 return ccard125004

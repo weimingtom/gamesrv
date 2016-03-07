@@ -28,7 +28,7 @@ ccard142003 = class("ccard142003",super,{
     halo = nil,
     desc = "在本回合内,使1个野兽获得+2攻击和免疫。",
     effect = {
-        onuse = {addbuff={addatk=2,immune=1,lifecircle=1},
+        onuse = {addbuff={addatk=2,immune=1,lifecircle=1}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

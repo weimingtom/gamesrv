@@ -92,4 +92,19 @@ function ccard124005:save()
     return data
 end
 
+function ccard124005:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local effect = self:neweffect({
+		name = "before_attack",
+		callback = function (self,attacker,defenser)
+			if self.id ~= attacker.id then
+				return
+			end
+			local owner = self:getowner()
+			owner:pickcard_and_putinhand()
+		end
+	})
+end
+
 return ccard124005

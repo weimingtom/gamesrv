@@ -92,4 +92,21 @@ function ccard161024:save()
     return data
 end
 
+function ccard161024:onendround()
+	local owner = self:getowner()
+	local costhp = ccard161024.effect.onendround.costhp
+	local ids = deepcopy(owner.warcards)
+	local ids2 = deepcopy(owner.enemy.warcards)
+	for i,id in ipairs(ids) do
+		if id ~= self.id then
+			local footman = owner:gettarget(id)
+			footman:addhp(-costhp,self.id)
+		end
+	end
+	for i,id in ipairs(ids2) do
+		local footman = owner:gettarget(id)
+		footman:addhp(-costhp,self.id)
+	end
+end
+
 return ccard161024

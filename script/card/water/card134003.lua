@@ -102,6 +102,13 @@ function ccard134003:onuse(pos,targetid,choice)
 	target:addbuff(buff)
 end
 
-function ccard134003:onuse(I
+function ccard134003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local buff = self:newbuff({
+		setatk = target.hp,
+	})
+	target:addbuff(buff)
+end
 
 return ccard134003

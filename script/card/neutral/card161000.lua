@@ -92,4 +92,10 @@ function ccard161000:save()
     return data
 end
 
+function ccard161000:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local addcrystal = ccard161000.effect.onuse.addcrystal
+	owner:addcrystal(addcrystal)
+end
+
 return ccard161000

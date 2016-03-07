@@ -28,7 +28,7 @@ ccard252001 = class("ccard252001",super,{
     halo = nil,
     desc = "召唤3个2/2并具有冲锋的树人,在回合结束时,消灭这些树人。",
     effect = {
-        onuse = {addfootman={sid=156021,num=3},
+        onuse = {addfootman={sid=156021,num=3}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

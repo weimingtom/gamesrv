@@ -51,8 +51,8 @@ ccard161016 = class("ccard161016",super,{
         after_endround = nil,
         before_atttack = nil,
         after_attack = nil,
-        before_playcard = {addfootman={sid=166020,num=1}},
-        after_playcard = nil,
+        before_playcard = nil,
+        after_playcard = {addfootman={sid=166020,num=1}},
         before_putinwar = nil,
         after_putinwar = nil,
         before_removefromwar = nil,
@@ -90,6 +90,24 @@ function ccard161016:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard161016:after_playcard(warcard,pos,targetid,choice)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(warcard) then
+		return
+	end
+	local sid = ccard161016.effect.after_playcard.sid
+	local num = ccard161016.effect.after_playcard.num
+	sid = togoldsidif(sid,is_goldcard(self.sid))
+	num = math.min(num,owner:getfreespace("warcard"))
+	for i=1,num do
+		local footman = owner:newwarcard(sid)
+		owner:putinwar(footman,self.pos+1)
+	end
 end
 
 return ccard161016

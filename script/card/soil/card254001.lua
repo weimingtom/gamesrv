@@ -28,7 +28,7 @@ ccard254001 = class("ccard254001",super,{
     halo = nil,
     desc = "使你的随从获得“亡语：召唤一个2/2的树人。”",
     effect = {
-        onuse = {addfootman={sid=156021,num=1},
+        onuse = {addfootman={sid=156021,num=1}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

@@ -28,7 +28,7 @@ ccard161011 = class("ccard161011",super,{
     halo = nil,
     desc = "战吼：下个回合敌方法术的法力值消耗为（0）点。",
     effect = {
-        onuse = {addbuff={setcrystalcost=0,lifecircle=1}},
+        onuse = {addbuff={setcrystalcost=0,lifecircle=2}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -64,7 +64,7 @@ ccard161011 = class("ccard161011",super,{
         before_delweapon = nil,
         after_delweapon = nil,
         before_putinhand = nil,
-        after_putinhand = nil,
+        after_putinhand = {addbuff={setcrystalcost=0,lifecircle=1}},
         before_removefromhand = nil,
         after_removefromhand = nil,
     },
@@ -90,6 +90,35 @@ function ccard161011:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard161011:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local buff = self:newbuff(ccard161011.effect.onuse.addbuff)
+	for i,id in ipairs(owner.enemy.handcards) do
+		local handcard = owner:gettarget(id)
+		handcard:addbuff(buff)
+	end
+end
+
+function ccard161011:after_putinhand(warcard)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if not owner:isenemy(warcard) then
+		return
+	end
+	local warcard_owner = warcard:getowner()
+	if warcard_owner.type == "attacker" and warcard_owner.roundcnt ~= self.enterwar_roundcnt + 1 then
+		return
+	end
+	if warcard_owner.type == "defenser" and warcard_owner.roundcnt ~= self.enterwar_roundcnt then
+		return
+	end
+	-- 敌方下一回合“抽牌”
+	local buff = self:newbuff(ccard161011.effect.after_putinhand.addbuff)
+	warcard:addbuff(buff)
 end
 
 return ccard161011

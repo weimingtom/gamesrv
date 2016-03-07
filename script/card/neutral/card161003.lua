@@ -92,4 +92,13 @@ function ccard161003:save()
     return data
 end
 
+function ccard161003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	if not target:hasstate("snear") then
+		return
+	end
+	target:die()
+end
+
 return ccard161003

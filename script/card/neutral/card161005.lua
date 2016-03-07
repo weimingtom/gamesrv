@@ -92,4 +92,18 @@ function ccard161005:save()
     return data
 end
 
+function ccard161005:ondie()
+	local owner = self:getowner()
+	if not next(owner.enemy.warcards) then
+		return
+	end
+	local id = randlist(owner.enemy.warcards)	
+	local warcard = owner:gettarget(id)
+	if warcard:getowner():removefromwar(warcard) then
+		warcard.pid = owner.pid
+		owner:putinwar(warcard,self.pos)
+	end
+end
+
+
 return ccard161005

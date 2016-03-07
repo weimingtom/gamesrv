@@ -92,4 +92,17 @@ function ccard161018:save()
     return data
 end
 
+function ccard161018:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if not owner.enemy.hero.weapon then
+		return
+	end
+	local num = owner.enemy.hero.weapon.hp
+	owner.enemy:delweapon()
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
+
 return ccard161018

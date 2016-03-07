@@ -92,4 +92,11 @@ function ccard161025:save()
     return data
 end
 
+function ccard161025:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local hero = owner:gettarget(targetid)
+	local val = ccard161025.effect.onuse.sethp
+	hero:sethp(val)
+end
+
 return ccard161025

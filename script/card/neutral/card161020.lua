@@ -92,4 +92,19 @@ function ccard161020:save()
     return data
 end
 
+function ccard161020:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local ids = deepcopy(owner.warcards)
+	local ids2 = deepcopy(owner.enemy.warcards)
+	for i,id in ipairs(ids) do
+		local footman = owner:gettarget(id)
+		owner:removefromwar(footman)
+	end
+	for i,id in ipairs(ids2) do
+		local footman = owner.enemy:gettarget(id)
+		owner.enemy:removefromwar(footman)
+	end
+	owner:clearhandcard()
+end
+
 return ccard161020

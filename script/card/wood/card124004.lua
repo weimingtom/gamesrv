@@ -92,4 +92,16 @@ function ccard124004:save()
     return data
 end
 
+function ccard124004:after_hurt(obj,hurtval,srcid)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner.hero.id ~= obj.id then
+		return
+	end
+	owner:delsecret(self.id,"trigger")
+	owner.enemy.hero:addhp(-hurtval,srcid)
+end
+
 return ccard124004

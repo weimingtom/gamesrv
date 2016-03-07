@@ -4,7 +4,7 @@ local super = require "script.card.init"
 ccard156013 = class("ccard156013",super,{
     sid = 156013,
     race = 5,
-    name = "野性之力",
+    name = "野性之力（抉择1）",
     type = 101,
     magic_immune = 0,
     assault = 0,
@@ -28,7 +28,7 @@ ccard156013 = class("ccard156013",super,{
     halo = nil,
     desc = "使你的随从获得+1/+1",
     effect = {
-        onuse = {addbuff{addatk=1,addmaxhp=1,addhp=1},
+        onuse = {addbuff={addatk=1,addmaxhp=1,addhp=1}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

@@ -92,4 +92,49 @@ function ccard161009:save()
     return data
 end
 
+function ccard161009:rebuild()
+	local owner = self:getowner()
+	if self.fish_buffid then
+		self:delbuff(self.fish_buffid)
+		self.fish_buffid = nil
+	end
+	local num = 0
+	for i,id in ipairs(owner.warcards) do
+		if id ~= self.id then
+			local footman = owner:gettarget(id)
+			if footman.type == FOOTMAN.FISH then
+				num = num + 1
+			end
+		end
+	end
+	for i,id in ipairs(owner.enemy.warcards) do
+		local footman = owner:gettarget(id)
+		if footman.type == FOOTMAN.FISH then
+			num = num + 1
+		end
+	end
+	local buff = self:newbuff({
+		addatk = num,
+	})
+	self.fish_buffid = self:addbuff(buff)
+end
+
+function ccard161009:onputinwar(pos,reason)
+	self:rebuild()
+end
+
+function ccard161009:after_putinwar(footman,pos,reason)
+	if footman.type ~= FOOTMAN.FISH then
+		return
+	end
+	self:rebuild()
+end
+
+function ccard161009:after_removefromwar(footman)
+	if footman.type ~= FOOTMAN.FISH then
+		return
+	end
+	self:rebuild()
+end
+
 return ccard161009

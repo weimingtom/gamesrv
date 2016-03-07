@@ -92,4 +92,11 @@ function ccard125003:save()
     return data
 end
 
+function ccard125003:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local shield = ccard125003.effect.onuse.shield
+	target:setstate("shield",shield)
+end
+
 return ccard125003

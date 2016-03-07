@@ -710,6 +710,7 @@ end
 
 function cwarobj:execute(cmd,...)
 	local noexec_later_action = false
+	-- TODO: 优化：牌库应该无须遍历
 	-- 自身牌库
 	for i,id in ipairs(self.leftcards) do
 		local warcard = self:getcard(id)

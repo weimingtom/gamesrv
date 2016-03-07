@@ -25,7 +25,7 @@ ccard262001 = class("ccard262001",super,{
     maxhp = 3,
     crystalcost = 3,
     targettype = 0,
-    halo = nil,
+    halo = {addatk=1,addmaxhp=1,addhp=1},
     desc = "你的其他海盗获得+1/+1。",
     effect = {
         onuse = nil,

@@ -92,4 +92,17 @@ function ccard125006:save()
     return data
 end
 
+function ccard125006:before_attack(attacker,defenser)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner.hero.id ~= attacker.id then
+		return
+	end
+	local recoverhp = ccard125006.effect.before_attack.recoverhp
+	recoverhp = self:getrecoverhp(recoverhp)
+	owner.hero:addhp(recoverhp,self.id)
+end
+
 return ccard125006

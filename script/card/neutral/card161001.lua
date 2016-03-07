@@ -92,4 +92,15 @@ function ccard161001:save()
     return data
 end
 
+function ccard161001:onendround()
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	local sid = randlist({166008,166009,166010,166011,166012})
+	sid = togoldsidif(sid,is_goldcard(self.sid))
+	local warcard = owner:newwarcard(sid)
+	owner:putinhand(warcard.id)
+end
+
 return ccard161001
