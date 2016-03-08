@@ -59,6 +59,8 @@ ccard161009 = class("ccard161009",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -92,7 +94,7 @@ function ccard161009:save()
     return data
 end
 
-function ccard161009:rebuild()
+function ccard161009:recompute()
 	local owner = self:getowner()
 	if self.fish_buffid then
 		self:delbuff(self.fish_buffid)
@@ -120,21 +122,21 @@ function ccard161009:rebuild()
 end
 
 function ccard161009:onputinwar(pos,reason)
-	self:rebuild()
+	ccard161009.recompute(self)
 end
 
 function ccard161009:after_putinwar(footman,pos,reason)
 	if footman.type ~= FOOTMAN.FISH then
 		return
 	end
-	self:rebuild()
+	ccard161009.recompute(self)
 end
 
 function ccard161009:after_removefromwar(footman)
 	if footman.type ~= FOOTMAN.FISH then
 		return
 	end
-	self:rebuild()
+	ccard161009.recompute(self)
 end
 
 return ccard161009

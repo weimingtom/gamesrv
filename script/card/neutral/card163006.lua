@@ -59,6 +59,8 @@ ccard163006 = class("ccard163006",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,21 @@ function ccard163006:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163006:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local num = #owner.handcards
+	if num == 0 then
+		return
+	end
+	local buff = self:newbuff(ccard163006.effect.onuse.addbuff)
+	for k,v in pairs(buff) do
+		if k ~= "lifecircle" then
+			buff[k] = v * num
+		end
+	end
+	self:addbuff(buff)
 end
 
 return ccard163006

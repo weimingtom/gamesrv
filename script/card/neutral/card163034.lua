@@ -59,6 +59,8 @@ ccard163034 = class("ccard163034",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,21 @@ function ccard163034:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163034:ondie()
+	local owner = self:getowner()
+	local costhp = ccard163034.effect.ondie.costhp
+	local ids = deepcopy(owner.warcards)
+	local ids2 = deepcopy(owner.enemy.warcards)
+	for i,id in ipairs(ids) do
+		local footman = owner:gettarget(id)
+		footman:addhp(-costhp,self.id)
+	end
+	for i,id in ipairs(ids2) do
+		local footman = owner:gettarget(id)
+		footman:addhp(-costhp,self.id)
+	end
 end
 
 return ccard163034

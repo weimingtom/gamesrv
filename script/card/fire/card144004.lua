@@ -59,6 +59,8 @@ ccard144004 = class("ccard144004",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -105,12 +107,10 @@ function ccard144004:before_attack(attacker,defenser)
 	end
 	local footman = attacker
 	if footman:getowner():removefromwar(attacker) then
-		footman:clear()
-		footman:reinit()
+		footman:getowner():putinhand(footman.id)
 		local buff = self:newbuff(ccard144004.effect.before_attack.addbuff)
 		footman:addbuff(buff)
 		warmgr.refreshwar(self.warid,self.pid,"synccard",{card=footman:pack()})
-		footman:getowner():putinhand(footman.id)
 	end
 	return true,true
 end

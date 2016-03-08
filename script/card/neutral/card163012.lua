@@ -59,6 +59,8 @@ ccard163012 = class("ccard163012",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,37 @@ function ccard163012:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163012:onbeginround()
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	local buff = self:newbuff(ccard163012.effect.onbeginround.addbuff)
+	local id_buffid = {}
+	for i,id in ipairs(owner.handcards) do
+		local handcard = owner:gettarget(id)
+		if is_footman(handcard.type) then
+			local buffid = handcard:addbuff(buff)
+			id_buffid[id] = buffid
+		end
+	end
+	for id,buffid in pairs(id_buffid) do
+		local handcard = owner:gettarget(id)
+		local effect = self:neweffect({
+			name = "before_playcard",
+			callback = function (self,warcard,pos,targetid,choice)
+				for id,buffid in pairs(id_buffid) do
+					local handcard = owner:gettarget(id)
+					if handcard then
+						handcard:delbuff(buffid)
+					end
+				end
+			end,
+		})
+		handcard:addeffect(effect)
+	end
 end
 
 return ccard163012

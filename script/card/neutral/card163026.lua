@@ -59,6 +59,8 @@ ccard163026 = class("ccard163026",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,25 @@ function ccard163026:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163026:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local buff = self:newbuff(ccard163026.effect.onuse.addbuff)
+	for i,id in ipairs(owner.warcards) do
+		if self.id ~= id then
+			local footman = owner:gettarget(id)
+			if footman.type == FOOTMAN.FISH then
+				footman:addbuff(buff)
+			end
+		end
+	end
+	for i,id in ipairs(owner.enemy.warcards) do
+		local footman = owner:gettarget(id)
+		if footman.type == FOOTMAN.FISH then
+			footman:addbuff(buff)
+		end
+	end
 end
 
 return ccard163026

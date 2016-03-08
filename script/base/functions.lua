@@ -874,6 +874,13 @@ function table.setattr(tbl,attr,val,bforce)
 	return false
 end
 
+getattr = table.getattr
+hasattr = table.hasattr
+setattr = table.setattr
+
+function table.isempty(tbl)
+	return not next(tbl)
+end
 
 -- 扩展string
 function string.rtrim(str)

@@ -59,6 +59,8 @@ ccard163028 = class("ccard163028",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,14 @@ function ccard163028:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163028:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local num = ccard163028.effect.onuse.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
 end
 
 return ccard163028

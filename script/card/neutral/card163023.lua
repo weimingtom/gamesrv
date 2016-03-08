@@ -59,6 +59,8 @@ ccard163023 = class("ccard163023",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,20 @@ function ccard163023:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163023:after_hurt(obj,hurtval,srcid)
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	if owner:ishero(obj) then
+		return
+	end
+	if self.id ~= srcid then
+		return
+	end
+	obj:die()
 end
 
 return ccard163023

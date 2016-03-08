@@ -25,7 +25,7 @@ ccard162003 = class("ccard162003",super,{
     maxhp = 3,
     crystalcost = 3,
     targettype = 0,
-    halo = nil,
+    halo = {addatk=2,addmaxhp=1,addhp=1},
     desc = "所有其他鱼人获得+2/+1。",
     effect = {
         onuse = nil,
@@ -59,6 +59,8 @@ ccard162003 = class("ccard162003",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,31 @@ function ccard162003:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard162003:onputinwar(pos,reason)
+	local owner = self:getowner()
+	for i,id in ipairs(owner.warcards) do
+		if id ~= self.id then
+			local footman = owner:gettarget(id)
+			if footman.type == FOOTMAN.FISH then
+				self:addhaloto(footman)
+			end
+		end
+	end
+end
+
+function ccard162003:after_putinwar(footman,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
+	if self.id == footman.id then
+		return
+	end
+	if footman.type ~= FOOTMAN.FISH then
+		return
+	end
+	self:addhaloto(footman)
 end
 
 return ccard162003

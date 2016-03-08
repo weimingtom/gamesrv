@@ -59,6 +59,8 @@ ccard162011 = class("ccard162011",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,15 @@ function ccard162011:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard162011:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	if target.atk < 7 then
+		return
+	end
+	target:die()
 end
 
 return ccard162011

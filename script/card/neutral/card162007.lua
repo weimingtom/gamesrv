@@ -59,6 +59,8 @@ ccard162007 = class("ccard162007",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,13 @@ function ccard162007:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard162007:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local footman = owner:gettarget(targetid)
+	local clone_footman = owner:clone(footman)
+	owner:putinwar(clone_footman,pos)
 end
 
 return ccard162007

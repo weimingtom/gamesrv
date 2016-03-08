@@ -59,6 +59,8 @@ ccard163021 = class("ccard163021",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,20 @@ function ccard163021:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163021:onendround()
+	local owner = self:getowner()
+	local costhp = ccard163021.effect.onendround.costhp
+	local sid = ccard163021.effect.onendround.addfootman.sid
+	local num = ccard163021.effect.onendround.addfootman.num
+	sid = togoldsidif(sid,is_goldcard(self.sid))
+	self:addhp(-costhp,self.id)
+	num = math.min(num,owner:getfreespace("warcard"))
+	for i=1,num do
+		local footman  = owner:newwarcard(sid)
+		owner:putinwar(footman,self.pos)
+	end
 end
 
 return ccard163021

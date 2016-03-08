@@ -74,6 +74,14 @@ function chero:isstate(state)
 end
 
 function chero:getstate(state)
+	local owner = self:getowner()
+	local attr = "hero_" .. state
+	for i,id in ipairs(owner.warcards) do
+		local warcard = owner:gettarget(id)
+		if warcard[attr] and warcard[attr] > 0 then
+			return warcard[attr]
+		end
+	end
 	return self[state]
 end
 
@@ -222,10 +230,16 @@ function chero:addatk(addval)
 end
 
 function chero:delweapon()
-	if self.weapon then
+	local weapon = self.weapon
+	if weapon then
+		local owner = self:getowner()
+		if not owner:before_delweapon(weapon) then
+			return
+		end
 		local weapon = self.weapon
 		self.weapon = nil
 		weapon:die()
+		owner:after_delweapon(weapon)
 	end
 end
 
@@ -233,7 +247,12 @@ function chero:addweapon(weapon)
 	if self.weapon then
 		self:delweapon()
 	end
+	local owner = self:getowner()
+	if not owner:before_addweapon(weapon) then
+		return
+	end
 	self.weapon = weapon
+	owner:after_addweapon(weapon)
 end
 
 function chero:useskill(targetid)

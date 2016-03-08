@@ -59,6 +59,8 @@ ccard162002 = class("ccard162002",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,40 @@ function ccard162002:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard162002:recompute()
+	if self.addcrystalcost_buffid then
+		self:delbuff(self.addcrystalcost_buffid)
+		self.addcrystalcost_buffid = nil
+	end
+	local owner = self:getowner()
+	local addcrystalcost = -#owner.warcards
+	if addcrystalcost == 0 then
+		return
+	end
+	local buff = self:newbuff({
+		addcrystalcost = addcrystalcost,
+	})
+	self.addcrystalcost_buffid = self:addbuff(buff)
+end
+
+function ccard162002:onputinhand()
+	ccard162002.recompute(self)
+end
+
+function ccard162002:after_putinwar(footman,pos,reason)
+	if self.inarea ~= "hand" then
+		return
+	end
+	ccard162002.recompute(self)
+end
+
+function ccard162002:after_removefromwar(footman)
+	if self.inarea ~= "hand" then
+		return
+	end
+	ccard162002.recompute(self)
 end
 
 return ccard162002

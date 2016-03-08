@@ -59,6 +59,8 @@ ccard164011 = class("ccard164011",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,16 @@ function ccard164011:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard164011:after_addweapon(weapon)
+	if self.inarea ~= "war" then
+		return
+	end
+	if weapon:getowner() ~= self:getowner() then
+		return
+	end
+	self:setstate("assault",1)
 end
 
 return ccard164011

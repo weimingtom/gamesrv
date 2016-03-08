@@ -59,6 +59,8 @@ ccard162008 = class("ccard162008",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,18 @@ function ccard162008:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard162008:onbeginround()
+	if self.inarea ~= "war" then
+		return
+	end
+	local owner = self:getowner()
+	local ids = deepcopy(owner.warcards)
+	for i,id in ipairs(ids) do
+		local footman = owner:gettarget(id)
+		footman:die()
+	end
 end
 
 return ccard162008

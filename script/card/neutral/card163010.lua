@@ -34,7 +34,7 @@ ccard163010 = class("ccard163010",super,{
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
-        ondelsecret = {addbuff={addatk=1,addmaxhp=1,addhp=1}},
+        ondelsecret = nil,
         onputinwar = nil,
         onremovefromwar = nil,
         onaddweapon = nil,
@@ -59,6 +59,8 @@ ccard163010 = class("ccard163010",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = {addbuff={addatk=1,addmaxhp=1,addhp=1}},
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,17 @@ function ccard163010:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163010:after_delsecret(secretcard,reason)
+	if self.inarea ~= "war" then
+		return
+	end
+	if reason ~= "trigger" then
+		return
+	end
+	local buff = self:newbuff(ccard163010.effect.after_delsecret.addbuff)
+	self:addbuff(buff)
 end
 
 return ccard163010

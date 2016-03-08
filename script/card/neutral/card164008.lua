@@ -59,6 +59,8 @@ ccard164008 = class("ccard164008",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,26 @@ function ccard164008:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard164008:onchangestate(name,oldval,newval)
+	if self.inarea ~= "war" then
+		return
+	end
+	if name ~= "enrange" then
+		return
+	end
+	if oldval == 0 and newval ~= 0 then
+		local buff = self:newbuff({
+			addatk = 3,
+		})
+		self.enrange_buffid = self:addbuff(buff)
+	elseif oldval ~= 0 and newval == 0 then
+		if self.enrange_buffid then
+			self:delbuff(self.enrange_buffid)
+			self.enrange_buffid = nil
+		end
+	end
 end
 
 return ccard164008

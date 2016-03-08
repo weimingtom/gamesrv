@@ -59,6 +59,8 @@ ccard162009 = class("ccard162009",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,22 @@ function ccard162009:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard162009:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local hitids = {}
+	for i,id in ipairs(owner.leftcards) do
+		local warcard = owner:gettarget(id)
+		if is_footman(warcard.type) and warcard.type == FOOTMAN.HAIDAO then
+			table.insert(hitids,id)
+		end
+	end
+	if not next(hitids) then
+		return
+	end
+	local id = randlist(hitids)
+	owner:pickcard_and_putinhand(id)
 end
 
 return ccard162009

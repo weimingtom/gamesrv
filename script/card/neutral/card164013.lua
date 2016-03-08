@@ -59,6 +59,8 @@ ccard164013 = class("ccard164013",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,21 @@ function ccard164013:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard164013:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if owner:getfreespace("warcard") <= 0 then
+		return
+	end
+	local sid = ccard164013.effect.onuse.addfootman.sid
+	local num = ccard164013.effect.onuse.addfootman.num
+	sid = togoldsidif(sid,is_goldcard(self.sid))
+	num = math.min(num,self:getfreespace("warcard"))
+	for i=1,num do
+		local footman = owner:newwarcard(sid)
+		owner:putinwar(footman,self.pos+1)
+	end
 end
 
 return ccard164013

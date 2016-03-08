@@ -59,6 +59,8 @@ ccard163001 = class("ccard163001",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,12 @@ function ccard163001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163001:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local addemptycrastal = ccard163001.effect.onuse.addemptycrastal
+	owner.enemy:addemptycrastal(addemptycrastal)
 end
 
 return ccard163001

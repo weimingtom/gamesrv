@@ -59,6 +59,8 @@ ccard163014 = class("ccard163014",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,21 @@ function ccard163014:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163014:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if #owner.enemy.warcards < 4 then
+		return
+	end
+	local id = randlist(owner.enemy.warcards)
+	local footman = owner:gettarget(id)
+	if owner.enemy:removefromwar(footman) then
+		footman.pid = owner.pid
+		-- 自身战场随从已满则销毁
+		owner:putinwar(footman,self.pos+1)
+	end
+
 end
 
 return ccard163014

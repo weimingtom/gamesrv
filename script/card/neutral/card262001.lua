@@ -28,7 +28,7 @@ ccard262001 = class("ccard262001",super,{
     halo = {addatk=1,addmaxhp=1,addhp=1},
     desc = "你的其他海盗获得+1/+1。",
     effect = {
-        onuse = nil,
+        onuse = {addatk=1,addmaxhp=1,addhp=1},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -59,6 +59,8 @@ ccard262001 = class("ccard262001",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,

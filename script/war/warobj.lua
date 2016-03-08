@@ -102,16 +102,25 @@ function cwarobj:clone(warcard)
 	return clone_warcard
 end
 
-function cwarobj:pickcard(israndom)
-	local pos = #self.leftcards
-	if pos == 0 then
+function cwarobj:pickcard(id)
+	local num = #self.leftcards
+	if num == 0 then
 		return
 	end
-	if israndom then
-		pos = math.random(#self.leftcards)
+	local pos
+	if id then
+		for i,v in ipairs(self.leftcards) do
+			if v == id then
+				pos = i
+				break
+			end
+		end
+	else
+		pos = num
 	end
-	local id = table.remove(self.leftcards,pos)
-	return id
+	if pos then
+		return table.remove(self.leftcards,pos)
+	end
 end
 
 -- 置入牌库
@@ -221,8 +230,8 @@ function cwarobj:beginround()
 	war:s2csync()
 end
 
-function cwarobj:pickcard_and_putinhand(israndom)
-	local id = self:pickcard(israndom)
+function cwarobj:pickcard_and_putinhand(id)
+	local id = self:pickcard(id)
 	if not id then
 		self.tiredvalue = self.tiredvalue + 1
 		self.hero:addhp(-self.tiredvalue,0)
@@ -312,43 +321,65 @@ function cwarobj:isvalidtarget(warcard,target)
 	return false
 end
 
+function cwarobj:canplaycard(warcard,pos,targetid,choice)
+	if not warcard.choice and warcard.inarea ~= "hand" then
+		self:log("warning","war",string.format("[no handcard] playcard,id=%d",self.pid,warcardid))
+		return false
+	end
+	if not warcard.choice then
+		local crystalcost = warcard:getcrystalcost()
+		if crystalcost > self.crystal then
+			return false
+		end
+	end
+	local cardcls = getclassbycardsid(warcard.sid)
+	local target
+	if warcard.targettype ~= 0 and targetid then
+		target = self:gettarget(targetid)
+		if not target then
+			return false
+		end
+		if not self:isvalidtarget(warcard,target) then
+			self:log("warning","war",string.format("[invalid target] playcard,id=%d targetid=%d",warcardid,targetid))
+			return false
+		end
+	end
+	if is_magiccard(warcard.type) then
+		if warcard.type == MAGICCARD.SECRET then
+			if self:getfreespace("secretcard") <= 0 then
+				return false
+			end
+		end
+	elseif is_footman(warcard.type) then
+		if self:getfreespace("warcard") <= 0 then
+			return false
+		end
+	end
+	return warcard:canplaycard(pos,targetid,choice)
+end
+
 function cwarobj:playcard(warcardid,pos,targetid,choice)
 	local warcard = self:getcard(warcardid)
 	if not warcard then
 		self:log("warning","war",string.format("[non-exist card] playcard,id=%s",warcardid))
 		return
 	end
-	if not warcard.choice and warcard.inarea ~= "hand" then
-		self:log("warning","war",string.format("[no handcard] playcard,id=%d",self.pid,warcardid))
+	if self:canplaycard(warcard,pos,targetid,choice) then
 		return
-	end
-	if not warcard:canplaycard(pos,targetid,choice) then
-		return
-	end
-	if not warcard.choice then
-		local crystalcost = warcard:getcrystalcost()
-		if crystalcost > self.crystal then
-			return
-		end
 	end
 	self:log("debug","war",string.format("playcard,id=%d sid=%d pos=%s targetid=%s",warcard.id,warcard.sid,pos,targetid))
-	local cardcls = getclassbycardsid(warcard.sid)
-	local target
-	if warcard.targettype ~= 0 and targetid then
-		target = self:gettarget(targetid)
-		if not target then
-			return
-		end
-		if not self:isvalidtarget(warcard,target) then
-			self:log("warning","war",string.format("[invalid target] playcard,id=%d targetid=%d",warcardid,targetid))
-			return
-		end
-	end
 	if not warcard.choice then
 		self:addcrystal(-crystalcost)
 		self:removefromhand(warcard)
 	end
 	self:__playcard(warcard,pos,targetid,choice)
+end
+
+function cwarobj:donnot_putinwar(warcard)
+	if DONNOT_PUTINWAR[warcard.sid] then
+		return true
+	end
+	return false
 end
 
 function cwarobj:__playcard(warcard,pos,targetid,choice)
@@ -370,14 +401,15 @@ function cwarobj:__playcard(warcard,pos,targetid,choice)
 		else
 		end
 	elseif is_footman(warcard.type) then
-		self:putinwar(warcard,pos,"playcard")
+		-- 部分随从牌使用时无须置入战场，如：无面复制,变大王
+		if not self:donnot_putinwar(warcard) then
+			self:putinwar(warcard,pos,"playcard")
+		end
 	else
 		assert(is_weapon(warcard.type))
 		self:addweapon(warcard)
 	end
-	if warcard.onuse then
-		warcard:onuse(pos,targetid,choice)
-	end
+	warcard:execute("onuse",pos,targetid,choice)
 	local sid = warcard.type == MAGICCARD.SECRET and 0 or warcard.sid
 	warmgr.refreshwar(self.warid,self.pid,"playcard",{id=warcardid,sid=sid,pos=pos,targetid=targetid})
 	self:after_playercard(warcard,pos,targetid,choice)
@@ -509,6 +541,7 @@ function cwarobj:putinhand(id)
 	table.insert(self.handcards,warcard.id)
 	warcard.inarea = "hand"
 	warmgr.refreshwar(self.warid,self.pid,"putinhand",{id=warcard.id,sid=warcard.sid})
+	warcard:execute("onputinhand")
 	self:after_putinhand(warcard)
 	return warcard
 end
@@ -535,6 +568,7 @@ function cwarobj:removefromhand(warcard)
 		end
 		table.remove(self.handcards,pos)
 		warmgr.refreshwar(self.warid,self.pid,"removefromhand",{id=warcard.id,})
+		warcard:execute("onremovefromhand")
 		self:after_removefromhand(warcard)
 	end
 end
@@ -542,9 +576,11 @@ end
 function cwarobj:getfreespace(typ)
 	if typ == "warcard" then
 		return WAR_CARD_LIMIT - #self.warcards
-	else
-		assert(typ == "handcard")
+	elseif typ == "handcard" then
 		return HAND_CARD_LIMIT - #self.handcards
+	else
+		assert(typ == "scretcard")
+		return SECRET_CARD_LIMIT - #self.scretcards
 	end
 end
 
@@ -570,9 +606,7 @@ function cwarobj:putinwar(warcard,pos,reason)
 	table.insert(self.warcards,pos,warcard.id)
 	-- 不是从手牌置入战场的牌也需要纳入管理 
 	warmgr.refreshwar(self.warid,self.pid,"putinwar",{pos=pos,warcard=warcard:pack()})
-	if warcard.onputinwar then
-		warcard:onputinwar(pos,reason)
-	end
+	warcard:execute("onputinwar",pos,reason)
 	self:after_putinwar(warcard,pos,reason)
 	return true
 end
@@ -594,23 +628,23 @@ function cwarobj:removefromwar(warcard)
 	end
 	warcard.inarea = "graveyard"
 	table.remove(self.warcards,pos)
-	if warcard.onremovefromwar then
-		warcard:onremovefromwar()
-	end
+	warcard:execute("onremovefromwar")
 	self:after_removefromwar(warcard)
 	return true
 end
 
 function cwarobj:addsecret(warcard)
+	if self:getfreespace("secretcard") <= 0 then
+		self:destroycard(warcard.id)
+		return
+	end
 	if not self:before_addscret(warcard) then
 		return
 	end
 	self:log("debug","war",string.format("addsecret,id=%d",warcard.id))
 	warcard.inarea = "war"
 	table.insert(self.secretcards,warcard.id)
-	if warcard.onaddsecret then
-		warcard:onaddsecret()
-	end
+	warcard:execute("onaddsecret")
 	warmgr.refreshwar(self.warid,self.pid,"addsecret",{id=warcard.id,})
 	self:after_addscret(warcard)
 	return true

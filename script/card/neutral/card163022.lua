@@ -59,6 +59,8 @@ ccard163022 = class("ccard163022",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,26 @@ function ccard163022:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163022:after_playcard(warcard,pos,targetid,choice)
+	if self.inarea ~= "war" then
+		return
+	end
+	if self.id == warcard.id then
+		return
+	end
+	if not is_magiccard(warcard.type) then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(warcard) then
+		return
+	end
+	local num = ccard163022.effect.after_playcard.pickcard.num
+	for i=1,num do
+		self:pickcard_and_putinhand()
+	end
 end
 
 return ccard163022

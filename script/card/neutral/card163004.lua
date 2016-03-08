@@ -59,6 +59,8 @@ ccard163004 = class("ccard163004",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,33 @@ function ccard163004:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163004:after_playcard(warcard,pos,targetid,choice)
+	if self.inarea ~= "war" then
+		return
+	end
+	if self.id ~= warcard.id then
+		return
+	end
+	if not is_magiccard(warcard.type) then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(warcard) then
+		return
+	end
+	local costhp = ccard163004.effect.after_playcard.costhp
+	local ids = deepcopy(owner.warcards)
+	local ids2 = deepcopy(owner.enemy.warcards)
+	for i,id in ipairs(ids) do
+		local footman = owner:gettarget(id)
+		footman:addhp(-costhp,self.id)
+	end
+	for i,id in ipairs(ids2) do
+		local footman = owner:gettarget(id)
+		footman:addhp(-costhp,self.id)
+	end
 end
 
 return ccard163004

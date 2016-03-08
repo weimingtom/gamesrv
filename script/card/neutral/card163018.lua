@@ -59,6 +59,8 @@ ccard163018 = class("ccard163018",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,14 @@ function ccard163018:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163018:after_recoverhp(obj,recoverhp,srcid)
+	if self.inarea ~= "war" then
+		return
+	end
+	local buff = self:newbuff(ccard163018.effect.after_recoverhp.addbuff)
+	self:addbuff(buff)
 end
 
 return ccard163018

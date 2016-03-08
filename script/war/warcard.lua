@@ -31,6 +31,9 @@ function cwarcard:reinit()
 	self.atk = cardcls.atk
 	self.crystalcost = cardcls.crystalcost
 	self.magic_hurt_adden = cardcls.magic_hurt_adden
+	self.cure_to_hurt = cardcls.cure_to_hurt
+	self.recoverhp_multi = 1
+	self.magic_hurt_multi = 1
 	self.atkcnt = cardcls.atkcnt
 	self.baseattr = {
 		maxhp = self.maxhp,
@@ -86,6 +89,13 @@ end
 function cwarcard:addhp(value,srcid)
 	if value == 0 then
 		return 0
+	end
+	if self:hasstate("immune") then
+		return
+	end
+	if self:hasstate("shield") then
+		self:setstate("shield",0)
+		return
 	end
 	local ret
 	if value < 0 then
@@ -149,7 +159,7 @@ function cwarcard:get(halos_or_buffs,attr,startpos)
 	end
 end
 
--- 得到“增加的值”，如：addatk
+-- 得到“增加的值”，:addatk
 function cwarcard:get2(halos_or_buffs,attr,startpos)
 	startpos = startpos or 1
 	local sumval = 0
@@ -248,6 +258,39 @@ function cwarcard:getbuff(buffid)
 		if buff.bheid == buffid then
 			return buff
 		end
+	end
+end
+
+function cwarcard:updatebuff(buffid,updateattr)
+	local buff = self:getbuff(buffid)
+	if not buff then
+		return
+	end
+	for k,v in pairs(updateattr) do
+		buff[k] = v
+	end
+	local syncattrs = {}
+	for k,v in pairs(updateattr) do
+		if not self:cancompute(k) then
+		elseif self:cancoststate(k) then
+			self:setstate(k,v)
+		elseif self:isstate(k) then
+			self:setstate(k,self:recompute(k,true))
+		elseif k:sub(1,3) == "add" then
+			local attr = k:sub(3)
+			syncattrs[attr] = self:recompute(attr)
+		else
+			syncattrs[attr] = self:recompute(attr)
+		end
+	end
+	updateattr.bheid = buffid
+	warmgr.refreshwar(self.warid,self.pid,"updatebuff",{
+		id = self.id,
+		buff = updateattr,
+	})
+	-- 更新buff，只会改变一些无法消耗的属性，如：atk，crystalcost等
+	if next(syncattrs) then
+		self:set(syncattrs)
 	end
 end
 
@@ -495,7 +538,16 @@ function cwarcard:clearhaloto()
 end
 
 function cwarcard:clearhalofrom()
+	local owner = self:getowner()
+	local halofrom = self.halofrom
 	self.halofrom = {}
+	for i,halo in ipairs(halofrom) do
+		local warcard = owner:gettarget(halo.srcid)
+		warcard.haloto[self.id] = nil
+	end
+	warmgr.refreshwar(self.warid,self.pid,"clearhalofrom",{
+		id = self.id,
+	})
 end
 
 function cwarcard:clear()
@@ -635,15 +687,19 @@ function cwarcard:hasstate(state)
 	return self:getstate(state) > 0
 end
 
-function cwarcard:setstate(state,val)
-	val = val == 0 and val or val + self.roundcnt
+function cwarcard:setstate(state,newval)
+	newval = newval == 0 and newval or newval + self.roundcnt
 	local oldval = self[state] or 0
-	if val == oldval then
+	if newval == oldval then
 		return
 	end
-	if val == 0 or val > oldval then
-		self:set({state=val})
-		self:execute("onchangestate",state,oldval,val)
+	if oldval ~= newval then
+		self:set({state=newval})
+	end
+	if oldval == 0 and newval ~= 0 then
+		self:execute("onchangestate",state,oldval,newval)
+	elseif oldval ~= 0 and newval == 0 then
+		self:execute("onchangestate",state,oldval,newval)
 	end
 end
 
@@ -786,8 +842,43 @@ function cwarcard:onendround(hero)
 	self:checkstate()
 end
 
+function cwarcard:onchangestate(name,oldval,newval)
+	local owner = self:getowner()
+	if name == "assault" then
+		if oldval == 0 and newval ~= 0 then
+			if self.inarea == "war" then
+				-- 刚入场随从，获得冲锋状态后，本回合可以攻击
+				if self.enterwar_roundcnt == owner.roundcnt then
+					self:set({
+						leftatkcnt = self.atkcnt,
+					})
+				end
+			end
+		end
+	end
+end
+
+function cwarcard:onputinwar()
+	local leftatkcnt
+	-- 刚入场随从，非“冲锋”状态下无法立即攻击
+	if self:hasstate("assault") then
+		leftatkcnt = self.atkcnt
+	else
+		leftatkcnt = 0
+	end
+	self:set({
+		leftatkcnt = leftatkcnt,
+		hp = self.maxhp,
+	})
+end
+
 function cwarcard:onremovefromwar()
 	self:clearhalo()
+end
+
+function cwarcard:onputinhand()
+	self:clear()
+	self:reinit()
 end
 
 

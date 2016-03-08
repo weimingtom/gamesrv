@@ -59,6 +59,8 @@ ccard163031 = class("ccard163031",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,10 @@ function ccard163031:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163031:onputinwar(pos,reason)
+	self:set({cannotattack=true})
 end
 
 return ccard163031

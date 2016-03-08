@@ -59,6 +59,8 @@ ccard163003 = class("ccard163003",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,23 @@ function ccard163003:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163003:onendround()
+	local owner = self:getowner()
+	local ids = {}
+	for i,id in ipairs(owner.warcards) do
+		if id ~= self.id then
+			table.insert(ids,id)
+		end
+	end
+	if not next(ids) then
+		return
+	end
+	local id = randlist(ids)
+	local target = owner:gettarget(id)
+	local buff = self:newbuff(ccard163003.effect.onendround.addbuff)
+	target:addbuff(buff)
 end
 
 return ccard163003

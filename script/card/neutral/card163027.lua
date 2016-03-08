@@ -59,6 +59,8 @@ ccard163027 = class("ccard163027",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,15 @@ function ccard163027:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163027:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if not owner.hero.weapon then
+		return
+	end
+	local costhp = ccard163027.effect.onuse.costhp
+	owner.hero.weapon:addhp(-costhp,self.id)
 end
 
 return ccard163027

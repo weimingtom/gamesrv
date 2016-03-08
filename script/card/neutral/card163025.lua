@@ -59,6 +59,8 @@ ccard163025 = class("ccard163025",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,16 @@ function ccard163025:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163025:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local buff = self:newbuff({
+		addmaxhp = target.atk - target.addmaxhp,
+		addatk = target.hp - target.atk,
+	})
+	target:addbuff(buff)
 end
 
 return ccard163025

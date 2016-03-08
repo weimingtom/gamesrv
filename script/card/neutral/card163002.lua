@@ -28,7 +28,7 @@ ccard163002 = class("ccard163002",super,{
     halo = nil,
     desc = "每当你使用一张牌时,便获得+1/+1。",
     effect = {
-        onuse = {addbuff={addatk=1,addmaxhp=1,addhp=1}},
+        onuse = nil,
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -52,13 +52,15 @@ ccard163002 = class("ccard163002",super,{
         before_atttack = nil,
         after_attack = nil,
         before_playcard = nil,
-        after_playcard = nil,
+        after_playcard = {addbuff={addatk=1,addmaxhp=1,addhp=1}},
         before_putinwar = nil,
         after_putinwar = nil,
         before_removefromwar = nil,
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,21 @@ function ccard163002:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163002:after_playcard(warcard,pos,targetid,choice)
+	if self.inarea ~= "war" then
+		return
+	end
+	if self.id == warcard.id then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(warcard) then
+		return
+	end
+	local buff = self:newbuff(ccard163002.effect.after_playcard.addbuff)
+	self:addbuff(buff)
 end
 
 return ccard163002

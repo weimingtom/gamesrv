@@ -59,6 +59,8 @@ ccard143005 = class("ccard143005",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = {addbuff={addmaxhp=1,addhp=1}},
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,

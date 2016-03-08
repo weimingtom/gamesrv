@@ -59,6 +59,8 @@ ccard162001 = class("ccard162001",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,31 @@ function ccard162001:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard162001:onputinwar(pos,reason)
+	local owner = self:getowner()
+	for i,id in ipairs(owner.warcards) do
+		if id ~= self.id then
+			local footman = owner:gettarget(id)
+			if footman.type == FOOTMAN.HAIDAO then
+				self:addhaloto(footman)
+			end
+		end
+	end
+end
+
+function ccard162001:after_putinwar(footman,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
+	if self.id == footman.id then
+		return
+	end
+	if footman.type ~= FOOTMAN.HAIDAO then
+		return
+	end
+	self:addhaloto(footman)
 end
 
 return ccard162001

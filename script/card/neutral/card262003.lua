@@ -28,7 +28,7 @@ ccard262003 = class("ccard262003",super,{
     halo = nil,
     desc = "所有其他鱼人获得+2/+1。",
     effect = {
-        onuse = nil,
+        onuse = {addatk=2,addmaxhp=1,addhp=1},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -59,6 +59,8 @@ ccard262003 = class("ccard262003",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,

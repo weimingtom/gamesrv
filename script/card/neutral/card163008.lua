@@ -59,6 +59,8 @@ ccard163008 = class("ccard163008",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,22 @@ function ccard163008:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard163008:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	pos = self.pos
+	local buff = self:newbuff(ccard163008.effect.onuse.addbuff)
+	local left_id = owner.warcards[pos-1]
+	local right_id = owner.warcards[pos+1]
+	if left_id then
+		local left_target = owner:gettarget(left_id)
+		left_target:addbuff(buff)
+	end
+	if right_id then
+		local right_target = owner:gettarget(right_id)
+		right_target:addbuff(buff)
+	end
 end
 
 return ccard163008

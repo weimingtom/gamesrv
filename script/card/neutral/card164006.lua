@@ -59,6 +59,8 @@ ccard164006 = class("ccard164006",super,{
         after_removefromwar = nil,
         before_addsecret = nil,
         after_addsecret = nil,
+        before_delsecret = nil,
+        after_delsecret = nil,
         before_addweapon = nil,
         after_addweapon = nil,
         before_delweapon = nil,
@@ -90,6 +92,33 @@ function ccard164006:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard164006:onputinwar(pos,reason)
+	local owner = self:getowner()
+	for i,id in ipairs(owner.handcards) do
+		local handcard = owner:gettarget(id)
+		if is_footman(handcard) then
+			self:addhaloto(handcard)
+		end
+	end
+end
+
+function ccard164006:after_putinhand(warcard,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
+	if self.id == warcard.id then
+		return
+	end
+	if not is_footman(warcard.type) then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(warcard) then
+		return
+	end
+	self:addhaloto(warcard)
 end
 
 return ccard164006
