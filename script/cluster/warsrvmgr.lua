@@ -45,13 +45,13 @@ function warsrvmgr.allocer()
 end
 
 function warsrvmgr.onmatch(profile1,profile2)
-	profile1.enemy = nil
-	profile2.enemy = nil
+	profile1.enemy_pid = nil
+	profile2.enemy_pid = nil
 	logger.log("info","war",format("onmatch,%s -> %s",profile1,profile2))
 	profile1.state = "match"
 	profile2.state = "match"
-	profile1.enemy = profile2
-	profile2.enemy = profile1
+	profile1.enemy_pid = profile2
+	profile2.enemy_pid = profile1
 end
 
 -- 仅用于测试
@@ -60,7 +60,7 @@ function warsrvmgr.readyall()
 	for lv,profiles in pairs(warsrvmgr.lv_profiles) do
 		for i,profile in ipairs(profiles) do
 			profile.state = "ready"
-			profile.enemy = nil
+			profile.enemy_pid = nil
 		end
 	end
 end
@@ -122,8 +122,9 @@ function warsrvmgr.startwar(warsrvname,pid,warid)
 	profile.state = "startwar"
 	profile.warsrvname = warsrvname
 	profile.warid = warid
-	local enemy = profile.enemy
-	if enemy then
+	local enemy_pid = profile.enemy_pid
+	if enemy_pid then
+		local enemy = assert(warsrvmgr.getprofile(enemy_pid))
 		cluster.call(profile.srvname,"war","startwar",pid,enemy,{
 			warsrvanme = warsrvname,
 			warid = warid,
@@ -136,8 +137,8 @@ function warsrvmgr.endwar(warsrvname,pid,warid,result,stat)
 	local profile = warsrvmgr.getprofile(pid)
 	warsrvmgr.delprofile(pid)
 	profile.state = "endwar"
-	local enemy = assert(profile.enemy)
-	stat.enemy = enemy
+	local enemy_pid = assert(profile.enemy_pid)
+	stat.enemy = warsrvmgr.getprofile(enemy_pid)
 	cluster.call(profile.srvname,"war","endwar",pid,warid,result,stat)	
 end
 
