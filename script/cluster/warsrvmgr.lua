@@ -33,8 +33,10 @@ function warsrvmgr.allocer()
 				attacker = profile2
 				defenser = profile1
 			end
-			warsrvmgr.onmatch(profile1,profile2)
+			warsrvmgr.onmatch(attacker,defenser)
 			for _,warsrvname in ipairs(warsrvmgr.order_warsrv) do
+				logger.log("debug","war","createwar",warsrvname,tostring(skynet_cluster),tostring(cluster))
+
 				local ok,result = pcall(cluster.call,warsrvname,"war","createwar",attacker,defenser)
 				if ok and result then
 					break
@@ -45,13 +47,11 @@ function warsrvmgr.allocer()
 end
 
 function warsrvmgr.onmatch(profile1,profile2)
-	profile1.enemy_pid = nil
-	profile2.enemy_pid = nil
 	logger.log("info","war",format("onmatch,%s -> %s",profile1,profile2))
 	profile1.state = "match"
 	profile2.state = "match"
-	profile1.enemy_pid = profile2
-	profile2.enemy_pid = profile1
+	profile1.enemy_pid = profile2.pid
+	profile2.enemy_pid = profile1.pid
 end
 
 -- 仅用于测试
