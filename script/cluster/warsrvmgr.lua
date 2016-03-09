@@ -54,6 +54,17 @@ function warsrvmgr.onmatch(profile1,profile2)
 	profile2.enemy = profile1
 end
 
+-- 仅用于测试
+function warsrvmgr.readyall()
+	logger.log("warning","war","readyall")
+	for lv,profiles in pairs(warsrvmgr.lv_profiles) do
+		for i,profile in ipairs(profiles) do
+			profile.state = "ready"
+			profile.enemy = nil
+		end
+	end
+end
+
 
 function warsrvmgr.addprofile(profile)
 	local pid = assert(profile.pid)
