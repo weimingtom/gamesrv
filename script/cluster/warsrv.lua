@@ -24,12 +24,12 @@ function CMD.createwar(source,profile1,profile2)
 	return true
 end
 
-function CMD.query_profile(source)
+function CMD.query_stat(source)
 	assert(source == "warsrvmgr","Invalid source:" .. source)
-	local profile = {
+	local stat = {
 		num = warmgr.num,
 	}
-	return profile
+	return stat
 end
 
 function CMD.endwar(source,pid,warid)

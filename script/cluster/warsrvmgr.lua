@@ -45,6 +45,9 @@ function warsrvmgr.allocer()
 end
 
 function warsrvmgr.onmatch(profile1,profile2)
+	profile1.enemy = nil
+	profile2.enemy = nil
+	logger.log("info","war",format("onmatch,%s -> %s",profile1,profile2))
 	profile1.state = "match"
 	profile2.state = "match"
 	profile1.enemy = profile2
@@ -81,18 +84,19 @@ function warsrvmgr.checkwarsrv()
 	timer.timeout("warsrvmgr.checkwarsrv",60,warsrvmgr.checkwarsrv)
 	for srvname,_ in pairs(clustermgr.srvlist) do
 		if cserver.iswarsrv(srvname) then
-			local ok,result = pcall(cluster.call,srvname,"war","query_profile")
+			local ok,result = pcall(cluster.call,srvname,"war","query_stat")
 			if not ok then
 				skynet.error(result)
 			else
-				local profile = result
-				pprintf("srvname:%s,profile:%s",srvname,profile)
-				profile.srvname = srvname
-				warsrvmgr.warsrvs[srvname] = profile
+				local stat = result
+				pprintf("srvname:%s,stat:%s",srvname,stat)
+				stat.srvname = srvname
+				warsrvmgr.warsrvs[srvname] = stat
 			end
 		end
 	end
-	for srvname,profile in pairs(warsrvmgr.warsrvs) do
+	warsrvmgr.order_warsrv = {}
+	for srvname,stat in pairs(warsrvmgr.warsrvs) do
 		table.insert(warsrvmgr.order_warsrv,srvname)
 	end
 	table.sort(warsrvmgr.order_warsrv,function (srvname1,srvname2)
