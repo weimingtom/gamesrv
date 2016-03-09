@@ -33,7 +33,7 @@ function warsrvmgr.allocer()
 				attacker = profile2
 				defenser = profile1
 			end
-			warsrvmgr.onmatch(profile1,profile2)
+			warsrvmgr.onmatch(attacker,defenser)
 			for _,warsrvname in ipairs(warsrvmgr.order_warsrv) do
 				local ok,result = pcall(cluster.call,warsrvname,"war","createwar",attacker,defenser)
 				if ok and result then
@@ -45,8 +45,6 @@ function warsrvmgr.allocer()
 end
 
 function warsrvmgr.onmatch(profile1,profile2)
-	profile1.enemy_pid = nil
-	profile2.enemy_pid = nil
 	logger.log("info","war",format("onmatch,%s -> %s",profile1,profile2))
 	profile1.state = "match"
 	profile2.state = "match"
