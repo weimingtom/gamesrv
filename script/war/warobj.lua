@@ -30,6 +30,7 @@ function cwarobj:init(conf,warid)
 	for cardsid,num in pairs(conf.cardtable.cards) do
 		for i = 1,num do
 			local warcard = self:newwarcard(cardsid)
+			warcard.inarea = "cardlib"
 			table.insert(self.leftcards,warcard.id)
 		end
 	end
@@ -49,6 +50,11 @@ function cwarobj:init(conf,warid)
 		warid = self.warid,
 		name = self.name,
 	})
+
+	-- ai: 现在仅仅为了测试
+	self.ai = {
+		onbeginround = false,
+	}
 end
 
 
@@ -125,13 +131,15 @@ end
 
 -- 置入牌库
 function cwarobj:puttocardlib(id,israndom)
-	local card = assert(self:getcard(id),"Invalid warcardid:" .. tostring(id))
-	self:log("debug","war",string.format("puttocardlib,id=%d sid=%d",id,card.sid))
+	local warcard = assert(self:getcard(id),"Invalid warcardid:" .. tostring(id))
+	self:log("debug","war",string.format("puttocardlib,id=%d sid=%d",id,warcard.sid))
+	warcard:clear()
+	warcard:reinit()
 	local pos = #self.leftcards + 1
 	if pos ~= 1 and israndom then
 		pos = math.random(#self.leftcards)
 	end
-	local warcard = self:newwarcard(card.sid)
+	warcard.inarea = "cardlib"
 	table.insert(self.leftcards,pos,warcard.id)
 	warmgr.refreshwar(self.warid,self.pid,"puttocardlib",{id=id,})
 end
@@ -265,6 +273,43 @@ end
 function cwarobj:isenemy(target)
 	return target.pid == self.enemy.pid
 end
+
+function cwarobj:get_magic_hurt(magic_hurt)
+	-- 只有自身战场随从会影响加成
+	local magic_hurt_adden = 0	
+	for i,id in ipairs(self.warcards) do
+		local warcard = self:getcard(id)
+		magic_hurt_adden = magic_hurt_adden + warcard.magic_hurt_adden
+	end
+	-- 只有自身战场随从会影响法伤倍率
+	local magic_hurt_multi = 1
+	for i,id in ipairs(self.warcards) do
+		local warcard = self:getcard(id)
+		magic_hurt_multi = magic_hurt_multi * warcard.magic_hurt_multi
+	end
+	return (magic_hurt + magic_hurt_adden) * magic_hurt_multi
+end
+
+function cwarobj:getrecoverhp(recoverhp)
+	local recoverhp_multi = 1
+	for i,id in ipairs(self.warcards) do
+		local warcard = self:getcard(id)
+		recoverhp_multi = recoverhp_multi * warcard.recoverhp_multi
+	end
+	local ret = recoverhp * recoverhp_multi
+	return self:is_cure_to_hurt() and -ret or ret
+end
+
+function cwarcard:is_cure_to_hurt()
+	for i,id in ipairs(self.warcards) do
+		local warcard = self:getcard(id)
+		if warcard.cure_to_hurt > 0 then
+			return true
+		end
+	end
+	return false
+end
+
 
 function cwarobj:getcard(id)
 	return self.id_card[id]
@@ -517,12 +562,9 @@ function cwarobj:hero_attack_hero()
 	end
 end
 
-function cwarobj:useskill(target)
-	if self.crystal < self.hero.skillcost then
+function cwarobj:useskill(targetid)
+	if not self.hero:canuseskill(targetid) then
 		return
-	end
-	if self.hero.skillcost > 0 then
-		self:addcrystal(-self.hero.skillcost)
 	end
 	self:log("debug","war",string.format("useskill,targetid=%d",target.id))
 	self.hero:useskill(target)
@@ -703,6 +745,7 @@ function cwarobj:addcard(card)
 	local id = card.id
 	assert(self:getcard(id) == nil,"Repeat cardid:" .. tostring(id))
 	self:log("debug","war",format("addcard,id=%d data=%s",card.id,card:pack()))
+	card.inarea = "init"
 	self.id_card[id] = card
 	warmgr.refreshwar(self.warid,self.pid,"addcard",{card=card:pack(),})
 end
@@ -815,6 +858,9 @@ end
 
 function cwarobj:onbeginround()
 	self:execute("onbeginround")
+	if self.ai.onbeginround then
+		self.ai.onbeginround(self)
+	end
 end
 
 function cwarobj:onendround()

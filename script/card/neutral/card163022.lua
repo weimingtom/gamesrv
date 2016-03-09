@@ -110,7 +110,7 @@ function ccard163022:after_playcard(warcard,pos,targetid,choice)
 	end
 	local num = ccard163022.effect.after_playcard.pickcard.num
 	for i=1,num do
-		self:pickcard_and_putinhand()
+		owner:pickcard_and_putinhand()
 	end
 end
 

@@ -28,7 +28,7 @@ ccard166009 = class("ccard166009",super,{
     halo = nil,
     desc = "使一名仆从获得+5/+5效果,下一轮开始前,该仆从将被摧毁。",
     effect = {
-        onuse = {addbuff={addatk=5,addmaxhp=5,addhp=5}},
+        onuse = {addbuff={addatk=5,addmaxhp=5,addhp=5,lifecircle=2}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -92,6 +92,13 @@ function ccard166009:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard166009:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local buff = self:newbuff(ccard166009.effect.onuse.addbuff)
+	target:addbuff(buff)
 end
 
 return ccard166009

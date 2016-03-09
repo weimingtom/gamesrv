@@ -115,12 +115,8 @@ function CMD.data(agent,typ,...)
 		return
 	end
 	if typ == "REQUEST" then
-		local ok,result = pcall(onrequest,agent,...)
-		if ok then
-			skynet.ret(skynet.pack(result))
-		else
-			skynet.error(result)
-		end
+		local result = onrequest(agent,...)
+		skynet.ret(skynet.pack(result))
 	else
 		assert(typ == "RESPONSE")
 		onresponse(agent,...)
@@ -151,7 +147,7 @@ local function dispatch (session,source,typ,...)
 	if not game.initall then
 		return
 	end
-	if typ == "client" then
+	if typ == "client" then -- 客户端消息
 		local pid = 0
 		if proto.connection[source] then
 			pid = proto.connection[source].pid
@@ -160,10 +156,10 @@ local function dispatch (session,source,typ,...)
 		local cmd = ...
 		local f = proto.CMD[cmd]
 		xpcall(f,onerror,source,select(2,...))
-	elseif typ == "service" then
+	elseif typ == "service" then  -- 当前节点“其他服务”消息
 		logger.log("debug","netservice",format("[rcv] source=%s session=%d type=%s package=%s",source,session,typ,{...}))
 		xpcall(service.dispatch,onerror,session,source,...)
-	elseif typ == "cluster" then
+	elseif typ == "cluster" then  -- 其他节点（集群）消息
 		logger.log("debug","netcluster",format("[recv] source=%s session=%d type=%s package=%s",source,session,typ,{...}))
 		xpcall(cluster.dispatch,onerror,session,source,...)
 	elseif typ == "echo" then

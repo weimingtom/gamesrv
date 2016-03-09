@@ -48,16 +48,16 @@ function ccarddb:clear()
 	self.sid_cards = {}
 end
 
-function ccarddb:getcard(cardid)
-	return self.id_card[cardid]
+function ccarddb:getcard(id)
+	return self.id_card[id]
 end
 
 function ccarddb:__addcard(card)
 	assert(getracename(card.race) == self.__flag)
 	self:check_sid_cards(card.sid)
-	local cardid = card.cardid
-	assert(self.id_card[cardid] == nil,"repeat cardid:" .. tostring(cardid))
-	self.id_card[cardid] = card
+	local id = card.id
+	assert(self.id_card[id] == nil,"repeat id:" .. tostring(id))
+	self.id_card[id] = card
 	local pos = 1
 	for i,v in ipairs(self.sid_cards[card.sid]) do
 		if card:getamount() >= v:getamount() then
@@ -70,20 +70,20 @@ end
 
 -- wrapper
 function ccarddb:addcard(card,reason)
-	logger.log("info","card",string.format("%d addcard,cardid=%d sid=%d amount=%d reason=%s",self.pid,card.cardid,card.sid,card:getamount(),reason))
+	logger.log("info","card",string.format("%d addcard,id=%d sid=%d amount=%d reason=%s",self.pid,card.id,card.sid,card:getamount(),reason))
 	self:__addcard(card)
 	self:afteraddcard(card)
 end
 
 function ccarddb:delcard(card,reason)
 	assert(getracename(card.race) == self.__flag)
-	local cardid = card.cardid
-	assert(self.id_card[cardid],"not exists cardid:" .. tostring(cardid))
-	logger.log("info","card",string.format("%d delcard,cardid=%d sid=%d amount=%d reason=%s",self.pid,cardid,card.sid,card:getamount(),reason))
-	self.id_card[cardid] = nil
+	local id = card.id
+	assert(self.id_card[id],"not exists id:" .. tostring(id))
+	logger.log("info","card",string.format("%d delcard,id=%d sid=%d amount=%d reason=%s",self.pid,id,card.sid,card:getamount(),reason))
+	self.id_card[id] = nil
 	local cards = self.sid_cards[card.sid]
 	for k,v in ipairs(cards) do
-		if v.cardid == cardid then
+		if v.id == id then
 			table.remove(cards,k)
 			break
 		end
@@ -228,7 +228,7 @@ function ccarddb:getleftcards()
 	return leftcards
 end
 
-function ccarddb:usecard(cardid)
+function ccarddb:usecard(id)
 	
 end
 

@@ -94,4 +94,35 @@ function ccard166022:save()
     return data
 end
 
+function ccard166022:onendround()
+	local owner = self:getowner()
+	local hurt_ids = {}
+	if owner.hero.hp < owner.hero.maxhp then
+		table.insert(hurt_ids,owner.hero.id)
+	end
+	if owner.enemy.hero.hp < owner.enemy.hero.maxhp then
+		table.insert(hurt_ids,owner.enemy.hero.id)
+	end
+	for i,id in ipairs(owner.warcards) do
+		local footman = owner:gettarget(id)
+		if footman.hp < footman.maxhp then
+			table.insert(hurt_ids,id)
+		end
+	end
+	for i,id in ipairs(owner.enemy.warcards) do
+		local footman = owner:gettarget(id)
+		if footman.hp < footman.maxhp then
+			table.insert(hurt_ids,id)
+		end
+	end
+	if not next(hurt_ids) then
+		return
+	end
+	local id = randlist(hurt_ids)
+	local target = owner:gettarget(id)
+	local recoverhp = ccard166022.effect.onendround.recoverhp
+	recoverhp = self:getrecoverhp(recoverhp)
+	target:addhp(recoverhp,self.id)
+end
+
 return ccard166022

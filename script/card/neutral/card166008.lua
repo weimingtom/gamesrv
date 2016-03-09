@@ -94,4 +94,26 @@ function ccard166008:save()
     return data
 end
 
+function ccard166008:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local magic_hurt = ccard166008.effect.onuse.magic_hurt
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	local ids = deepcopy(owner.warcards)
+	local ids2 = deepcopy(owner.enemy.warcards)
+	for i,id in ipairs(ids2) do
+		local footman = owner:gettarget(id)
+		if footman.sid ~= 161001 and footman.sid ~= 261001 then
+			footman:addhp(-magic_hurt,self.id)	
+		end
+	end
+	for i,id in ipairs(ids) do
+		local footman = owner:gettarget(id)
+		if footman.sid ~= 161001 and footman.sid ~= 261001 then
+			footman:addhp(-magic_hurt,self.id)
+		end
+	end
+	owner.enemy.hero:addhp(-magic_hurt,self.id)
+	owner.hero:addhp(-magic_hurt,self.id)
+end
+
 return ccard166008

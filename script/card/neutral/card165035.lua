@@ -94,4 +94,11 @@ function ccard165035:save()
     return data
 end
 
+function ccard165035:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local costhp = ccard165035.effect.onuse.costhp
+	target:addhp(-costhp,self.id)
+end
+
 return ccard165035

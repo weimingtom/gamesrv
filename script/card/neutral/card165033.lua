@@ -94,4 +94,24 @@ function ccard165033:save()
     return data
 end
 
+function ccard165033:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local num = 0	
+	for i,id in ipairs(owner.warcards) do
+		if self.id ~= id then
+			num = num + 1
+		end
+	end
+	if num == 0 then
+		return
+	end
+	local buff = self:newbuff(ccard165033.effect.onuse.addbuff)
+	for k,v in pairs(buff) do
+		if k ~= "lifecircle" then
+			buff[k] = v * num
+		end
+	end
+	self:addbuff(buff)
+end
+
 return ccard165033

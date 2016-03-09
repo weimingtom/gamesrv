@@ -94,4 +94,44 @@ function ccard164033:save()
     return data
 end
 
+function ccard164033:rehaloto()
+	self:clearhaloto()
+	local pos = self.pos
+	local owner = self:getowner()
+	local left_id = owner.warcards[pos-1]
+	local right_id = owner.warcards[pos+1]
+	if left_id then
+		local left_target = owner:gettarget(left_id)
+		self:addhaloto(left_target)
+	end
+	if right_id then
+		local right_target = owner:gettarget(right_id)
+		self:addhaloto(right_target)
+	end
+end
+
+function ccard164033:onputinwar(pos,reason)
+	self:rehaloto()
+end
+
+function ccard164033:after_putinwar(footman,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
+	if math.abs(self.pos-footman.pos) ~= 1 then
+		return
+	end
+	self:rehaloto()
+end
+
+function ccard164033:after_removefromwar(footman)
+	if self.inarea ~= "war" then
+		return
+	end
+	if not self.haloto[footman.id] then
+		return
+	end
+	self:rehaloto()
+end
+
 return ccard164033

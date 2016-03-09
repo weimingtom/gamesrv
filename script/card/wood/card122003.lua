@@ -104,7 +104,11 @@ function ccard122003:onuse(pos,targetid,choice)
 		local warcard = owner:gettarget(id)
 		id_hp[id] = warcard.hp
 	end
-	alloc_hurt(magic_hurt,id_hp)
+	local id_hurt = alloc_hurt(magic_hurt,id_hp)
+	for id,hurt in pairs(id_hurt) do
+		local target = owner:gettarget(id)
+		target:addhp(-hurt,self.id)
+	end
 end
 
 return ccard122003

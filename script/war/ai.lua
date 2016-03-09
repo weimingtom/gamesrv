@@ -10,7 +10,7 @@ function ai.getcanuse_cardids(warobj)
 	local warcard
 	local canuse_cardids = {}
 	for i,id in ipairs(warobj.handcards) do
-		warcard = warobj.id_card[id]
+		warcard = warobj:getcard(id)
 		if warcard:getcrystalcost() < warobj.crystal then
 			table.insert(canuse_cardids,id)
 		end
@@ -30,7 +30,7 @@ function ai.getvalid_targets(warobj,warcard,isfriendly)
 		table.insert(valid_targets,obj.hero.id)
 	end
 	for i,id in ipairs(obj.warcards) do
-		local card = obj.id_card[id]
+		local card = obj:getcard(id)
 		if warobj:isvalidtarget(warcard,card) then
 			table.insert(valid_targets,card.id)
 		end
@@ -38,7 +38,7 @@ function ai.getvalid_targets(warobj,warcard,isfriendly)
 	return valid_targets
 end
 
-function ai.onbeginround(warobj,roundcnt)
+function ai.onbeginround(warobj)
 	local warid = warobj.warid
 	-- useskill
 	if not warmgr.isgameover(warid) and ishit(30,100) then
@@ -55,7 +55,7 @@ function ai.onbeginround(warobj,roundcnt)
 			break
 		end
 		local id = randlist(canuse_cardids)
-		local warcard = warobj.id_card[id]
+		local warcard = warobj:getcard(id)
 		local targetid
 		if warcard.targettype ~= 0 then
 			local friendly_targets = ai.getvalid_targets(warobj,warcard,true)
@@ -96,23 +96,26 @@ function ai.onbeginround(warobj,roundcnt)
 		if warmgr.isgameover(warid) then
 			break
 		end
-		local valid_targets = {}
-		if warobj:canattack(warobj.enemy.hero) then
-			table.insert(valid_targets,warobj.enemy.hero.id)
-		end
-		for i,id in ipairs(warobj.enemy.warcards) do
-			local warcard = warobj.enemy.id_card[id]
-			if warobj:canattack(warcard) then
-				table.insert(valid_targets,id)
+		local attacker = warobj:gettarget(attackerid)
+		if attacker:canattack() then
+			local valid_targets = {}
+			if warobj:canattack(warobj.enemy.hero) then
+				table.insert(valid_targets,warobj.enemy.hero.id)
 			end
-		end
-		if #valid_targets > 0 then
-			local defenserid = randlist(valid_targets)
-			warobj:launchattack(attackerid,defenserid)
+			for i,id in ipairs(warobj.enemy.warcards) do
+				local warcard = warobj.enemy:getcard(id)
+				if warobj:canattack(warcard) then
+					table.insert(valid_targets,id)
+				end
+			end
+			if #valid_targets > 0 then
+				local defenserid = randlist(valid_targets)
+				warobj:launchattack(attackerid,defenserid)
+			end
 		end
 	end
 	if not warmgr.isgameover(warid) then
-		warobj:endround(roundcnt)
+		warobj:endround(warobj.roundcnt)
 	end
 end
 

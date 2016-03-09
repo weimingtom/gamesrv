@@ -94,4 +94,16 @@ function ccard165037:save()
     return data
 end
 
+function ccard165037:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local recoverhp = ccard165037.effect.onuse.recoverhp
+	recoverhp = self:getrecoverhp(recoverhp)
+	local ids = deepcopy(owner.warcards)
+	for i,id in ipairs(ids) do
+		local footman = owner:gettarget(id)
+		footman:addhp(recoverhp,self.id)
+	end
+	owner.hero:addhp(recoverhp,self.id)
+end
+
 return ccard165037

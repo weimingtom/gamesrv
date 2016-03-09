@@ -499,9 +499,10 @@ function cplayer:doing(what)
 	end
 end
 
-function cplayer:pack_fight_profile()
+function cplayer:pack_fight_profile(wartype)
+	local mode = WarType[wartype]
 	local cardtableid = assert(self:query("fight.cardtableid"))
-	local cardtable = self.cardtablelib:getcardtable(cardtableid,0)
+	local cardtable = self.cardtablelib:getcardtable(cardtableid,mode)
 	
 	return {
 		pid = self.pid,

@@ -882,6 +882,18 @@ function table.isempty(tbl)
 	return not next(tbl)
 end
 
+function table.extend(tbl1,tbl2)
+	for i,v in ipairs(tbl2) do
+		table.insert(tbl1,v)
+	end
+end
+
+function table.update(tbl1,tbl2)
+	for k,v in pairs(tbl2) do
+		tbl1[k] = v
+	end
+end
+
 -- 扩展string
 function string.rtrim(str)
 	return string.gsub(str,"^[ \t\n\r]+","")

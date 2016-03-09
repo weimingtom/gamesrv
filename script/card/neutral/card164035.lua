@@ -94,4 +94,24 @@ function ccard164035:save()
     return data
 end
 
+function ccard164035:after_die(warcard)
+	if self.inarea ~= "war" then
+		return
+	end
+	if self.id == warcard.id then
+		return
+	end
+	if not is_footman(warcard.type) then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(warcard) then
+		return
+	end
+	local num = ccard164035.effect.after_die.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
 return ccard164035

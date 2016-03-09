@@ -94,4 +94,9 @@ function ccard165029:save()
     return data
 end
 
+function ccard165029:onhurt(hurtval,srcid)
+	local buff = self:newbuff(ccard165029.effect.onhurt.addbuff)
+	self:addbuff(buff)
+end
+
 return ccard165029

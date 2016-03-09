@@ -54,10 +54,10 @@ local function test(pid1,pid2,race,ratios,num)
 	cluster.call(warsrvname,"modmethod","war.ai",".inject_ai",warid,pid1)
 	cluster.call(warsrvname,"modmethod","war.ai",".inject_ai",warid,pid2)
 	netwar.REQUEST.confirm_handcard(player1,{
-		poslist = {},
+		ids = {},
 	})	
 	netwar.REQUEST.confirm_handcard(player2,{
-		poslist = {},
+		ids = {},
 	})	
 
 

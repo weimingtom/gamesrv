@@ -94,4 +94,25 @@ function ccard164019:save()
     return data
 end
 
+function ccard164019:onchangestate(name,oldval,newval)
+	if self.inarea ~= "war" then
+		return
+	end
+	if name ~= "enrange" then
+		return
+	end
+	if oldval == 0 and newval ~= 0 then
+		local buff = self:newbuff({
+			addatk = 1,
+			atkcnt = 2,
+		})
+		self.enrange_buffid = self:addbuff(buff)
+	elseif oldval ~= 0 and newval == 0 then
+		if self.enrange_buffid then
+			self:delbuff(self.enrange_buffid)
+			self.enrange_buffid = nil
+		end
+	end
+end
+
 return ccard164019

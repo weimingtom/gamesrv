@@ -94,4 +94,13 @@ function ccard166024:save()
     return data
 end
 
+function ccard166024:onbeginround()
+	local owner = self:getowner()
+	self:die()
+	local num = ccard166024.effect.onbeginround.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
 return ccard166024

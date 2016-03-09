@@ -94,4 +94,24 @@ function ccard166016:save()
     return data
 end
 
+function ccard166016:onuse()
+	local owner = self:getowner()
+	local num = randlist({3,4,5})
+	num = math.min(num,owner:getfreespace("warcard"))
+	local cards = getcards("1/1的鱼",function (cardcls)
+		if is_footman(cardcls.type) and cardcls.type == FOOTMAN.FISH then
+			if cardcls.maxhp == 1 and cardcls.atk == 1 then
+				return true
+			end
+		end
+		return false
+	end)
+	for i=1,num do
+		local sid = randlist(cards)
+		local footman = owner:newwarcard(sid)
+		owner:putinwar(footman)
+	end
+end
+
+
 return ccard166016

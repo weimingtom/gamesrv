@@ -94,4 +94,18 @@ function ccard164039:save()
     return data
 end
 
+function ccard164039:after_die(warcard)
+	if self.inarea ~= "war" then
+		return
+	end
+	if not is_footman(warcard.type) then
+		return
+	end
+	if self.id == warcard.id then
+		return
+	end
+	local buff = self:newbuff(ccard164039.effect.after_die.addbuff)
+	self:addbuff(buff)
+end
+
 return ccard164039

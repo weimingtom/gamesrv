@@ -1,5 +1,4 @@
 
-
 function getclassbycardsid(sid)
 	require "script.card.cardmodule"
 	return cardmodule[sid]
@@ -30,93 +29,42 @@ end
 
 
 function getqualitybysid(sid)
-	-- 1--橙;2--紫;3--蓝;4--白
-	return math.floor(sid / 100) % 10
+	-- 1--橙;2--紫;3--蓝;4--白;5--基本卡;6--生成卡
+	return math.floor(sid / 1000) % 10
 end
 
 
-function isprettycard(sid)
-	return math.floor(sid / 10000) == 2
-end
 
 function isopencard(sid)
 	-- 幸运币
-	if sid == 16100 or sid == 26100 then
+	if sid == 161000 or sid == 261000 then
 		return false
 	end
-	return math.floor(sid / 100) % 10 ~= 6
+	return math.floor(sid / 1000) % 10 ~= 6
 end
 
-local __racecard
-function getracecard()
-	if __racecard then
-		return __racecard
-	end
-	require "script.card.cardmodule"
-	__racecard = {}
-	local race
-	for sid,cardcls in pairs(cardmodule) do
-		race = cardcls.race
-		if not __racecard[race] then
-			__racecard[race] = {}
-		end
-		if isopencard(sid) then
-			table.insert(__racecard[race],sid)
-		end
-	end
-	return __racecard
+function is_footman(type)
+	return math.floor(type/100) == 2
 end
 
-local __classified_card
-function getclassifiedcard()
-	if __classified_card then
-		return __classified_card
-	end
-	require "script.card.cardmodule"
-	__classified_card = {}
-	local quality,ispretty
-	for sid,cardcls in pairs(cardmodule) do
-		quality = getqualitybysid(sid)
-		ispretty = isprettycard(sid)
-		if not __classified_card[quality] then
-			__classified_card[quality] = {}
-		end
-		if not __classified_card[quality][ispretty] then
-			__classified_card[quality][ispretty] = {}
-		end
-		table.insert(__classified_card[quality][ispretty],sid)
-	end
-	pprintf("__classified_card:%s",__classified_card)
-	return __classified_card
+function is_magiccard(type)
+	return math.floor(type/100) == 1
 end
 
-local ratio = {[1] = 100,[2] = 400,[3] = 1000,[4] = 3500,[5] = 2000,[6] = 0,[21] = 25,[22] = 100,[23] = 250,[24] = 875,[25] = 500,[26] = 0,}
-local __ratiotable
-local function getratiotable()
-	if __ratiotable then
-		return __ratiotable
-	end
-	local classified_card = getclassifiedcard()
-	local typs ={}
-	for quality,v in pairs(classified_card) do
-		for ispretty,v1 in pairs(v) do
-			print(ispretty,quality)
-			typ = quality
-			if ispretty then
-				typ = 20 + quality
-			end
-			typs[typ] = v1
-		end
-	end
-	__ratiotable = {}
-	for typ,sids in pairs(typs) do
-		__ratiotable[sids] = assert(ratio[typ],"Invalid type:" .. tostring(typ))
-	end
-	pprintf("__ratiotable:%s",__ratiotable)
-	--logger.log("info","test",format("__ratiotable:%s",__ratiotable))
-	return __ratiotable
+function is_weapon(type)
+	return math.floor(type/100) == 3
 end
 
+function is_goldcard(sid)
+	return sid >= 200000
+end
+
+
+--/*
+--随机取若干牌
+--@param integer cnt :取牌个数
+--@param integer limit :相同牌最多出现个数，默认不受限制
+--*/
 function randomcard(cnt,limit)
 	cnt = cnt or 5
 	limit = limit or cnt
@@ -141,140 +89,91 @@ function randomcard(cnt,limit)
 	return ret
 end
 
-function random_racecard(race)
-	local racecard = getracecard()
-	racecard = racecard[race]
-	return randlist(racecard)
+local randomcard_ratio = {[1] = 100,[2] = 400,[3] = 1000,[4] = 3500,[5] = 2000,[6] = 0,[21] = 25,[22] = 100,[23] = 250,[24] = 875,[25] = 500,[26] = 0,}
+
+function randomcard(cnt,limit)
+	cnt = cnt or 5
+	limit = limit or cnt
+	limit = math.min(limit,cnt)
+	local ratiotable = getratiotable()
+	local ret = {}
+	local limits = {}
+	while true do
+		local gold_quality = choosekey(randomcard_ratio)
+		local name = string.format("品质:%s",gold_quality)
+		local sids = getcards(name,function (cardcls)
+			local gold,quality = math.floor(gold_quality / 10),gold_quality % 10
+			isgold = gold == 2 and true or false
+			if is_goldcard(cardcls.sid) == isgold and getqualitybysid(cardcls.sid) == quality then
+				return true
+			end
+			return false
+		end)
+		local sid = randlist(sids)
+		if not limits[sid] then
+			limits[sid] = 0
+		end
+		limits[sid] = limits[sid] + 1
+		if limits[sid] <= limit then
+			table.insert(ret,sid)
+		end
+		if #ret == cnt then
+			break
+		end
+	end
+	return ret
 end
 
--- 随机一副牌库
+function random_racecard(race)
+	local name = string.format("种族:%s",race)
+	local sids = getcards(name,function (cardcls)
+		if cardcls.race == race then
+			return true
+		end
+		return false
+	end)
+	return randlist(sids)
+end
+
+--/*
+--随机一副牌库
+--@param table ratios : 概率表，键为种族，值为概率
+--@param integer num  : 总共随机出牌的数量
+--*/
 function randomcardtable(ratios,num)
 	local ret = {}
 	for i = 1,num do
 		local race = choosekey(ratios)
-		local racecard = getracecard()
-		racecard = racecard[race]
-		local cardsid = randlist(racecard)
-		table.insert(ret,cardsid)
+		local sid = random_racecard(race)
+		table.insert(ret,sid)
 	end
 	return ret
+end
+
+--/*
+--获取指定类别所有卡牌
+--*/
+local name_cards = name_cards or {}
+function getcards(name,condition)
+	require "script.card.cardmodule"
+	local cards = name_cards[name]	
+	if cards then
+		return cards
+	end
+	assert(condition)
+	cards = {}
+	for sid,cardcls in pairs(cardmodule) do
+		if condition(cardcls) then
+			table.insert(cards,sid)
+		end
+	end
+	name_cards[name] = cards
+	return cards
 end
 
 
 waraux = {}
 function waraux.init()
-	require "script.card.cardmodule"
-	waraux.magiccard = {}
-	waraux.footmancard = {}
-	waraux.weaponcard = {}
-	waraux.fishcard = {}
-	waraux.animalcard = {}
-	waraux.piratecard = {}
-	waraux.secretcard = {}
-	for sid,cardcls in pairs(cardmodule) do
-		if is_footman(cardcls.type) then
-			table.insert(waraux.footmancard,sid)
-			if is_fish_footman(cardcls.type) then
-				table.insert(waraux.fishcard,sid)
-			elseif is_animal_footman(cardcls.type) then
-				table.insert(waraux.animalcard,sid)
-			elseif is_pirate_footman(cardcls.type) then
-				table.insert(waraux.piratecard,sid)
-			end	
-		elseif is_magiccard(cardcls.type) then
-			table.insert(waraux.magiccard,sid)
-			if cardcls.secret then
-				table.insert(waraux.secretcard,sid)
-			end
-		elseif is_weapon(cardcls.type) then
-			table.insert(waraux.weaponcard,sid)
-		else
-			assert("Invalid card,sid:" .. tostring(sid))
-		end
-	end
-end
-
-
-local function gettargets(targettypes,referto_id)
-	local war = warmgr.getwar(self.warid)
-	local owner = war:getowner(referto_id)
-	local targets = {}
-	for targettype in string.gmatch("([^;]+)") do
-		local obj = owner
-		for k in string.match("([^.]+)") do
-			if k ~= "self" then
-				obj = obj[k]	
-			end
-		end
-		assert(obj,"Invalid targettype:" .. tostring(targettype))
-		table.insert(targets,obj)
-	end
-	return targets
-end
-
-local valid_event = {
-	onhurt = true,
-	ondie = true,
-	onattack = true,
-	ondefense = true,
-	onadd = true,
-	ondel = true,
-}
-
-local function isevent(event)
-	return valid_event[event]
-end
-
-local valid_condition = {
-	freeze = true,
-	unfreeze = true,
-	hurt = true,
-	unhurt = true,
-	sneer = true,
-	unsneer = true,
-	dblatk = true,
-	undblatk = true,
-	sneak = true,
-	unsneak = true,
-}
-
-local function iscondition(condition)
-	return valid_condtion[condtion]
-end
-
-function is_animal_footman(type)
-	if is_footman(type) then
-		return type % 10 == 2
-	end
-end
-
-function is_fish_footman(type)
-	if is_footman(type) then
-		return type % 10 == 3
-	end
-end
-
-function is_pirate_footman(type)
-	if is_footman(type) then
-		return type % 10 == 4
-	end
-end
-
-
-function is_footman(type)
-	return math.floor(type/100) == 2
-end
-
-function is_magiccard(type)
-	return math.floor(type/100) == 1
-end
-
-function is_weapon(type)
-	return math.floor(type/100) == 3
-end
-
-function is_goldcard(sid)
-	return sid >= 200000
 end
 
 MAGICCARD = {
@@ -294,45 +193,6 @@ FOOTMAN = {
 	JIXIE = 205,
 	DIJI = 206,
 }
-
-function register(obj,type,warcardid)
-	local tbl = obj
-	for k in string.gmatch(type,"([^.]+)") do
-		tbl = assert(tbl[k],"Invalid register type:" .. tostring(type))
-	end
-	table.insert(tbl,warcardid)
-end
-
-function unregister(obj,type,warcardid)
-	local tbl = obj
-	for k in string.gmatch(type,"([^.]+)") do
-		tbl = assert(tbl[k],"Invalid unregister type:" .. tostring(type))
-	end
-	for pos,id in ipairs(tbl) do
-		if id == warcardid then
-			table.remove(tbl,pos)
-			break
-		end
-	end
-end
-
-
-IGNORE_NONE = 0
-IGNORE_LATER_EVENT = 1
-IGNORE_ALL_LATER_EVENT = 2
-IGNORE_ACTION = 1
-
-function EVENTRESULT(field1,field2)
-	return field1 * 10 + field2
-end
-
-function EVENTRESULT_FIELD1(eventresult)
-	return math.floor(eventresult / 10)
-end
-
-function EVENTRESULT_FIELD2(eventresult)
-	return eventresult % 10
-end
 
 -- targettype
 TARGETTYPE_SELF_HERO = 1
@@ -392,6 +252,16 @@ ATTACKER_HERO_ID = 1
 DEFENSER_HERO_ID = 2
 CARD_MIN_ID = 100
 CARD_MAX_ID = 1000
+
+CARDTABLE_MODE_NORMAL = 1
+CARDTABLE_MODE_NOLIMIT = 2
+CARDTABLE_MODE_ARENA = 3
+
+WarType = {
+	fight = CARDTABLE_MODE_NORMAL, -- 对战模式
+	yule = CARDTABLE_MODE_NOLIMIT, -- 娱乐模式 
+	arena = CARDTABLE_MODE_ARENA, -- 竞技场
+}
 
 function togoldsidif(sid,isgold)
 	return isgold and sid + 100000 or sid

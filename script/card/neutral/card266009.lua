@@ -28,7 +28,7 @@ ccard266009 = class("ccard266009",super,{
     halo = nil,
     desc = "使一名仆从获得+5/+5效果,下一轮开始前,该仆从将被摧毁。",
     effect = {
-        onuse = {addbuff={addatk=5,addmaxhp=5,addhp=5}},
+        onuse = {addbuff={addatk=5,addmaxhp=5,addhp=5,lifecircle=2}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

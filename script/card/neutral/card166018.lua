@@ -94,4 +94,20 @@ function ccard166018:save()
     return data
 end
 
+function ccard166018:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local cards = getcards("部落勇士",function (cardcls)
+		if cardcls.race == RACE_WATER then
+			if is_footman(cardcls.type) then
+				return true
+			end
+		end
+		return false
+	end)
+	local sid = randlist(cards)
+	local footman = owner:newwarcard(sid)
+	owner:putinwar(footman)
+
+end
+
 return ccard166018

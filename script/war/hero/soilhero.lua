@@ -8,10 +8,17 @@ function csoilhero:init(conf)
 	chero.init(self,conf)
 end
 
-function csoilhero:useskill(target)
+function csoilhero:canuseskill(targetid)
+	if not chero.canuseskill(self,targetid) then
+		return false
+	end
+	return true
+end
+
+function csoilhero:useskill(targetid)
+	chero.useskill(self,targetid)
 	self:adddef(1)
 	self:addatk(1)
-	chero.useskill(self,target)
 end
 
 return csoilhero

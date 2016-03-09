@@ -9,12 +9,22 @@ function cwoodhero:init(conf)
 	chero.init(self,conf)
 end
 
-function cwoodhero:useskill(target)
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local warcard = warobj:newwarcard(12602)
-	warobj:putinwar(warcard)
-	chero.useskill(self,target)
+function cwoodhero:canuseskill(targetid)
+	if not chero.canuseskill(self,targetid) then
+		return false
+	end
+	local owner = self:getowner()
+	if owner:getfreespace("warcard") <= 0 then
+		return false
+	end
+	return true
+end
+
+function cwoodhero:useskill(targetid)
+	chero.useskill(self,targetid)
+	local owner = self:getowner()
+	local warcard = owner:newwarcard(12602)
+	owner:putinwar(warcard)
 end
 
 return cwoodhero

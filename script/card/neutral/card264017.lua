@@ -30,7 +30,7 @@ ccard264017 = class("ccard264017",super,{
     effect = {
         onuse = nil,
         ondie = nil,
-        onhurt = nil,
+        onhurt = {pickcard={num=1}},
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,

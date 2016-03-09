@@ -94,4 +94,12 @@ function ccard165032:save()
     return data
 end
 
+function ccard165032:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local num = ccard165032.effect.onuse.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
 return ccard165032

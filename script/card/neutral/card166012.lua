@@ -94,4 +94,13 @@ function ccard166012:save()
     return data
 end
 
+function ccard166012:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local footman = owner:gettarget(targetid)
+	local footman_owner = footman:getowner()
+	if footman_owner:removefromwar(footman) then
+		footman_owner:putinhand(footman.id)
+	end
+end
+
 return ccard166012

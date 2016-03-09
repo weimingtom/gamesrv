@@ -94,4 +94,10 @@ function ccard165019:save()
     return data
 end
 
+function ccard165019:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	target:silence()
+end
+
 return ccard165019

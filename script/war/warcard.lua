@@ -9,7 +9,7 @@ function cwarcard:init(conf)
 	self.birthday = assert(conf.birthday)
 	self.pos = nil
 	self.bsilence = nil
-	self.inarea = "cardlib"
+	self.inarea = "init"
 	self.halo = {}
 	self.haloto = {} -- 光环收益对象:{[id]=true}
 	self.halofrom = {}
@@ -39,6 +39,7 @@ function cwarcard:reinit()
 		maxhp = self.maxhp,
 		atk = self.atk,
 		crystalcost = self.crystalcost,
+		atkcnt = self.atkcnt,
 	}
 end
 
@@ -146,6 +147,19 @@ function cwarcard:getowner(id)
 	else
 		assert(card.pid == war.defenser.pid)
 		return war.defenser
+	end
+end
+
+function cwarcard:setowner(owner)
+	local self_owner = self:getowner()
+	if self_owner.pid == owner.pid then
+		return
+	end
+	local card = self_owner:getcard(self.id)
+	if card then
+		card.pid = owner.pid
+		self_owner:delcard(self.id,"setowner")
+		owner:addcard(card)
 	end
 end
 
@@ -705,31 +719,15 @@ end
 
 function cwarcard:get_magic_hurt(magic_hurt)
 	local owner = self:getowner()
-	-- 只有自身战场随从会影响加成
-	local magic_hurt_adden = 0	
-	for i,id in ipairs(owner.warcards) do
-		local warcard = owner.id_card[id]
-		magic_hurt_adden = magic_hurt_adden + warcard.magic_hurt_adden
-	end
-	-- 只有自身战场随从会影响法伤倍率
-	local magic_hurt_multi = 1
-	for i,id in ipairs(owner.warcards) do
-		local warcard = owner.id_card[id]
-		magic_hurt_multi = magic_hurt_multi * warcard.magic_hurt_multi
-	end
-	return (magic_hurt + magic_hurt_adden) * magic_hurt_multi
+	return owner:get_magic_hurt(magic_hurt)
 end
 
 function cwarcard:getrecoverhp(recoverhp)
 	-- 只有自身战场随从会影响倍率
 	local owner = self:getowner()
-	local recoverhp_multi = 1
-	for i,id in ipairs(owner.warcards) do
-		local warcard = owner.id_card[id]
-		recoverhp_multi = recoverhp_multi * warcard.recoverhp_multi
-	end
-	return recoverhp * recoverhp_multi
+	return owner:getrecoverhp(recoverhp)
 end
+
 
 function cwarcard:getatk()
 	return self.atk

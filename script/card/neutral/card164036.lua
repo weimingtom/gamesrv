@@ -94,4 +94,15 @@ function ccard164036:save()
     return data
 end
 
+function ccard164036:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if not owner.hero.weapon then
+		return
+	end
+	local buff = self:newbuff({
+		addatk = owner.hero.weapon.atk,
+	})
+	self:addbuff(buff)
+end
+
 return ccard164036

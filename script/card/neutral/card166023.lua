@@ -32,7 +32,7 @@ ccard166023 = class("ccard166023",super,{
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
-        onbeginround = nil,
+        onbeginround = {addfootman={sid=163030}},
         onendround = nil,
         ondelsecret = nil,
         onputinwar = nil,
@@ -92,6 +92,28 @@ function ccard166023:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard166023:onbeginround()
+	local owner = self:getowner()
+	local ids = deepcopy(owner.enemy.warcards)
+	for i,id in ipairs(owner.warcards) do
+		if self.id ~= id then
+			table.insert(ids,id)
+		end
+	end
+	if not next(ids) then
+		return
+	end
+	local id = randlist(ids)
+	local target = owner:gettarget(id)
+	local target_owner = target:getowner()
+	if target_owner:removefromwar(target) then
+		local sid = ccard166023.effect.onbeginround.addfootman.sid
+		sid = togoldsidif(sid,is_goldcard(self.sid))
+		local footman = target_owner:newwarcard(sid)
+		target_owner:putinwar(footman,target.pos)
+	end
 end
 
 return ccard166023

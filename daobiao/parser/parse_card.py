@@ -209,7 +209,11 @@ return ccard%d
             linefmt = cfg["inherit_head1"] + cfg["linefmt"]
         elif sid / 100000 == 2:
             linefmt = cfg["inherit_head2"] % (gettypename(sid),sid - 100000) + cfg["linefmt"]
-        data = linefmt % line
+        try:
+            data = linefmt % line
+        except Exception,e:
+            print("[ERROR] [sheetname=%s row=%d]\n%s" % (sheet_name,row,str(e)))
+            return
         filename = os.path.join(dstpath,filename_pat % sid)
         parser.write(filename,data)
         require_list.append(require_pat % sid)

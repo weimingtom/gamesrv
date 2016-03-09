@@ -6,20 +6,20 @@ cwaterhero = class("cwaterhero",chero,{
 
 function cwaterhero:init(conf)
 	chero.init(self,conf)
-	self.cure_multiple = 1
 end
 
-function cwaterhero:set_cure_multiple(value)
-	logger.log("debug","war",string.format("[warid=%d] #%d hero.set_cure_multiple %d",self.warid,self.pid,value))
-	warmgr.refreshwar(self.warid,self.pid,"set_hero_cure_mutiple",{value=value,})
+function cwaterhero:canuseskill(targetid)
+	if not chero.canuseskill(self,targetid) then
+		return false
+	end
+	return true
 end
 
-function cwaterhero:useskill(target)
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	local recoverhp = warobj:getrecoverhp(2) * self.cure_multiple
+function cwaterhero:useskill(targetid)
+	chero.useskill(self,targetid)
+	local owner = self:getowner()
+	local recoverhp = owner:getrecoverhp(2)
 	target:addhp(recoverhp,self.id)
-	chero.useskill(self,target)
 end
 
 return cwaterhero

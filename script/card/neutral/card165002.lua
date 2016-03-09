@@ -94,4 +94,12 @@ function ccard165002:save()
     return data
 end
 
+function ccard165002:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local recoverhp = ccard165002.effect.onuse.recoverhp
+	recoverhp = self:getrecoverhp(recoverhp)
+	target:addhp(recoverhp,self.id)
+end
+
 return ccard165002

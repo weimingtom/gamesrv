@@ -107,7 +107,7 @@ function ccard135002:onuse(pos,targetid,choice)
 		warcard:addhp(-magic_hurt,self.id)
 	end
 	owner.enemy.hero:addhp(-magic_hurt,self.id)
-	for i,id in ipairs(ids1) do
+	for i,id in ipairs(ids) do
 		local warcard = owner:gettarget(id)
 		warcard:addhp(recoverhp,self.id)
 	end

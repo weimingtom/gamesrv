@@ -8,11 +8,17 @@ function cfirehero:init(conf)
 	chero.init(self,conf)
 end
 
-function cfirehero:useskill(target)
-	local war = warmgr.getwar(self.warid)
-	local warobj = war:getwarobj(self.pid)
-	warobj.enemy.hero:addhp(-2,self.id)
-	chero.useskill(self,target)
+function cfirehero:canuseskill(targetid)
+	if not chero.canuseskill(self,targetid) then
+		return false
+	end
+	return true
+end
+
+function cfirehero:useskill(targetid)
+	chero.useskill(self,targetid)
+	local owner = self:getowner()
+	owner.enemy.hero:addhp(-2,self.id)
 end
 
 return cfirehero

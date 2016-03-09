@@ -28,6 +28,7 @@ function cwar:init(profile1,profile2)
 	self.warid = genwarid()
 	self.cardid = CARD_MIN_ID
 	self.inorder = 0 -- 随从置入战场顺序
+	profile1.isattacker = true
 	self.attacker = cwarobj.new(profile1,self.warid)
 	self.defenser = cwarobj.new(profile2,self.warid)
 	self.attacker.enemy = self.defenser

@@ -30,7 +30,7 @@ ccard164017 = class("ccard164017",super,{
     effect = {
         onuse = nil,
         ondie = nil,
-        onhurt = nil,
+        onhurt = {pickcard={num=1}},
         onrecorverhp = nil,
         onbeginround = nil,
         onendround = nil,
@@ -92,6 +92,14 @@ function ccard164017:save()
     data.data = super.save(self)
     -- todo: save data
     return data
+end
+
+function ccard164017:onhurt(hurtval,srcid)
+	local owner = self:getowner()
+	local num = ccard164017.effect.onhurt.pickcard.num
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
 end
 
 return ccard164017

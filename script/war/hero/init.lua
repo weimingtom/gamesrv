@@ -23,6 +23,7 @@ function chero:init(conf)
 	self.leftatkcnt = 0
 	self.weapon = nil
 	self.anyin = 0 -- 0:非暗影形态，1--暗影形态，2--高级暗影形态（英雄技能造成3点伤害)
+	self.useskillcnt = 0
 end
 
 function chero:canattack()
@@ -255,7 +256,18 @@ function chero:addweapon(weapon)
 	owner:after_addweapon(weapon)
 end
 
+function chero:canuseskill(targetid)
+	local owner = self:getowner()
+	if self.skillcost > owner.crystal then
+		return false
+	end
+	return true
+end
+
 function chero:useskill(targetid)
+	local owner = self:getowner()
+	owner:addcrystal(-self.skillcost)
+	self.useskillcnt = self.useskillcnt + 1
 end
 
 function chero:onbeginround()

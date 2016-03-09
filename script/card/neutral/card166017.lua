@@ -94,4 +94,16 @@ function ccard166017:save()
     return data
 end
 
+function ccard166017:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local magic_hurt = ccard166017.effect.onuse.magic_hurt
+	local num = ccard166017.effect.onuse.pickcard.num
+	magic_hurt = self:get_magic_hurt(magic_hurt)
+	target:addhp(-magic_hurt,self.id)
+	for i=1,num do
+		owner:pickcard_and_putinhand()
+	end
+end
+
 return ccard166017

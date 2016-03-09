@@ -94,4 +94,12 @@ function ccard164034:save()
     return data
 end
 
+function ccard164034:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
+	local buff = self:newbuff(ccard164034.effect.onuse.addbuff)
+	target:addbuff(buff)
+end
+
+
 return ccard164034

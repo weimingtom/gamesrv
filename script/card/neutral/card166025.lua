@@ -94,4 +94,17 @@ function ccard166025:save()
     return data
 end
 
+function ccard166025:onendround()
+	local owner = self:getowner()
+	local ids = deepcopy(owner.warcards)
+	table.extend(ids,owner.enemy.warcards)
+	if table.isempty(ids) then
+		return
+	end
+	local id = randlist(ids)
+	local footman = owner:gettarget(id)
+	local buff = self:newbuff(ccard166025.effect.onendround.addbuff)
+	footman:addbuff(buff)
+end
+
 return ccard166025

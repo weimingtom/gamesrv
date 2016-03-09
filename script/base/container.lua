@@ -24,8 +24,9 @@ function ccontainer:load(data,loadfunc)
 		return
 	end
 	self.objid = data.objid
+	local objs = data.objs or {}
 	local len = 0
-	for id,objdata in pairs(data.objs) do
+	for id,objdata in pairs(objs) do
 		id = tonumber(id)
 		local obj = loadfunc and loadfunc(objdata) or objdata
 		self.objs[id] = obj

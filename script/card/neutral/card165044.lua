@@ -94,4 +94,12 @@ function ccard165044:save()
     return data
 end
 
+function ccard165044:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	if not owner.enemy.hero.weapon then
+		return
+	end
+	owner.enemy:delweapon()
+end
+
 return ccard165044

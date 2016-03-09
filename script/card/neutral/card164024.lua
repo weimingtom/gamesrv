@@ -94,4 +94,10 @@ function ccard164024:save()
     return data
 end
 
+function ccard164024:ondie()
+	local owner = self:getowner()
+	local costhp = ccard164024.effect.ondie.costhp
+	owner.enemy.hero:addhp(-costhp,self.id)
+end
+
 return ccard164024

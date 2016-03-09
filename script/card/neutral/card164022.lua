@@ -94,4 +94,27 @@ function ccard164022:save()
     return data
 end
 
+function ccard164022:onuse(pos,targetid,choice)
+	local owner = self:getowner()
+	local costhp = ccard164022.effect.onuse.costhp
+	local id_hp = {}
+	id_hp[owner.hero.id] = owner.hero.hp
+	for i,id in ipairs(self.warcards) do
+		if self.id ~= id then
+			local warcard = owner:gettarget(id)
+			id_hp[id] = warcard.hp
+		end
+	end
+	id_hp[owner.enemy.hero.id] = owner.enemy.hero.hp
+	for i,id in ipairs(self.warcards) do
+		local warcard = owner:gettarget(id)
+		id_hp[id] = warcard.hp
+	end
+	local id_hurt = alloc_hurt(costhp,id_hp)	
+	for id,hurt in pairs(id_hurt) do
+		local target = owner:gettarget(id)
+		target:addhp(-hurt,self.id)
+	end
+end
+
 return ccard164022

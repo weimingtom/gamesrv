@@ -94,4 +94,33 @@ function ccard165030:save()
     return data
 end
 
+function ccard165030:onputinwar(pos,reason)
+	local owner = self:getowner()
+	for i,id in ipairs(owner.warcards) do
+		if self.id ~= id then
+			local footman = owner:gettarget(id)
+			if footman.type == FOOTMAN.FISH then
+				self:addhaloto(footman)
+			end
+		end
+	end
+end
+
+function ccard165030:after_putinwar(footman,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
+	if self.id == footman.id then
+		return
+	end
+	if footman.type ~= FOOTMAN.FISH then
+		return
+	end
+	local owner = self:getowner()
+	if owner:isenemy(footman) then
+		return
+	end
+	self:addhaloto(footman)
+end
+
 return ccard165030
