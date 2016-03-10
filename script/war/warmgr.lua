@@ -48,12 +48,22 @@ function warmgr.endwar(warid,result)
 	end
 end
 
+function warmgr.check_endwar(warid)
+	local war = warmgr.getwar(warid)
+	if not war then
+		return
+	end
+	if war:check_endwar() then
+		warmgr.delwar(warid)
+	end
+end
+
 function warmgr.isgameover(warid)
 	local war = warmgr.getwar(warid)
-	if war and war.state ~= "endwar" then
-		return false
+	if not war or war.state == "endwar" then
+		return true
 	end
-	return true
+	return false
 end
 
 function warmgr.clear()

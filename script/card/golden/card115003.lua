@@ -102,9 +102,9 @@ function ccard115003:onuse(pos,targetid,choice)
 	local id_hp = {}
 	for i,id in ipairs(owner.enemy.warcards) do
 		local warcard = owner:gettarget(id)
-		id_hp[id] = warcard:gethp()
+		id_hp[id] = warcard.hp
 	end
-	id_hp[id] = owner.enemy.hero:gethp()
+	id_hp[owner.enemy.hero.id] = owner.enemy.hero.hp
 	local id_hurt = alloc_hurt(magic_hurt,id_hp)
 	for id,hurt in pairs(id_hurt) do
 		local target = owner:gettarget(id)

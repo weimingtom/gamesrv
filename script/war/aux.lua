@@ -215,10 +215,6 @@ WARRESULT_LOSE = -1
 WARRESULT_TIE = 0
 WARRESULT_WIN = 1
 
-YES = 1
-NO = 0
-
-MAX_ROUND = 60 -- 最大回合数
 
 VALID_STATE = {
 	magic_immune = true,
@@ -227,7 +223,7 @@ VALID_STATE = {
 	shield = true,
 	sneak = true,
 	immune = true,
-	freeeze = true,
+	freeze = true,
 	enrange = true,
 }
 
@@ -252,6 +248,8 @@ ATTACKER_HERO_ID = 1
 DEFENSER_HERO_ID = 2
 CARD_MIN_ID = 100
 CARD_MAX_ID = 1000
+
+MAX_ROUNDCNT = 80 --每局最大持续80回合
 
 CARDTABLE_MODE_NORMAL = 1
 CARDTABLE_MODE_NOLIMIT = 2

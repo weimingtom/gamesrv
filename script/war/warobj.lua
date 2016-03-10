@@ -42,6 +42,7 @@ function cwarobj:init(conf,warid)
 		id = heroid,
 		pid = self.pid,
 		warid = self.warid,
+		srvname = self.srvname,
 		race = conf.cardtable.race,
 	})
 
@@ -211,18 +212,6 @@ function cwarobj:lookcards_confirm(id)
 	end
 end
 
-
-function cwarobj:endwar(result,stat)
-	local war = warmgr.getwar(self.warid)
-	local isattacker = war.attacker.pid == self.pid
-	if not isattacker then
-		if result == WARRESULT_WIN then
-			result = WARRESULT_LOSE
-		end
-	end
-	war:endwar(result,stat)
-end
-
 function cwarobj:beginround()
 	self.roundcnt = self.roundcnt + 1
 	self:log("debug","war",string.format("beginround,roundcnt=%d",self.roundcnt))
@@ -234,8 +223,6 @@ function cwarobj:beginround()
 		self:addemptycrystal(1)
 	end
 	self:setcrystal(self.emptycrystal-self.lockcrystal)
-	
-	self:onbeginround()
 	-- 抽卡
 	local war = warmgr.getwar(self.warid)
 	if self.roundcnt == 1 and self.type == "attacker" then
@@ -244,6 +231,8 @@ function cwarobj:beginround()
 	end
 	self:pickcard_and_putinhand()
 	war:s2csync()
+	-- 放到抽卡后
+	self:onbeginround()
 end
 
 function cwarobj:pickcard_and_putinhand(id)
@@ -261,7 +250,7 @@ function cwarobj:endround(roundcnt)
 	assert(roundcnt == self.roundcnt)
 	self:log("debug","war",string.format("endround,roundcnt=%d",roundcnt))
 	if self.state ~= "beginround" then
-		self:log("warning","war",string.format("[non-begin round] endround,rondcnt=%d",roundcnt))
+		self:log("warning","war",string.format("[non-begin round] endround,roundcnt=%d",roundcnt))
 		return
 	end
 	self.state = "endround"
@@ -271,7 +260,10 @@ function cwarobj:endround(roundcnt)
 	self:onendround()
 	local war = warmgr.getwar(self.warid)
 	war:s2csync()
-	self.enemy:beginround()
+	warmgr.check_endwar(self.warid)
+	if not warmgr.isgameover(self.warid) then
+		self.enemy:beginround()
+	end
 end
 
 function cwarobj:ishero(target)
@@ -380,7 +372,7 @@ function cwarobj:canplaycard(warcard,pos,targetid,choice)
 		return false
 	end
 	if not warcard.choice then
-		local crystalcost = warcard:getcrystalcost()
+		local crystalcost = warcard.crystalcost
 		if crystalcost > self.crystal then
 			return false
 		end
@@ -417,12 +409,12 @@ function cwarobj:playcard(warcardid,pos,targetid,choice)
 		self:log("warning","war",string.format("[non-exist card] playcard,id=%s",warcardid))
 		return
 	end
-	if self:canplaycard(warcard,pos,targetid,choice) then
+	if not self:canplaycard(warcard,pos,targetid,choice) then
 		return
 	end
 	self:log("debug","war",string.format("playcard,id=%d sid=%d pos=%s targetid=%s",warcard.id,warcard.sid,pos,targetid))
 	if not warcard.choice then
-		self:addcrystal(-crystalcost)
+		self:addcrystal(-warcard.crystalcost)
 		self:removefromhand(warcard)
 	end
 	self:__playcard(warcard,pos,targetid,choice)
@@ -436,7 +428,7 @@ function cwarobj:donnot_putinwar(warcard)
 end
 
 function cwarobj:__playcard(warcard,pos,targetid,choice)
-	if not self:before_playcard(warcard,pos,targetid,choice) then
+	if not self:execute("before_playcard",warcard,pos,targetid,choice) then
 		return
 	end
 	if choice then
@@ -464,14 +456,14 @@ function cwarobj:__playcard(warcard,pos,targetid,choice)
 	warcard:execute("onuse",pos,targetid,choice)
 	local sid = warcard.type == MAGICCARD.SECRET and 0 or warcard.sid
 	warmgr.refreshwar(self.warid,self.pid,"playcard",{id=warcardid,sid=sid,pos=pos,targetid=targetid})
-	self:after_playercard(warcard,pos,targetid,choice)
+	self:execute("after_playercard",warcard,pos,targetid,choice)
 end
 
 function cwarobj:canattack(target)
 	if not self:isenemy(target) then
 		return false
 	end
-	if target:has("immnue") or target:has("sneak") then
+	if target:hasstate("immnue") or target:hasstate("sneak") then
 		return false
 	end
 	local enemy = self.enemy
@@ -479,7 +471,7 @@ function cwarobj:canattack(target)
 	local sneer_footmans = {}
 	for _,id in ipairs(enemy.warcards) do
 		local card = enemy:getcard(id)
-		if card:has("sneer") then
+		if card:hasstate("sneer") then
 			sneer_footmans[id] = true
 		end
 	end
@@ -509,7 +501,7 @@ function cwarobj:launchattack(attackerid,defenserid)
 end
 
 function cwarobj:__launchattack(attacker,defenser)
-	if not self:before_attack(attacker,defenser) then
+	if not self:execute("before_attack",attacker,defenser) then
 		return
 	end
 	self:log("debug","war",string.format("launchattack,id=%d,targetid=%d",attacker.id,defenser.id))
@@ -526,7 +518,7 @@ function cwarobj:__launchattack(attacker,defenser)
 			self:footman_attack_footman(attacker,defenser)
 		end
 	end
-	self:after_attack(attacker,defenser)
+	self:execute("after_attack",attacker,defenser)
 end
 
 function cwarobj:footman_attack_hero(warcard)
@@ -573,17 +565,16 @@ function cwarobj:useskill(targetid)
 	if not self.hero:canuseskill(targetid) then
 		return
 	end
-	self:log("debug","war",string.format("useskill,targetid=%d",target.id))
-	self.hero:useskill(target)
+	self.hero:useskill(targetid)
 end
 
 function cwarobj:putinhand(id)
 	local warcard = self:getcard(id)
-	if self:getfreespace("hancard") <= 0 then
+	if self:getfreespace("handcard") <= 0 then
 		self:destroycard(id)
 		return
 	end
-	if not self:before_putinhand(warcard) then
+	if not self:execute("before_putinhand",warcard) then
 		return
 	end
 	self:log("debug","war",string.format("putinhand,id=%d sid=%d",warcard.id,warcard.sid))
@@ -591,7 +582,7 @@ function cwarobj:putinhand(id)
 	warcard.inarea = "hand"
 	warmgr.refreshwar(self.warid,self.pid,"putinhand",{id=warcard.id,sid=warcard.sid})
 	warcard:execute("onputinhand")
-	self:after_putinhand(warcard)
+	self:execute("after_putinhand",warcard)
 	return warcard
 end
 
@@ -612,13 +603,13 @@ function cwarobj:removefromhand(warcard)
 		end
 	end
 	if pos then
-		if not self:before_removefromhand(warcard) then
+		if not self:execute("before_removefromhand",warcard) then
 			return
 		end
 		table.remove(self.handcards,pos)
 		warmgr.refreshwar(self.warid,self.pid,"removefromhand",{id=warcard.id,})
 		warcard:execute("onremovefromhand")
-		self:after_removefromhand(warcard)
+		self:execute("after_removefromhand",warcard)
 	end
 end
 
@@ -628,8 +619,8 @@ function cwarobj:getfreespace(typ)
 	elseif typ == "handcard" then
 		return HAND_CARD_LIMIT - #self.handcards
 	else
-		assert(typ == "scretcard")
-		return SECRET_CARD_LIMIT - #self.scretcards
+		assert(typ == "secretcard")
+		return SECRET_CARD_LIMIT - #self.secretcards
 	end
 end
 
@@ -641,11 +632,12 @@ function cwarobj:putinwar(warcard,pos,reason)
 		self:destroycard(warcard.id)
 		return
 	end
-	if not self:before_putinwar(warcard,pos,reason) then
+	if not self:execute("before_putinwar",warcard,pos,reason) then
 		return
 	end
 	self:log("debug","war",string.format("putinwar,id=%d,sid=%d,pos=%d",warcard.id,warcard.sid,pos,reason))
 	warcard.inarea = "war"
+	local num = #self.warcards
 	for i = pos,num do
 		local id = self.warcards[i]
 		local card = self:getcard(id)
@@ -656,16 +648,16 @@ function cwarobj:putinwar(warcard,pos,reason)
 	-- 不是从手牌置入战场的牌也需要纳入管理 
 	warmgr.refreshwar(self.warid,self.pid,"putinwar",{pos=pos,warcard=warcard:pack()})
 	warcard:execute("onputinwar",pos,reason)
-	self:after_putinwar(warcard,pos,reason)
+	self:execute("after_putinwar",warcard,pos,reason)
 	return true
 end
 
 cwarobj.addfootman = cwarobj.putinwar
 
 function cwarobj:removefromwar(warcard)
-	assert(warcard.inarea == "war")
+	assert(warcard.inarea == "war" or warcard.inarea == "graveyard")
 	local pos = assert(warcard.pos)
-	if not self:before_removefromwar(warcard) then
+	if not self:execute("before_removefromwar",warcard) then
 		return
 	end
 	self:log("debug","war",string.format("removefromwar,id=%d,sid=%d,pos=%d",warcard.id,warcard.sid,pos))
@@ -678,7 +670,7 @@ function cwarobj:removefromwar(warcard)
 	warcard.inarea = "graveyard"
 	table.remove(self.warcards,pos)
 	warcard:execute("onremovefromwar")
-	self:after_removefromwar(warcard)
+	self:execute("after_removefromwar",warcard)
 	return true
 end
 
@@ -687,7 +679,7 @@ function cwarobj:addsecret(warcard)
 		self:destroycard(warcard.id)
 		return
 	end
-	if not self:before_addscret(warcard) then
+	if not self:execute("before_addsecret",warcard) then
 		return
 	end
 	self:log("debug","war",string.format("addsecret,id=%d",warcard.id))
@@ -695,7 +687,7 @@ function cwarobj:addsecret(warcard)
 	table.insert(self.secretcards,warcard.id)
 	warcard:execute("onaddsecret")
 	warmgr.refreshwar(self.warid,self.pid,"addsecret",{id=warcard.id,})
-	self:after_addscret(warcard)
+	self:execute("after_addsecret",warcard)
 	return true
 end
 
@@ -704,17 +696,15 @@ function cwarobj:delsecret(warcardid,reason)
 	local warcard = assert(self:getcard(warcardid))
 	for pos,id in ipairs(self.secretcards) do
 		if id == warcardid then
-			if not self:before_delsecret(warcard,reason) then
+			if not self:execute("before_delsecret",warcard,reason) then
 				return
 			end
 			self:log("debug","war",string.format("delsecret,id=%d reason=%s",warcardid,reason))
 			warcard.inarea = "graveyard"
 			table.remove(self.secretcards,pos)
-			if warcard.ondelsecret then
-				warcard:ondelsecret(reason)
-			end
+			warcard:execute("ondelsecret",reason)
 			warmgr.refreshwar(self.warid,self.pid,"delsecret",{id=warcardid,sid=warcard.sid})
-			self:after_delsecret(warcard,reason)
+			self:execute("after_delsecret",warcard,reason)
 			break
 		end
 	end
@@ -792,7 +782,7 @@ function cwarobj:addlockcrystal(value)
 	warmgr.refreshwar(self.warid,self.pid,"sync",{lockcrystal=self.lockcrystal})
 end
 
-function cwarobj:execute(cmd,...)
+function cwarobj:__execute(cmd,...)
 	local noexec_later_action = false
 	-- TODO: 优化：牌库应该无须遍历
 	-- 自身牌库
@@ -850,12 +840,16 @@ function cwarobj:execute(cmd,...)
 	return false,noexec_later_action
 end
 
-function cwarobj:execute2(cmd,...)
-	local ignore_later_event,ignore_later_action = self:execute(cmd,...)
+function cwarobj:execute(cmd,...)
+	local func = self[cmd]
+	if func then
+		func(self,cmd)
+	end
+	local ignore_later_event,ignore_later_action = self:__execute(cmd,...)
 	if ignore_later_event then
 		return not ignore_later_action
 	else
-		ignore_later_event,ignore_later_action = self.enemy:execute(cmd,...)
+		ignore_later_event,ignore_later_action = self.enemy:__execute(cmd,...)
 		return not ignore_later_action
 	end
 end
@@ -864,7 +858,7 @@ end
 -- 事件
 
 function cwarobj:onbeginround()
-	self:execute("onbeginround")
+	self:__execute("onbeginround")
 	if self.ai.onbeginround then
 		self.ai.onbeginround(self)
 	end
@@ -872,96 +866,7 @@ end
 
 function cwarobj:onendround()
 	self.lookcards = nil
-	self:execute("onendround")
-end
-
-function cwarobj:before_playcard(warcard,pos,targetid,choice)
-	return self:execute2("before_playcard",warcard,pos,targetid,choice)
-end
-
-function cwarobj:after_playcard(warcard,pos,targetid,choice)
-	return self:execute2("after_playcard",warcard,pos,targetid,choice)
-end
-
-function cwarobj:before_attack(attacker,defenser)
-	return self:execute2("before_attack",attacker,defenser)
-end
-
-function cwarobj:after_attack(attacker,defenser)
-	return self:execute2("after_attack",attacker,defenser)
-end
-
-function cwarobj:before_useskill(hero,target)
-	return self:execute2("before_useskill",hero,target)
-end
-
-function cwarobj:after_useskill(hero,target)
-	return self:execute2("after_useskill",hero,target)
-end
-
-function cwarobj:before_putinhand(warcard)
-	return self:execute2("before_putinhand",warcard)
-end
-
-function cwarobj:after_putinhand(warcard)
-	return self:execute2("after_putinhand",warcard)
-end
-
-function cwarobj:before_removefromhand(warcard)
-	return self:execute2("before_removefromhand",warcard)
-end
-
-function cwarobj:after_removefromhand(warcard)
-	return self:execute2("after_removefromhand",warcard)
-end
-
-
-function cwarobj:before_putinwar(warcard)
-	return self:execute2("before_putinwar",warcard)
-end
-
-function cwarobj:after_putinwar(warcard)
-	return self:execute2("after_putinwar",warcard)
-end
-
-function cwarobj:before_removefromwar(warcard)
-	return self:execute2("before_removefromwar",warcard)
-end
-
-function cwarobj:after_removefromwar(warcard)
-	return self:execute2("after_removefromwar",warcard)
-end
-
-function cwarobj:before_addsecret(warcard)
-	return self:execute2("before_addscret",warcard)
-end
-
-function cwarobj:after_addsecret(warcard)
-	return self:execute2("after_addscret",warcard)
-end
-
-function cwarobj:before_delscret(warcard,reason)
-	return self:execute2("before_delscret",warcard,reason)
-end
-
-function cwarobj:after_delscret(warcard,reason)
-	return self:execute2("after_delscret",warcard,reason)
-end
-
-function cwarobj:before_addweapon(weapon)
-	return self:execute2("before_addweapon",weapon)
-end
-
-function cwarobj:after_addweapon(weapon)
-	return self:execute2("after_addweapon",weapon)
-end
-
-function cwarobj:before_delweapon(weapon)
-	return self:execute2("before_delweapon",weapon)	
-end
-
-function cwarobj:after_delweapon(weapon)
-	return self:execute2("after_delweapon",weapon)
+	self:__execute("onendround")
 end
 
 

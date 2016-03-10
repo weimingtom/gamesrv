@@ -50,7 +50,11 @@ function CMD.giveupwar(source,request)
 		return
 	end
 	local warobj = war:getwarobj(pid)
-	warobj:endwar(WAR_RESULT_LOSE)
+	local result = warobj.pid == war.attacker.pid and WARRESULT_LOSE or WARRESULT_WIN
+	warmgr.endwar(warid,result)
+	--warobj.giveupwar = true
+	--warmgr.check_endwar(warid)
+
 end
 
 function CMD.confirm_handcard(source,request)
@@ -77,6 +81,7 @@ function CMD.confirm_handcard(source,request)
 		end
 		war:s2csync()
 	end
+	warmgr.check_endwar(warid)
 end
 
 function CMD.endround(source,request)
@@ -91,9 +96,10 @@ function CMD.endround(source,request)
 	if warobj.state ~= "beginround" then
 		return
 	end
-local roundcnt = assert(request.roundcnt)
-	-- endround will call war:s2csync()
+	local roundcnt = assert(request.roundcnt)
+	-- endround will call war:s2csync(),and maybe endwar
 	warobj:endround(roundcnt)
+	warmgr.check_endwar(warid)
 end
 
 function CMD.playcard(source,request)
@@ -109,12 +115,13 @@ function CMD.playcard(source,request)
 	if warobj.state ~= "beginround" then
 		return
 	end
-local id = assert(request.id)
+	local id = assert(request.id)
 	local pos = request.pos
 	local targetid = request.targetid
 	local choice = request.choice
 	warobj:playcard(id,pos,targetid,choice)
 	war:s2csync()
+	warmgr.check_endwar(warid)
 end
 
 function CMD.launchattack(source,request)
@@ -133,6 +140,7 @@ function CMD.launchattack(source,request)
 local id = assert(request.id)
 	local targetid = assert(request.targetid)
 	war:s2csync()
+	warmgr.check_endwar(warid)
 end
 
 function CMD.useskill(source,request)
@@ -150,6 +158,7 @@ function CMD.useskill(source,request)
 	local targetid = request.targetid
 	warobj:useskill(targetid)
 	war:s2csync()
+	warmgr.check_endwar(warid)
 end
 
 function CMD.lookcards_confirm(source,request)
@@ -167,6 +176,7 @@ function CMD.lookcards_confirm(source,request)
 	local pos = assert(request.pos)
 	warobj:lookcards_confirm(pos)
 	war:s2csync()
+	warmgr.check_endwar(warid)
 end
 
 function CMD.playcard(source,request)
@@ -186,11 +196,13 @@ function CMD.playcard(source,request)
 	local targetid = request.targetid
 	local choice = request.choice
 	warobj:playcard(id,pos,targetid,choice)
+	warmgr.check_endwar(warid)
 end
 
 function CMD.disconnect(source,request)
 	local warid = assert(request.warid)
 	local pid = assert(request.pid)
+	warmgr.check_endwar(warid)
 end
 
 function warsrv.dispatch(source,cmd,...)

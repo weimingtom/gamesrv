@@ -13,6 +13,7 @@ function chero:init(conf)
 	self.id = conf.id
 	self.pid = conf.pid
 	self.warid = conf.warid
+	self.srvname = conf.srvname
 	self.race = conf.race
 	self.name = conf.name
 	self.maxhp = conf.maxhp or 30
@@ -26,6 +27,13 @@ function chero:init(conf)
 	self.anyin = 0 -- 0:非暗影形态，1--暗影形态，2--高级暗影形态（英雄技能造成3点伤害)
 	self.useskillcnt = 0
 end
+
+function chero:log(loglevel,filename,...)
+	local msg = table.concat({...},"\t")
+	msg = string.format("[warid=%d pid=%d srvname=%s] %s",self.warid,self.pid,self.srvname,msg)
+	logger.log(loglevel,filename,msg)
+end
+
 
 function chero:canattack()
 	if self:has("freeze") then
@@ -50,14 +58,12 @@ function cwarcard:addleftatkcnt(addval)
 	})
 end
 
-function chero:getowner(id)
-	id = id or self.id
+function chero:getowner()
 	local war = warmgr.getwar(self.warid)
-	local card = self:gettarget(id)
-	if card.pid == war.attacker.pid then
+	if self.pid == war.attacker.pid then
 		return war.attacker
 	else
-		assert(card.pid == war.defenser.pid)
+		assert(self.pid == war.defenser.pid)
 		return war.defenser
 	end
 end
@@ -75,44 +81,46 @@ function chero:isstate(state)
 	return VALID_STATE[state]
 end
 
-function chero:getstate(state)
+function chero:getstate(name)
 	local owner = self:getowner()
-	local attr = "hero_" .. state
+	local attr = "hero_" .. name
 	for i,id in ipairs(owner.warcards) do
 		local warcard = owner:gettarget(id)
 		if warcard[attr] and warcard[attr] > 0 then
 			return warcard[attr]
 		end
 	end
-	return self[state]
+	return self[name]
 end
 
-function chero:hasstate(state)
-	local state = self:getstate(state) or 0
+function chero:hasstate(name)
+	local state = self:getstate(name) or 0
 	return state > 0
 end
 
-function chero:setstate(state,val)
-	val = val == 0 and val or val + self.roundcnt
-	local oldval = self[state] or 0
+function chero:setstate(name,val)
+	local owner = self:getowner()
+	val = val == 0 and val or val + owner.roundcnt
+	local oldval = self[name] or 0
 	if val == oldval then
 		return
 	end
 	if val == 0 or val > oldval then
-		self[state] = val
+		self[name] = val
 		warmgr.refreshwar(self.warid,self.pid,"updatehero",{
 			id = self.id,
-			[state] = val,
+			[name] = val,
 		})
 	end
 end
 
 function chero:checkstate()
+	local owner = self:getowner()
 	local updateattrs = {}
 	for k,_ in pairs(VALID_STATE) do
 		local exceedround = self[k]
 		if exceedround then
-			if exceedround ~= 0 and exceedround <= self.roundcnt then
+			if exceedround ~= 0 and exceedround <= owner.roundcnt then
 				self[k] = 0
 				updateattrs[k] = self[k]
 			end
@@ -189,14 +197,11 @@ end
 function chero:costhp(value,srcid)
 	assert(value > 0)
 	local owner = self:getowner()
-	if not owner:before_hurt(self,value,srcid) then
+	if not owner:execute("before_hurt",self,value,srcid) then
 		return 0
 	end
 	self.hp = math.max(0,self.hp-value)
-	if self.hp <= 0 then
-		self:die()
-	end
-	owner:after_hurt(self,value,srcid)
+	owner:execute("after_hurt",self,value,srcid)
 	return value
 end
 
@@ -205,11 +210,11 @@ function chero:recoverhp(value,srcid)
 	local recoverhp = math.min(value,self.maxhp-self.hp)
 	if recoverhp > 0 then
 		local owner = self:getowner()
-		if not owner:before_recoverhp(self,recoverhp,srcid) then
+		if not owner:execute("before_recoverhp",self,recoverhp,srcid) then
 			return 0
 		end
 		self.hp = self.hp + recoverhp
-		owner:after_recoverhp(self,recoverhp,srcid)
+		owner:execute("after_recoverhp",self,recoverhp,srcid)
 	end
 	return recoverhp
 end
@@ -235,13 +240,13 @@ function chero:delweapon()
 	local weapon = self.weapon
 	if weapon then
 		local owner = self:getowner()
-		if not owner:before_delweapon(weapon) then
+		if not owner:execute("delweapon",weapon) then
 			return
 		end
 		local weapon = self.weapon
 		self.weapon = nil
 		weapon:die()
-		owner:after_delweapon(weapon)
+		owner:execute("after_delweapon",weapon)
 	end
 end
 
@@ -250,11 +255,11 @@ function chero:addweapon(weapon)
 		self:delweapon()
 	end
 	local owner = self:getowner()
-	if not owner:before_addweapon(weapon) then
+	if not owner:execute("addweapon",weapon) then
 		return
 	end
 	self.weapon = weapon
-	owner:after_addweapon(weapon)
+	owner:execute("after_addweapon",weapon)
 end
 
 function chero:canuseskill(targetid)
@@ -266,6 +271,7 @@ function chero:canuseskill(targetid)
 end
 
 function chero:useskill(targetid)
+	self:log("debug","war",string.format("useskill,targetid=%s",targetid))
 	local owner = self:getowner()
 	owner:addcrystal(-self.skillcost)
 	self.useskillcnt = self.useskillcnt + 1
@@ -294,7 +300,7 @@ end
 function chero:execute(cmd,...)
 	local func = self[cmd]
 	if func then
-		return func(...)
+		return func(self,...)
 	end
 end
 
