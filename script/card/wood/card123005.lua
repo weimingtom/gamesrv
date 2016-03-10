@@ -28,7 +28,7 @@ ccard123005 = class("ccard123005",super,{
     halo = nil,
     desc = "战吼：使一个敌方随从的攻击力变为1。",
     effect = {
-        onuse = {addbuff={setatk=1}},
+        onuse = {addbuff={atk=1}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

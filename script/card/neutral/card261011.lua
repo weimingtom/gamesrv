@@ -28,7 +28,7 @@ ccard261011 = class("ccard261011",super,{
     halo = nil,
     desc = "战吼：下个回合敌方法术的法力值消耗为（0）点。",
     effect = {
-        onuse = {addbuff={setcrystalcost=0,lifecircle=2}},
+        onuse = {addbuff={crystalcost=0,lifecircle=2}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,
@@ -66,7 +66,7 @@ ccard261011 = class("ccard261011",super,{
         before_delweapon = nil,
         after_delweapon = nil,
         before_putinhand = nil,
-        after_putinhand = {addbuff={setcrystalcost=0,lifecircle=1}},
+        after_putinhand = {addbuff={crystalcost=0,lifecircle=1}},
         before_removefromhand = nil,
         after_removefromhand = nil,
     },

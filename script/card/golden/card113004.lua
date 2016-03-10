@@ -28,7 +28,7 @@ ccard113004 = class("ccard113004",super,{
     halo = nil,
     desc = "战吼：在本回合中你使用的下一个奥秘的法力值消耗为0",
     effect = {
-        onuse = {addbuff={setcrystalcost=0,lifecircle=1}},
+        onuse = {addbuff={crystalcost=0,lifecircle=1}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

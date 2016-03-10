@@ -36,7 +36,7 @@ local function test(pid1,pid2,race,ratios,num)
 	netwar.REQUEST.unsearch_opponent(player1,{
 		type = "fight",
 	})
-	netwar.REQUEST.unsearch_oppponent(player2,{
+	netwar.REQUEST.unsearch_opponent(player2,{
 		type = "fight",
 	})
 

@@ -28,7 +28,7 @@ ccard123002 = class("ccard123002",super,{
     halo = nil,
     desc = "将所有随从的生命值变为1。",
     effect = {
-        onuse = {addbuff={setmaxhp=1}},
+        onuse = {addbuff={maxhp=1}},
         ondie = nil,
         onhurt = nil,
         onrecorverhp = nil,

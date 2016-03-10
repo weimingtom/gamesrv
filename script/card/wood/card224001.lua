@@ -54,7 +54,7 @@ ccard224001 = class("ccard224001",super,{
         before_playcard = nil,
         after_playcard = nil,
         before_putinwar = nil,
-        after_putinwar = {addbuff={setmaxhp=1}},
+        after_putinwar = {addbuff={maxhp=1}},
         before_removefromwar = nil,
         after_removefromwar = nil,
         before_addsecret = nil,
