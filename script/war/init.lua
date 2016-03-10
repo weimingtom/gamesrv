@@ -26,6 +26,7 @@ function cwar:init(attacker,defenser)
 	})
 	self.data = {}
 	self.source = nil -- 战斗管理服名(createwar后设置)
+	self.createtime = os.time()
 	self.warid = genwarid()
 	self.cardid = CARD_MIN_ID
 	self.inorder = 0 -- 随从置入战场顺序
@@ -124,6 +125,19 @@ function cwar:getwarobj(pid)
 	end
 end
 
+function cwar:getowner(id)
+	local card = self.attacker:getcard(id)
+	if not card then
+		card = self.defenser:getcard(id)
+	end
+	if card.pid == self.attacker.pid then
+		return self.attacker
+	else
+		assert(card.pid == self.defenser.pid)
+		return self.defenser
+	end
+end
+
 function cwar:startwar()
 	local msg = string.format("[warid=%d] startwar,attacker=(pid=%s name=%s srvname=%s) defenser=(pid=%s name=%s srvname=%s)",self.warid,self.attacker.pid,self.attacker.name,self.attacker.srvname,self.defenser.pid,self.defenser.name,self.defenser.srvname)
 	logger.log("info","war",msg)
@@ -143,8 +157,9 @@ function cwar:startwar()
 	self.defenser:ready_handcard()
 end
 
-function cwar:endwar(result,stat)
-	stat = stat or {}
+function cwar:endwar(result)
+	-- 战斗统计信息
+	local stat =  {}
 	local attacker_result,defenser_result
 	if result == WARRESULT_WIN then
 		attacker_result = WARRESULT_WIN
@@ -175,6 +190,43 @@ function cwar:endwar(result,stat)
 		result = defenser_result,
 		stat = stat.defenser,
 	})
+end
+
+--/*
+--检查战斗是否结束(每个动作执行完后检查战斗是否结束)
+--@return boolean :true--战斗可以结束，false--战斗尚未结束
+--*/
+function cwar:check_endwar()
+	if self.attacker.giveupwar then
+		self:endwar(WARRESULT_LOSE)
+		return true
+	end
+	if self.defenser.giveupwar then
+		self:endwar(WARRESULT_WIN)
+		return true
+	end
+	if self.attacker.hero.hp <= 0 then
+		if self.defenser.hero.hp <= 0 then
+			self:endwar(WARRESULT_TIE)
+			return true
+		else
+			self:endwar(WARRESULT_LOSE)
+			return true
+		end
+	elseif self.defenser.hero.hp <= 0 then
+		self:endwar(WARRESULT_WIN)
+		return true
+	end
+	if self.attacker.roundcnt > MAX_ROUNDCNT then
+		self:endwar(WARRESULT_TIE)
+		return true
+	end
+	local now = os.time()
+	if now - self.createtime > HOUR_SECS then
+		self:endwar(WARRESULT_TIE)
+		return true
+	end
+	return false
 end
 
 return cwar

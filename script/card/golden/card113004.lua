@@ -98,7 +98,7 @@ function ccard113004:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	for i,id in ipairs(owner.handcards) do
 		local warcard = owner:gettarget(id)
-		if is_secretcard(warcard.type) then
+		if warcard.type == MAGICCARD.SECRET then
 			local buff = self:newbuff(ccard113004.effect.onuse.addbuff)
 			warcard:addbuff(buff)
 		end
@@ -126,7 +126,7 @@ function ccard113004:after_playcard(warcard,pos,targetid,choice)
 	if isfirst_playcard then
 		for i,id in ipairs(owner.handcards) do
 			local handcard = owner:gettarget(id)
-			if is_secretcard(handcard.type) then
+			if handcard.type == MAGICCARD.SECRET then
 				handcard:delbuffbysrcid(self.id)
 			end
 		end

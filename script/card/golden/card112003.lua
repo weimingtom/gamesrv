@@ -105,13 +105,21 @@ function ccard112003:before_playcard(warcard,pos,targetid,choice)
 	if not owner:isenemy(warcard) then
 		return
 	end
+	if not targetid then
+		return
+	end
+	local target = owner:gettarget(targetid)
+	if owner:ishero(target) then
+		return
+	end
 	if owner:getfreespace("warcard") <= 0 then
 		return
 	end
+	owner:delsecret(self.id,"trigger")
 	local sid = ccard112003.effect.before_playcard.addfootman.sid
 	local footman = owner:newwarcard(sid)
 	owner:putinwar(footman)
-	owner:__playcard(warcard,pos,footman.id,choice)	
+	warcard:getowner():__playcard(warcard,pos,footman.id,choice)	
 	return true,true
 end
 

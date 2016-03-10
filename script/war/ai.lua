@@ -11,7 +11,7 @@ function ai.getcanuse_cardids(warobj)
 	local canuse_cardids = {}
 	for i,id in ipairs(warobj.handcards) do
 		warcard = warobj:getcard(id)
-		if warcard:getcrystalcost() < warobj.crystal then
+		if warcard.crystalcost < warobj.crystal then
 			table.insert(canuse_cardids,id)
 		end
 	end
@@ -43,9 +43,9 @@ function ai.onbeginround(warobj)
 	-- useskill
 	if not warmgr.isgameover(warid) and ishit(30,100) then
 		if warobj.race == RACE_WATER then
-			warobj:hero_useskill(warobj.hero.id)
+			warobj:useskill(warobj.hero.id)
 		else
-			warobj:hero_useskill(warobj.enemy.hero.id)
+			warobj:useskill(warobj.enemy.hero.id)
 		end
 	end
 	-- playcard
@@ -74,6 +74,7 @@ function ai.onbeginround(warobj)
 				end
 			end
 		end
+		print("ai.onbeiginround",warcard.id,warcard.sid,warcard.targettype,targetid)
 		if (warcard.targettype == 0) or (warcard.targettype ~= 0 and targetid) then
 			local pos
 			if is_footman(warcard.type) then
