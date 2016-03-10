@@ -33,6 +33,12 @@ local function test(pid1,pid2,race,ratios,num)
 	player2.cardtablelib:updatecardtable(cardtable)
 	assert(player1.cardtablelib:getcardtable(1,mode))
 	assert(player2.cardtablelib:getcardtable(1,mode))
+	netwar.REQUEST.unsearch_opponent(player1,{
+		type = "fight",
+	})
+	netwar.REQUEST.unsearch_oppponent(player2,{
+		type = "fight",
+	})
 
 	netwar.REQUEST.selectcardtable(player1,{
 		type = "fight",

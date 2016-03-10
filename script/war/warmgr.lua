@@ -11,9 +11,10 @@ function warmgr.getwar(warid)
 end
 
 function warmgr.addwar(war)
-	assert(warmgr.id_war[war.warid]==nil)
+	local warid = assert(war.warid)
+	assert(warmgr.id_war[warid]==nil)
 	logger.log("info","war",string.format("addwar,warid=%s",warid))
-	warmgr.id_war[war.warid] = war
+	warmgr.id_war[warid] = war
 	warmgr.num = warmgr.num + 1
 end
 

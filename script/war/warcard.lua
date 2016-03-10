@@ -100,15 +100,15 @@ function cwarcard:addhp(value,srcid)
 	end
 	local ret
 	if value < 0 then
-		ret = self:costhp(-value,srcid)
+		ret = self:__costhp(-value,srcid)
 	else
-		ret = self:recoverhp(value,srcid)
+		ret = self:__recoverhp(value,srcid)
 	end
 	self:set({hp=self.hp})
 	return ret
 end
 
-function cwarcard:costhp(value,srcid)
+function cwarcard:__costhp(value,srcid)
 	assert(value > 0)
 	local owner = self:getowner()
 	if not owner:before_hurt(self,value,srcid) then
@@ -123,7 +123,7 @@ function cwarcard:costhp(value,srcid)
 	return value
 end
 
-function cwarcard:recoverhp(value,srcid)
+function cwarcard:__recoverhp(value,srcid)
 	assert(value > 0)
 	local recoverhp = math.min(value,self.maxhp-self.hp)
 	if recoverhp > 0 then
@@ -792,8 +792,6 @@ function cwarcard:pack()
 		hp = self.hp,
 		atk = self.atk,
 		crystalcost = self.crystalcost,
-		magic_hurt = self.magic_hurt,
-		recoverhp = self.recoverhp,
 		magic_hurt_adden = self.magic_hurt_adden,
 		cannotattack = self.cannotattack,
 	}

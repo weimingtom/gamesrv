@@ -63,6 +63,13 @@ war_lookcards_confirm 508 {
 	}
 }
 
+war_unsearch_opponent 509 {
+	request {
+		# fight; arena; entertainment
+		type 0 : string
+	}
+}
+
 ]]
 
 proto.s2c = [[

@@ -89,7 +89,7 @@ end
 
 function cwarobj:newwarcard(sid)
 	local war = warmgr.getwar(self.warid)
-	local id = war:getcardid()
+	local id = war:gencardid()
 	local conf = {
 		id = id,
 		sid = sid,
@@ -159,6 +159,7 @@ end
 function cwarobj:ready_handcard()
 	local num = self.type == "attacker" and ATTACKER_START_CARD_NUM or DEFENSER_START_CARD_NUM
 	self.tmp_handcards = self:random_handcard(num)
+	self.state = "ready_handcard"
 	warmgr.refreshwar(self.warid,self.pid,"ready_handcards",self.tmp_handcards)
 end
 
@@ -169,7 +170,6 @@ function cwarobj:random_handcard(cnt)
 		table.insert(handcards,self:pickcard())
 	end
 
-	self.state = "random_handcards"
 	return handcards
 end
 

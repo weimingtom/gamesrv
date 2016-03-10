@@ -105,21 +105,6 @@ function pprintf(fmt,...)
 end
 
 
-function keys(t)
-	local ret = {}
-	for k,v in pairs(t) do
-		table.insert(ret,k)
-	end
-	return ret
-end
-
-function values(t)
-	local ret = {}
-	for k,v in pairs(t) do
-		table.insert(ret,v)
-	end
-	return ret
-end
 
 function remove_from(t,val,maxcnt)
 	local delkey = {}
@@ -792,6 +777,26 @@ function table.find(tbl,func)
 		end
 	end
 end
+
+function table.keys(t)
+	local ret = {}
+	for k,v in pairs(t) do
+		table.insert(ret,k)
+	end
+	return ret
+end
+
+function table.values(t)
+	local ret = {}
+	for k,v in pairs(t) do
+		table.insert(ret,v)
+	end
+	return ret
+end
+
+keys = table.keys
+values = table.values
+
 
 function table.dump(t,space,name)
 	space = space or ""

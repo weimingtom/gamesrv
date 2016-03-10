@@ -125,8 +125,7 @@ function cwar:getwarobj(pid)
 end
 
 function cwar:startwar()
-	local msg = string.format("[warid=%d] startwar,attacker=%d(name=%s srvname=%s) defenser=%d(name=%s srvname=%s)",self.warid,self.attacker.pid,self.attacker.name,self.attacker.srvname,self.defenser.pid,self.defenser.name,self.defenser.srvname)
-	print(msg)
+	local msg = string.format("[warid=%d] startwar,attacker=(pid=%s name=%s srvname=%s) defenser=(pid=%s name=%s srvname=%s)",self.warid,self.attacker.pid,self.attacker.name,self.attacker.srvname,self.defenser.pid,self.defenser.name,self.defenser.srvname)
 	logger.log("info","war",msg)
 	cluster.call(self.source,"war","startwar",{
 		pid = self.attacker.pid,
@@ -140,8 +139,8 @@ function cwar:startwar()
 	-- 洗牌
 	self.attacker:shuffle_cards()
 	self.defenser:shuffle_cards()
-	self.attacker:init_handcard()
-	self.defenser:init_handcard()
+	self.attacker:ready_handcard()
+	self.defenser:ready_handcard()
 end
 
 function cwar:endwar(result,stat)
@@ -162,7 +161,7 @@ function cwar:endwar(result,stat)
 	self.state = "endwar"
 	self.attacker.enemy = nil
 	self.defenser.enemy = nil
-	local msg = string.format("[warid=%d] endwar,attacker=%d(name=%s srvname=%s) defenser=%d(name=%s srvname=%s) result=%s",warid,self.attacker.pid,self.attacker.name,self.attacker.srvname,self.defenser.pid,self.defenser.name,self.defenser.srvname,result)
+	local msg = string.format("[warid=%d] endwar,attacker=(pid=%s name=%s srvname=%s) defenser=(pid=%s name=%s srvname=%s) result=%s",warid,self.attacker.pid,self.attacker.name,self.attacker.srvname,self.defenser.pid,self.defenser.name,self.defenser.srvname,result)
 	logger.log("info","war",msg)
 	cluster.call(self.source,"war","endwar",{
 		pid = self.attacker.pid,
