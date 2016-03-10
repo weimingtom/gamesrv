@@ -497,6 +497,7 @@ function cwarobj:launchattack(attackerid,defenserid)
 	if not self:canattack(defenser) then
 		return
 	end
+	self:log("debug","war",string.format("launchattack,id=%d,targetid=%d",attacker.id,defenser.id))
 	self:__launchattack(attacker,defenser)	
 end
 
@@ -504,7 +505,7 @@ function cwarobj:__launchattack(attacker,defenser)
 	if not self:execute("before_attack",attacker,defenser) then
 		return
 	end
-	self:log("debug","war",string.format("launchattack,id=%d,targetid=%d",attacker.id,defenser.id))
+	self:log("debug","war",string.format("__launchattack,id=%d,targetid=%d",attacker.id,defenser.id))
 	if attacker.id == self.hero.id then
 		if defenserid == self.enemy.hero.id then
 			self:hero_attack_hero()
@@ -656,7 +657,9 @@ cwarobj.addfootman = cwarobj.putinwar
 
 function cwarobj:removefromwar(warcard)
 	assert(warcard.inarea == "war" or warcard.inarea == "graveyard")
-	local pos = assert(warcard.pos)
+	local pos = table.find(self.warcards,warcard.id)
+	assert(pos)
+	assert(pos==warcard.pos)
 	if not self:execute("before_removefromwar",warcard) then
 		return
 	end

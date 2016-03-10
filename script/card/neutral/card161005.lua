@@ -102,7 +102,7 @@ function ccard161005:ondie()
 	local id = randlist(owner.enemy.warcards)	
 	local warcard = owner:gettarget(id)
 	if warcard:getowner():removefromwar(warcard) then
-		warcard.pid = owner.pid
+		warcard:setowner(owner)
 		owner:putinwar(warcard,self.pos)
 	end
 end

@@ -101,7 +101,7 @@ function ccard135001:onuse(pos,targetid,choice)
 	end
 	local target = owner:gettarget(targetid)
 	if target:getowner():removefromwar(target) then
-		target.pid = owner.pid
+		target:setowner(owner)
 		owner:putinwar(target)
 	end
 end

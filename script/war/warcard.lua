@@ -542,10 +542,11 @@ end
 
 function cwarcard:clearhaloto()
 	if next(self.haloto) then
+		local owner = self:getowner()
 		local haloto = self.haloto
 		self.haloto = {}
 		for id,_ in pairs(haloto) do
-			local target = self:gettarget(id)
+			local target = owner:gettarget(id)
 			target:delhalobysrcid(self.id)
 		end
 	end

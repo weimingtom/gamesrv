@@ -615,7 +615,7 @@ end
 local function collect_localvar(level)
 	level = level + 1 -- skip self function 'collect_localval'
 	local function dumptable(tbl) 
-		local attrs = {"pid","id","name","sid","warid","flag",}
+		local attrs = {"pid","id","name","sid","warid","flag","state","inarea"}
 		local tips = {}
 		for _,attr in ipairs(attrs) do
 			if tbl[attr] then

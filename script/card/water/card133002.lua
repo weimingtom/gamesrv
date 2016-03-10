@@ -101,7 +101,7 @@ function ccard133002:onuse(pos,targetid,choice)
 	end
 	local target = onwer:gettarget(targetid)
 	if target:getowner():removefromwar(target) then
-		target.pid = owner.pid
+		target:setowner(owner)
 		local effect = self:neweffect({
 			name = "onendround",
 		})

@@ -96,7 +96,7 @@ end
 
 function ccard161002:onuse(pos,targetid,choice)
 	local owner = self:getowner()
-	local target = self:gettarget(targetid)
+	local target = owner:gettarget(targetid)
 	local target_owner = target:getowner()
 	if target_owner:removefromwar(target) then
 		local pos = target.pos

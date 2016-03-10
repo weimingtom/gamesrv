@@ -102,7 +102,7 @@ function ccard163014:onuse(pos,targetid,choice)
 	local id = randlist(owner.enemy.warcards)
 	local footman = owner:gettarget(id)
 	if owner.enemy:removefromwar(footman) then
-		footman.pid = owner.pid
+		footman:setowner(owner)
 		-- 自身战场随从已满则销毁
 		owner:putinwar(footman,self.pos+1)
 	end
