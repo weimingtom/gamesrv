@@ -1,4 +1,4 @@
-require "script.war.hero"
+require "script.war.hero.init"
 
 csoilhero = class("csoilhero",chero,{
 	race = RACE_SOIL,

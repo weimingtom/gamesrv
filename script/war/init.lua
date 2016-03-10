@@ -19,18 +19,19 @@ end
 
 cwar = class("cwar",cdatabaseable)
 
-function cwar:init(profile1,profile2)
+function cwar:init(attacker,defenser)
 	cdatabaseable.init(self,{
 		pid = 0,
 		flag = "cwar",
 	})
 	self.data = {}
+	self.source = nil -- 战斗管理服名(createwar后设置)
 	self.warid = genwarid()
 	self.cardid = CARD_MIN_ID
 	self.inorder = 0 -- 随从置入战场顺序
-	profile1.isattacker = true
-	self.attacker = cwarobj.new(profile1,self.warid)
-	self.defenser = cwarobj.new(profile2,self.warid)
+	attacker.isattacker = true
+	self.attacker = cwarobj.new(attacker,self.warid)
+	self.defenser = cwarobj.new(defenser,self.warid)
 	self.attacker.enemy = self.defenser
 	self.defenser.enemy = self.attacker
 	self.state = "init"
@@ -127,6 +128,14 @@ function cwar:startwar()
 	local msg = string.format("[warid=%d] startwar,attacker=%d(name=%s srvname=%s) defenser=%d(name=%s srvname=%s)",self.warid,self.attacker.pid,self.attacker.name,self.attacker.srvname,self.defenser.pid,self.defenser.name,self.defenser.srvname)
 	print(msg)
 	logger.log("info","war",msg)
+	cluster.call(self.source,"war","startwar",{
+		pid = self.attacker.pid,
+		warid = self.warid,
+	})
+	cluster.call(self.source,"war","startwar",{
+		pid = self.defenser.pid,
+		warid = self.warid,
+	})
 	self.state = "startwar"
 	-- 洗牌
 	self.attacker:shuffle_cards()
@@ -155,8 +164,18 @@ function cwar:endwar(result,stat)
 	self.defenser.enemy = nil
 	local msg = string.format("[warid=%d] endwar,attacker=%d(name=%s srvname=%s) defenser=%d(name=%s srvname=%s) result=%s",warid,self.attacker.pid,self.attacker.name,self.attacker.srvname,self.defenser.pid,self.defenser.name,self.defenser.srvname,result)
 	logger.log("info","war",msg)
-	cluster.call("warsrvmgr","war","endwar",self.attacker.pid,warid,attacker_result,stat.attacker)
-	cluster.call("warsrvmgr","war","endwar",self.defenser.pid,warid,defenser_result,stat.defenser)
+	cluster.call(self.source,"war","endwar",{
+		pid = self.attacker.pid,
+		warid = self.warid,
+		result = attacker_result,
+		stat = stat.attacker,
+	})
+	cluster.call(self.source,"war","endwar",{
+		pid = self.defenser.pid,
+		warid = self.warid,
+		result = defenser_result,
+		stat = stat.defenser,
+	})
 end
 
 return cwar

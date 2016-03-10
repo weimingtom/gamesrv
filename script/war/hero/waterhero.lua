@@ -1,4 +1,4 @@
-require "script.war.hero"
+require "script.war.hero.init"
 
 cwaterhero = class("cwaterhero",chero,{
 	race = RACE_WATER,

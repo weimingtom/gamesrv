@@ -13,6 +13,7 @@ function chero:init(conf)
 	self.id = conf.id
 	self.pid = conf.pid
 	self.warid = conf.warid
+	self.race = conf.race
 	self.name = conf.name
 	self.maxhp = conf.maxhp or 30
 	self.def = conf.def or 0

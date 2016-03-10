@@ -1,4 +1,4 @@
-require "script.war.hero"
+require "script.war.hero.init"
 require "script.war.warmgr"
 
 cwoodhero = class("cwoodhero",chero,{

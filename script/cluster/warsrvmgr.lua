@@ -116,40 +116,15 @@ function warsrvmgr.checkwarsrv()
 	end)
 end
 
-function warsrvmgr.startwar(warsrvname,pid,warid)
-	local profile = warsrvmgr.getprofile(pid)
-	profile.state = "startwar"
-	profile.warsrvname = warsrvname
-	profile.warid = warid
-	local enemy_pid = profile.enemy_pid
-	if enemy_pid then
-		local enemy = assert(warsrvmgr.getprofile(enemy_pid))
-		cluster.call(profile.srvname,"war","startwar",pid,enemy,{
-			warsrvanme = warsrvname,
-			warid = warid,
-		})
-	end
-end
-
-function warsrvmgr.endwar(warsrvname,pid,warid,result,stat)
-	stat = stat or {} -- 战斗结束统计信息（如击杀随从数，使用法术牌数等）
-	local profile = warsrvmgr.getprofile(pid)
-	warsrvmgr.delprofile(pid)
-	profile.state = "endwar"
-	local enemy_pid = assert(profile.enemy_pid)
-	stat.enemy = warsrvmgr.getprofile(enemy_pid)
-	cluster.call(profile.srvname,"war","endwar",pid,warid,result,stat)	
-end
-
 local CMD = {}
 
 -- gamesrv --> warsrvmgr
-function CMD.search_opponent(srvname,player_profile)
-	player_profile.srvname = srvname
+function CMD.search_opponent(source,player_profile)
+	player_profile.srvname = source
 	warsrvmgr.addprofile(player_profile)
 end
 
-function CMD.cancel_match(srvname,pid)
+function CMD.cancel_match(source,pid)
 	local profile = warsrvmgr.getprofile(pid)
 	if profile then
 		if profile.state == "statwar" then
@@ -162,23 +137,41 @@ function CMD.cancel_match(srvname,pid)
 end
 
 -- warsrv --> warsrvmgr
-function CMD.startwar(srvname,pid,warid)
-	assert(cserver.iswarsrv(srvname),"Not a warsrv:" .. tostring(srvname))
-	warsrvmgr.startwar(srvname,pid,warid)
+function CMD.startwar(source,request)
+	assert(cserver.iswarsrv(source),"Not a warsrv:" .. tostring(source))
+	local warid = assert(request.warid)
+	local pid = assert(request.pid)
+	local profile = warsrvmgr.getprofile(pid)
+	profile.state = "startwar"
+	profile.warsrvname = source
+	profile.warid = warid
+	local enemy_pid = profile.enemy_pid
+	if enemy_pid then
+		local enemy = assert(warsrvmgr.getprofile(enemy_pid))
+		request.warsrvname = source
+		request.enemy = enemy
+		cluster.call(profile.srvname,"war","startwar",request)
+	end
+
 end
 
 
-function CMD.endwar(srvname,pid,warid,result)
-	assert(cserver.iswarsrv(srvname),"Not a warsrv:" .. tostring(srvname))
-	warsrvmgr.endwar(srvname,pid,warid,result)
+function CMD.endwar(source,request)
+	assert(cserver.iswarsrv(source),"Not a warsrv:" .. tostring(source))
+	local warid = assert(request.warid)
+	local pid = assert(request.pid)
+	local profile = warsrvmgr.getprofile(pid)
+	warsrvmgr.delprofile(pid)
+	profile.state = "endwar"
+	cluster.call(profile.srvname,"war","endwar",request)
 end
 
 
 
-function warsrvmgr.dispatch(srvname,cmd,...)
-	assert(type(srvname)=="string","Invalid srvname:" .. tostring(srvname))
+function warsrvmgr.dispatch(source,cmd,...)
+	assert(type(source)=="string","Invalid srvname:" .. tostring(source))
 	local func = assert(CMD[cmd],"Unknow cmd:" .. tostring(cmd))
-	return func(srvname,...)
+	return func(source,...)
 end
 
 return warsrvmgr

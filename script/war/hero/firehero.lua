@@ -1,4 +1,4 @@
-require "script.war.hero"
+require "script.war.hero.init"
 
 cfirehero = class("cfirehero",chero,{
 	race = RACE_FIRE,

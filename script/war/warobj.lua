@@ -27,13 +27,7 @@ function cwarobj:init(conf,warid)
 	self.secretcards = {}
 	self.warcards = {}
 	self.id_card = {}
-	for cardsid,num in pairs(conf.cardtable.cards) do
-		for i = 1,num do
-			local warcard = self:newwarcard(cardsid)
-			warcard.inarea = "cardlib"
-			table.insert(self.leftcards,warcard.id)
-		end
-	end
+	self.cardtable = conf.cardtable -- 开始战斗后，再初始化牌库
 
 	self.s2cdata = {}
 	local heroid
@@ -48,7 +42,7 @@ function cwarobj:init(conf,warid)
 		id = heroid,
 		pid = self.pid,
 		warid = self.warid,
-		name = self.name,
+		race = conf.cardtable.race,
 	})
 
 	-- ai: 现在仅仅为了测试
@@ -72,6 +66,19 @@ function cwarobj:save()
 end
 
 function cwarobj:clear()
+end
+
+-- 初始化牌库（战斗开始后初始化)
+function cwarobj:initcardlib()
+	self.leftcards = {}
+	for cardsid,num in pairs(self.cardtable.cards) do
+		for i = 1,num do
+			local warcard = self:newwarcard(cardsid)
+			warcard.inarea = "cardlib"
+			table.insert(self.leftcards,warcard.id)
+		end
+	end
+
 end
 
 function cwarobj:log(loglevel,filename,...)
@@ -145,6 +152,7 @@ function cwarobj:puttocardlib(id,israndom)
 end
 
 function cwarobj:shuffle_cards()
+	self:initcardlib()
 	shuffle(self.leftcards,true)	
 end
 
@@ -439,7 +447,6 @@ function cwarobj:__playcard(warcard,pos,targetid,choice)
 		return
 	end
 	warcard.enterwar_roundcnt = self.roundcnt
-	local war = warmgr.getwar(self.warid)
 	if is_magiccard(warcard.type) then
 		if warcard.type == MAGICCARD.SECRET then
 			self:addsecret(warcard)

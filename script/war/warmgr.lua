@@ -11,6 +11,8 @@ function warmgr.getwar(warid)
 end
 
 function warmgr.addwar(war)
+	assert(warmgr.id_war[war.warid]==nil)
+	logger.log("info","war",string.format("addwar,warid=%s",warid))
 	warmgr.id_war[war.warid] = war
 	warmgr.num = warmgr.num + 1
 end
@@ -18,13 +20,22 @@ end
 function warmgr.delwar(warid)
 	local war = warmgr.getwar(warid)
 	if war then
+		logger.log("info","war",string.format("delwar,warid=%s",warid))
 		warmgr.id_war[warid] = nil
 		warmgr.num = warmgr.num - 1
 	end
 end
 
-function warmgr.createwar(profile1,profile2)
-	local war = cwar.new(profile1,profile2)
+--/*
+--创建一场战斗
+--@param string source :战斗管理服名（来源）
+--@param table attacker :进攻方简介信息
+--@param table defenser :防守方简介信息
+--*/
+function warmgr.createwar(source,attacker,defenser)
+	local war = cwar.new(attacker,defenser)
+	war.source = assert(source)
+	warmgr.addwar(war)
 	return war
 end
 

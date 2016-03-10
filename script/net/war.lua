@@ -3,7 +3,9 @@ local function callwar(player,cmd,request)
 	local warsrvname = assert(player:query("fight.warsrvname"))
 	local warid = assert(player:query("fight.warid"))
 	local pid = player.pid
-	return cluster.call(warsrvname,"war",cmd,warid,pid,request)
+	request.warid = warid
+	request.pid = pid
+	return cluster.call(warsrvname,"war",cmd,request)
 end
 
 netwar = netwar or {}

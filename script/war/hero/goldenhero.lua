@@ -1,4 +1,4 @@
-require "script.war.hero"
+require "script.war.hero.init"
 
 cgoldenhero = class("cgoldenhero",chero,{
 	race = RACE_GOLDEN,

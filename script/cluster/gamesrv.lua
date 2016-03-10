@@ -9,9 +9,11 @@ end
 
 local CMD = {}
 -- warsrvmgr --> gamesrv
-function CMD.startwar(srvname,typ,pid,enemy,warinfo)
-	local warid = assert(warinfo.warid)
-	local warsrvname = assert(warinfo.warsrvname)
+function CMD.startwar(source,request)
+	local pid = assert(request.pid)
+	local warid = assert(request.warid)
+	local warsrvname = assert(request.warsrvname)
+	local enemy = assert(request.enemy)
 	local player = playermgr.getplayer(pid)
 	if not player then
 		player = playermgr.loadofflineplayer(pid)
@@ -24,7 +26,11 @@ function CMD.startwar(srvname,typ,pid,enemy,warinfo)
 	})
 end
 
-function CMD.endwar(srvname,typ,pid,warid,result,stat)
+function CMD.endwar(source,request)
+	local pid = assert(request.pid)
+	local warid = assert(request.warid)
+	local result = assert(request.result)
+	local stat = request.stat or {}
 	local player = playermgr.getplayer(pid)
 	if not player then
 		return
@@ -41,10 +47,10 @@ function CMD.endwar(srvname,typ,pid,warid,result,stat)
 	-- 处理统计信息
 end
 
-function gamesrv.dispatch(srvname,cmd,...)
-	assert(type(srvname)=="string","Invalid srvname:" .. tostring(srvname))
+function gamesrv.dispatch(source,cmd,...)
+	assert(type(source)=="string","Invalid source:" .. tostring(source))
 	local func = assert(CMD[cmd],"Unknow cmd:" .. tostring(cmd))
-	return func(srvname,...)
+	return func(source,...)
 end
 
 return gamesrv
