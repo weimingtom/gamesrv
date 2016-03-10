@@ -89,7 +89,7 @@ end
 
 function cwarobj:newwarcard(sid)
 	local war = warmgr.getwar(self.warid)
-	local id = war:getcardid()
+	local id = war:gencardid()
 	local conf = {
 		id = id,
 		sid = sid,
