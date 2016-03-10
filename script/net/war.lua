@@ -26,14 +26,13 @@ end
 function REQUEST.search_opponent(player,request)
 	local type = assert(request.type)	
 	if type == "fight" then
-		--local warid = player:query("fight.warid")
-		--if warid then
-		--	logger.log("warning","war",string.format("%d search_opponet,but aready in war,warid=%d",player.pid,warid))
-		--	return
-		--end
 		local profile = player:pack_fight_profile(type)	
 		return cluster.call("warsrvmgr","war","search_opponent",profile)
 	end
+end
+
+function REQUEST.unsearch_opponent(player,request)
+	return cluster.call("warsrvmgr","war","unsearch_opponent",player.pid)
 end
 
 -- forward

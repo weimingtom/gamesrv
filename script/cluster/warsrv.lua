@@ -54,6 +54,7 @@ function CMD.giveupwar(source,request)
 end
 
 function CMD.confirm_handcard(source,request)
+	logger.log("debug","war",format("confirm_handcard,source=%s request=%s",source,request))
 	local warid = assert(request.warid)
 	local pid = assert(request.pid)
 	local war = warmgr.getwar(warid)
@@ -62,7 +63,8 @@ function CMD.confirm_handcard(source,request)
 		return
 	end
 	local warobj = war:getwarobj(pid)
-	if warobj.state ~= "init" then
+	if warobj.state ~= "ready_handcard" then
+		logger.log("warning","war",string.format("[warid=%d pid=%d srvname=%s] [state ~= ready_handcard] confirm_handcard",warid,pid,source))
 		return
 	end
 	local ids = assert(request.ids)

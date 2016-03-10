@@ -119,12 +119,16 @@ end
 local CMD = {}
 
 -- gamesrv --> warsrvmgr
-function CMD.search_opponent(source,player_profile)
-	player_profile.srvname = source
-	warsrvmgr.addprofile(player_profile)
+function CMD.search_opponent(source,profile)
+	local pid = profile.pid
+	if warsrvmgr.getprofile(pid) then
+		return
+	end
+	profile.srvname = source
+	warsrvmgr.addprofile(profile)
 end
 
-function CMD.cancel_match(source,pid)
+function CMD.unsearch_opponent(source,pid)
 	local profile = warsrvmgr.getprofile(pid)
 	if profile then
 		if profile.state == "statwar" then
