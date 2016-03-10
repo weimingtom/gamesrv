@@ -443,6 +443,9 @@ end
 function cwarcard:delhalobypos(pos)
 	local halo = table.remove(self.halofrom,pos)
 	if halo then
+		local owner = self:getowner()
+		local halofrom_warcard = owner:gettarget(halo.srcid)
+		halofrom_warcard.haloto[self.id] = nil
 		self:log("info","war",format("delhalo,pos=%s halo=%s",pos,halo))
 		local syncattrs = {}
 		for k,v in pairs(halo) do
@@ -473,6 +476,7 @@ function cwarcard:delhalobypos(pos)
 end
 
 function cwarcard:delhalobysrcid(srcid)
+	-- 一个卡牌对其他卡牌光环效果最多只有一个，即#delhalos<=1
 	local delhalos = {}
 	for pos=#self.halofrom,1,-1 do
 		local halo = self.halofrom[pos]
@@ -480,7 +484,7 @@ function cwarcard:delhalobysrcid(srcid)
 			table.insert(delhalos,pos)
 		end
 	end
-	for i,pos in ipairs(self.delhalos) do
+	for i,pos in ipairs(delhalos) do
 		self:delhalobypos(pos)
 	end
 end

@@ -74,7 +74,7 @@ function ai.onbeginround(warobj)
 				end
 			end
 		end
-		print("ai.onbeiginround",warcard.id,warcard.sid,warcard.targettype,targetid)
+		print(string.format("ai.onbeiginround,id=%s sid=%s targettype=%s targetid=%s",warcard.id,warcard.sid,warcard.targettype,targetid))
 		if (warcard.targettype == 0) or (warcard.targettype ~= 0 and targetid) then
 			local pos
 			if is_footman(warcard.type) then

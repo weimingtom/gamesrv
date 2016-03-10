@@ -75,12 +75,14 @@ function randomcard(cnt,limit)
 	while true do
 		local sids = choosekey(ratiotable)
 		local sid = randlist(sids)
-		if not limits[sid] then
-			limits[sid] = 0
-		end
-		limits[sid] = limits[sid] + 1
-		if limits[sid] <= limit then
-			table.insert(ret,sid)
+		if isopencard(sid) then
+			if not limits[sid] then
+				limits[sid] = 0
+			end
+			limits[sid] = limits[sid] + 1
+			if limits[sid] <= limit then
+				table.insert(ret,sid)
+			end
 		end
 		if #ret == cnt then
 			break

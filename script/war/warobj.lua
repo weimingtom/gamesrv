@@ -104,11 +104,22 @@ function cwarobj:newwarcard(sid)
 	return warcard
 end
 
+local clone_ignore_attr = {
+	id = true,
+	pid = true,
+	srvname = true,
+	pos = true,
+	birthday = true,
+	inarea = true,
+	bheid = true,
+}
+
 function cwarobj:clone(warcard)
 	local clone_warcard = self:newwarcard(warcard.sid)
+	self:log("debug","war",string.format("clone,srcid=%s toid=%s",warcard.id,clone_warcard.id))
 	local cloneattr = deepcopy(warcard)
 	for k,v in pairs(cloneattr) do
-		if k ~= "id" then
+		if not clone_ignore_attr[k] then
 			clone_warcard[k] = v
 		end
 	end
