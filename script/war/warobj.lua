@@ -1,6 +1,5 @@
 
 require "script.war.warcard"
-require "script.war.categorytarget"
 require "script.war.hero.init"
 
 cwarobj = class("cwarobj",cdatabaseable)
