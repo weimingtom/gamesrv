@@ -548,6 +548,7 @@ function cplayer:port()
 end
 
 function cplayer:teamstate()
+	local teamid = self.teamid
 	if not teamid then
 		return NO_TEAM
 	end

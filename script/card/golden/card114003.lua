@@ -72,9 +72,8 @@ ccard114003 = class("ccard114003",super,{
     },
 })
 
-function ccard114003:init(pid)
-    super.init(self,pid)
-    self.data = {}
+function ccard114003:init(conf)
+    super.init(self,conf)
 --<<card 导表结束>>
 
 end --导表生成

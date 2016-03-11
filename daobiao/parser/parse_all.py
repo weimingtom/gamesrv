@@ -13,6 +13,8 @@ cmds = {
     5 : "python parse_task.py ../xls/task.xls " + data_dstpath,
     6 : "python parse_formula.py ../xls/formula.xls " + data_dstpath,
 	7 : "python parse_achievement.py ../xls/成就.xls " + data_dstpath,
+
+    8 : "python parse_cardbag.py ../xls/cardbag.xls " + os.path.join(code_outputpath,"cardbag"),
 }
 
 def show_menu():

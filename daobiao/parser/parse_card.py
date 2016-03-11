@@ -113,9 +113,8 @@ ccard%(sid)d = class("ccard%(sid)d",super,{
     },
 })
 
-function ccard%(sid)d:init(pid)
-    super.init(self,pid)
-    self.data = {}
+function ccard%(sid)d:init(conf)
+    super.init(self,conf)
 """,
     }
     dstpath = os.path.join(dstpath,modname)

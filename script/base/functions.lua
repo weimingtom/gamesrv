@@ -1,8 +1,10 @@
 
 unpack = unpack or table.unpack
 
-STARTTIME1 = 1408896000  --2014-08-25 00:00:00 Mon Aug
-STARTTIME2 = 1408809600  --2014-08-24 00:00:00 Sun Aug
+--STARTTIME1 = 1408896000  --2014-08-25 00:00:00 Mon Aug
+--STARTTIME2 = 1408809600  --2014-08-24 00:00:00 Sun Aug
+STARTTIME1 = os.time({year=2014,month=8,day=25,hour=0,min=0,sec=0})
+STARTTIME2 = os.time({year=2014,month=8,day=24,hour=0,min=0,sec=0})
 HOUR_SECS = 3600
 DAY_SECS = 24 * HOUR_SECS 
 WEEK_SECS = 7 * DAY_SECS
