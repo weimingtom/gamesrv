@@ -59,45 +59,18 @@ function is_goldcard(sid)
 	return sid >= 200000
 end
 
-
 --/*
 --随机取若干牌
 --@param integer cnt :取牌个数
 --@param integer limit :相同牌最多出现个数，默认不受限制
 --*/
-function randomcard(cnt,limit)
-	cnt = cnt or 5
-	limit = limit or cnt
-	limit = math.min(limit,cnt)
-	local ratiotable = getratiotable()
-	local ret = {}
-	local limits = {}
-	while true do
-		local sids = choosekey(ratiotable)
-		local sid = randlist(sids)
-		if isopencard(sid) then
-			if not limits[sid] then
-				limits[sid] = 0
-			end
-			limits[sid] = limits[sid] + 1
-			if limits[sid] <= limit then
-				table.insert(ret,sid)
-			end
-		end
-		if #ret == cnt then
-			break
-		end
-	end
-	return ret
-end
-
 local randomcard_ratio = {[1] = 100,[2] = 400,[3] = 1000,[4] = 3500,[5] = 2000,[6] = 0,[21] = 25,[22] = 100,[23] = 250,[24] = 875,[25] = 500,[26] = 0,}
 
 function randomcard(cnt,limit)
 	cnt = cnt or 5
 	limit = limit or cnt
 	limit = math.min(limit,cnt)
-	local ratiotable = getratiotable()
+	local ratiotable = randomcard_ratio
 	local ret = {}
 	local limits = {}
 	while true do

@@ -15,8 +15,6 @@ SAVE_DELAY = 300
 MAX_NUMBER = math.floor(2 ^ 31 - 1)
 MIN_NUMBER = -MAX_NUMBER
 
-MAX_ITEMID = 10000
-
 SYSTEM_MAIL = 0
 
 --用户必须保证对象非递归嵌套表

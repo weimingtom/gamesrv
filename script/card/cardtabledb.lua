@@ -18,10 +18,7 @@ function ccardtabledb:load(data)
 	end
 end
 
-function ccardtabledb:save(data)
-	if not data or not next(data) then
-		return
-	end
+function ccardtabledb:save()
 	return ccontainer.save(self)
 end
 
@@ -33,14 +30,14 @@ function ccardtabledb:getcardtable(id)
 	return self:get(id)
 end
 
-function ccardtable:getcardtablebypos(pos)
+function ccardtabledb:getcardtablebypos(pos)
 	local id = self.pos_id[pos]
 	if id then
 		return self:getcardtable(id)
 	end
 end
 
-function ccardtable:getfreepos()
+function ccardtabledb:getfreepos()
 	for pos=1,self.maxlen do
 		if not self.pos_id[pos] then
 			return pos
@@ -55,6 +52,7 @@ end
 --xxx:addcardtable({
 --	id = 1,
 --	name = "测试卡表",
+--	race = 1,
 --  cards = {141001,...} -- 30个卡牌
 --},"test")
 --*/

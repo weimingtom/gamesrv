@@ -71,12 +71,10 @@ end
 -- 初始化牌库（战斗开始后初始化)
 function cwarobj:initcardlib()
 	self.leftcards = {}
-	for cardsid,num in pairs(self.cardtable.cards) do
-		for i = 1,num do
-			local warcard = self:newwarcard(cardsid)
-			warcard.inarea = "cardlib"
-			table.insert(self.leftcards,warcard.id)
-		end
+	for i,cardsid in ipairs(self.cardtable.cards) do
+		local warcard = self:newwarcard(cardsid)
+		warcard.inarea = "cardlib"
+		table.insert(self.leftcards,warcard.id)
 	end
 
 end

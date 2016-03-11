@@ -1,235 +1,81 @@
+ccarddb = class("ccarddb",ccontainer)
 
-require "script.card.init"
-require "script.war.aux"
-
-ccarddb = class("ccarddb",cdatabaseable)
-
-function ccarddb:init(conf)
-	cdatabaseable.init(self,conf)
-	self.data = {}
-	self.id_card = {}
-	self.sid_cards = {}
-end
-
-function ccarddb:save()
-	local data = {}
-	data.data = self.data
-	local d1 = {}
-	for sid,cards in pairs(self.sid_cards) do
-		local d2 = {}
-		for _,card in ipairs(cards) do
-			table.insert(d2,card:save())
-		end
-		d1[tostring(sid)] = d2
-	end
-	data.sid_cards = d1
-	return data
+function ccarddb:init(param)
+	self.name = assert(param.name)
+	ccontainer.init(self,param)
+	self.sid_id = {}
 end
 
 function ccarddb:load(data)
 	if not data or not next(data) then
 		return
 	end
-	self.data = data.data
-	for sid,cards_data in pairs(data.sid_cards) do
-		sid = tonumber(sid)
-		for _,v in ipairs(cards_data) do
-			local card = ccard.create(self.pid,sid)
-			card:load(v)
-			self:__addcard(card)
-		end
+	ccontainer.load(self,data,function (carddata)
+		local card = ccard.create({
+			pid = self.pid,
+			id = carddata.id,
+			sid = carddata.sid,
+		})
+		card:load(carddata)
+		return card
+	end)
+	for id,card in pairs(self.objs) do
+		self.sid_id[card.sid] = id
 	end
+end
+
+function ccarddb:save()
+	return ccontainer.save(self,function (card)
+		return card:save()
+	end)
 end
 
 function ccarddb:clear()
-	logger.log("info","card",string.format("#%d clear card(flag=%s)",self.pid,self.__flag))
-	self.data = {}
-	self.id_card = {}
-	self.sid_cards = {}
+	logger.log("info","card",string.format("[%s] clear,pid=%s",self.name,self.pid))
+	ccontainer.clear(self)
+	self.sid_id = {}
 end
 
 function ccarddb:getcard(id)
-	return self.id_card[id]
+	return self:get(id)
+end
+
+function ccarddb:getcardbysid(sid)
+	local id = self.sid_id[sid]
+	if id then
+		return self:getcard(id)
+	end
+end
+
+function ccarddb:addcard(card,reason)
+	logger.log("info","card",string.format("[%s] addcard,pid=%s id=%s sid=%s reason=%s",self.name,self.pid,card.id,card.sid,reason))
+	self:__addcard(card)
 end
 
 function ccarddb:__addcard(card)
-	assert(getracename(card.race) == self.__flag)
-	self:check_sid_cards(card.sid)
-	local id = card.id
-	assert(self.id_card[id] == nil,"repeat id:" .. tostring(id))
-	self.id_card[id] = card
-	local pos = 1
-	for i,v in ipairs(self.sid_cards[card.sid]) do
-		if card:getamount() >= v:getamount() then
-			pos = i
-			break	
-		end
-	end
-	table.insert(self.sid_cards[card.sid],pos,card)
+	local id = assert(card.id)
+	local sid = assert(card.sid)
+	assert(self:getcard(id)==nil)
+	self.sid_id[sid] = id
+	self:add(card,id)
 end
 
--- wrapper
-function ccarddb:addcard(card,reason)
-	logger.log("info","card",string.format("%d addcard,id=%d sid=%d amount=%d reason=%s",self.pid,card.id,card.sid,card:getamount(),reason))
-	self:__addcard(card)
-	self:afteraddcard(card)
-end
-
-function ccarddb:delcard(card,reason)
-	assert(getracename(card.race) == self.__flag)
-	local id = card.id
-	assert(self.id_card[id],"not exists id:" .. tostring(id))
-	logger.log("info","card",string.format("%d delcard,id=%d sid=%d amount=%d reason=%s",self.pid,id,card.sid,card:getamount(),reason))
-	self.id_card[id] = nil
-	local cards = self.sid_cards[card.sid]
-	for k,v in ipairs(cards) do
-		if v.id == id then
-			table.remove(cards,k)
-			break
-		end
-	end
-	self:afterdelcard(card)
-end
-
-function ccarddb:afteraddcard(card)
-end
-
-function ccarddb:afterdelcard(card)
-end
-
-function ccarddb:check_sid_cards(sid)
-	assert(getclassbycardsid(sid) ~= nil,"Invliad card sid:" .. tostring(sid))
-	if not self.sid_cards[sid] then
-		self.sid_cards[sid] = {}
-	end
-end
-
-function ccarddb:addcardbysid(sid,amount,reason)
-	self:check_sid_cards(sid)
-	-- merge
-	local cardcls = getclassbycardsid(sid)	
-	local max_amount = cardcls.max_amount
-	assert(max_amount ~= 0,"max_amount == 0")
-	for _,card in ipairs(self.sid_cards[sid]) do
-		local num  = card:getamount()
-		if num < max_amount then
-			local addamount = math.min(amount,max_amount-num)
-			amount = amount - addamount
-			card:setamount(num+addamount)
-			if amount <= 0 then
-				break
-			end
-		end
-	end
-	local cnt = math.floor(amount / max_amount)
-	local leftamount = amount - max_amount * cnt
-	local card
-	for i=1,cnt do
-		card = ccard.create(self.pid,sid,max_amount)
-		self:addcard(card,reason)
-	end
-	if leftamount > 0 then
-		card = ccard.create(self.pid,sid,leftamount)
-		self:addcard(card,reason)
-	end
-end
-
-function ccarddb:getamountbysid(sid)
-	self:check_sid_cards(sid)
-	local amount = 0
-	for _,card in ipairs(self.sid_cards[sid]) do
-		amount = amount + card:getamount()
-	end
-	return amount
-end
-
-function ccarddb:delcardbysid(sid,amount,reason)
-	self:check_sid_cards(sid)
-	local cards = self.sid_cards[sid]
-	local delcards = {}
-	for _,card in ipairs(cards) do
-		if amount == 0 then
-			break
-		end
-		if amount >= card:getamount() then
-			amount = amount - card:getamount()
-			table.insert(delcards,card)
-		else
-			amount = 0
-			card:setamount(card:getamount()-amount,reason)
-			break
-		end
-	end
-	assert(amount == 0,"[delcardbysid] hasn't enough amount:" .. tostring(amount))
-	for _,card in ipairs(delcards) do
-		self:delcard(card,reason)
-	end
-end
-
-function ccarddb:compose(sid)
-	local player = playermgr.getplayer(self.pid)	
-	local cardcls = getclassbycardsid(sid)
-	local composechip = cardcls.composechip
-	if not player:validpay("chip",composechip) then
+function ccarddb:delcard(id,reason)
+	local card = self:getcard(id)
+	if not card then
 		return
 	end
-	player:addchip(-composechip,"compose")
-	self:addcardbysid(sid,1,"compose")
+	logger.log("info","card",string.format("[%s] delcard,pid=%s id=%s sid=%s reason=%s",self.name,self.pid,id,card.sid,reason))
+	self:del(id)
+	self.sid_id[card.sid] = nil
+	return card
 end
 
-function ccarddb:decompose(card,amount)
-	amount = amount or 1
-	local oldamount = card:getamount()
-	if amount > oldamount then
-		error(string.format("[decompose] amount not enough: %d > %d",amount,oldamount))
+function ccarddb:delcardbysid(sid,reason)
+	local id = self.sid_id[sid]
+	if id then
+		return self:delcard(id,reason)
 	end
-	local newamount = oldamount - amount
-	local player = playermgr.getplayer(self.pid)
-	local cardcls = getclassbycardsid(card.sid)
-	local decomposechip = cardcls.decomposechip * amount
-	local reason = "decompose"
-	if newamount > 0 then
-		card:setamount(newamount,reason)
-	else
-		self:delcard(card,reason)
-	end
-	player:addchip(decomposechip,reason)
-end
-
-function ccarddb:decomposeleft()
-	local leftcards = self:getleftcards()
-	for _,card in ipairs(leftcards) do
-		self:decompose(card,card:getamount())
-	end
-end
-
-function ccarddb:getleftcards()
-	local leftcards = {}
-	for sid,cards in pairs(self.sid_cards) do
-		local amount = self:getamountbysid(sid)
-		local cardcls = getclassbycardsid(sid)
-		local limit = cardcls.max_amount
-		if amount > limit then
-			local found = false
-			for _,card in ipairs(cards) do
-				if found then
-					table.insert(leftcards,card)
-				else
-					if card:getamount() == limit then
-						found = true
-					else
-						table.insert(leftcards,card)
-					end
-				end
-			end
-			assert(found == true)
-		end
-	end
-	return leftcards
-end
-
-function ccarddb:usecard(id)
-	
 end
 
 return ccarddb

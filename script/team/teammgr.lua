@@ -291,7 +291,7 @@ end
 function cteammgr:unautomatch(pid,reason)
 	local matchdata = self.automatch_pids[pid]
 	if matchdata then
-		logger:logger("info","team",string.format("unautomatch,pid=%d reason=%s",pid,reason))
+		logger.log("info","team",string.format("unautomatch,pid=%d reason=%s",pid,reason))
 		self.automatch_pids[pid] = nil
 	end
 end

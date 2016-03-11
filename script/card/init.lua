@@ -1,51 +1,51 @@
-
-__cardid = __cardid or 0
-function genid()
-	__cardid = __cardid + 1
-	return __cardid
-end
-
+--/*
+--卡牌基类，必须继承后才能实例化
+--*/
 ccard = class("card",cdatabaseable)
 
-function ccard:init(pid)
+function ccard:init(conf)
 	cdatabaseable.init(self,{
-		pid = pid,
+		pid = assert(conf.pid),
 		flag = "card",
 	})
 	self.data = {}
-	self.id = genid()
+	self.sid = assert(conf.sid)
+	self.id = nil --  加入容器后初始化
 end
 
 function ccard:save()
-	return self.data
+	local data = {}
+	data.data = self.data
+	data.id = self.id
+	data.sid = self.sid
+	return data
 end
 
 function ccard:load(data)
 	if not data or not next(data) then
 		return
 	end
-	self.data = data
+	self.data = data.data
+	self.id = data.id
+	self.sid = data.sid
 end
 
--- getter
-function ccard:getamount()
-	return self:basic_query("amount",0)
-end
-
--- setter
-function ccard:setamount(amount,reason)
-	logger.log("info","card",string.format("#%d setamount,id=%d sid=%d amount=%d reason=%s",self.pid,self.id,self.sid,amount,reason))
-	return self:basic_set("amount",amount)
-end
-
-
-function ccard.create(pid,sid,amount)
+--/*
+--新建卡牌
+--@param table conf
+--@example:
+--local card = ccard.create({
+--		pid = 10001,
+--		sid = 121001,
+--		amount = 1,
+--})
+--*/
+function ccard.create(conf)
 	require "script.card.cardmodule"
-	amount = amount or 1
+	local sid = assert(conf.sid)
+	local pid = assert(conf.pid)
 	local cardcls = assert(cardmodule[sid],"invalid card sid:" .. tostring(sid))
-	local card = cardcls.new(pid)
-	card:basic_set("amount",amount)
-	--card:setamount(amount)
+	local card = cardcls.new(conf)
 	return card
 end
 

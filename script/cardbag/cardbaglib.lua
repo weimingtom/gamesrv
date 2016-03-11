@@ -1,8 +1,11 @@
 
 ccardbaglib = class("ccardbaglib",ccontainer)
 
-function ccardbaglib:init(conf)
-	ccontainer.init(self,conf)
+function ccardbaglib:init(pid)
+	ccontainer.init(self,{
+		pid = pid,
+		name = "cardbaglib",
+	})
 	self.sid_id = {}  -- 卡包类型：卡包ID
 end
 
@@ -38,11 +41,19 @@ function ccardbaglib:ondel(cardbag)
 	self.sid_id[cardbag.sid] = nil
 end
 
-function ccardbaglib:newcardbag(sid)
-	return ccardbag.create({
+function ccardbaglib:newcardbag(conf)
+	require "script.cardbag.init"
+	local sid = assert(conf.sid)
+	local cardbag = ccardbag.create({
 		pid = self.pid,
 		sid = sid,
 	})
+	for k,v in pairs(conf) do
+		if k ~= "sid" then
+			cardbag[k] = v
+		end
+	end
+	return cardbag
 end
 
 function ccardbaglib:getcardbag(sid)
@@ -52,13 +63,20 @@ function ccardbaglib:getcardbag(sid)
 	end
 end
 
+function ccardbaglib:getcardbagnum(sid)
+	local cardbag = self:getcardbag(sid)
+	return cardbag and cardbag.amount or 0
+end
+
 --/*
 --增加卡包数量
 --*/
 function ccardbaglib:addcardbag(sid,num,reason)
 	local cardbag = self:getcardbag(sid)
 	if not cardbag then
-		cardbag = self:newcardbag(sid)
+		cardbag = self:newcardbag({
+			sid = sid,
+		})
 		local id = self:genid()
 		logger.log("info","cardbag",string.format("add,pid=%s id=%s sid=%s reason=%s",self.pid,id,sid,reason))
 		self:add(cardbag,id)

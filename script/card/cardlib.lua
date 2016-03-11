@@ -1,7 +1,9 @@
+require "script.card.carddb"
+
 ccardlib = class("ccardlib")
 
-function ccardlib:init(conf)
-	self.pid = assert(conf.pid)
+function ccardlib:init(pid)
+	self.pid = pid
 	self.loadstate = "unload"
 	self.cardid = 0
 	self.name_carddb = {}
@@ -48,6 +50,7 @@ function ccardlib:save()
 		local carddb = self:getcarddb(name)
 		data[name] = carddb:save()
 	end
+	return data
 end
 
 function ccardlib:clear()
@@ -62,14 +65,21 @@ function ccardlib:gencardid()
 	return self.cardid
 end
 
-function ccardlib:newcard(sid)
+function ccardlib:newcard(conf)
 	require "script.card.init"
+	local sid = assert(conf.sid)
 	local id = self:gencardid()
-	return ccard.create({
-		id = id,
+	local card = ccard.create({
 		sid = sid,
 		pid = self.pid,
 	})
+	card.id = id
+	for k,v in pairs(conf) do
+		if k ~= "sid" then
+			card:set(k,v)
+		end
+	end
+	return card
 end
 
 function ccardlib:getcard(id)
@@ -90,6 +100,27 @@ function ccardlib:getcardbysid(sid)
 			return card
 		end
 	end
+end
+
+--/*
+--得到卡牌数量
+--/*
+function ccardlib:getcardnum(sid)
+	local card = self:getcardbysid(sid)
+	return card and card:get("amount",0) or 0
+end
+
+function ccardlib:addcardbysid(sid,num,reason)
+	local card = self:getcardbysid(sid)
+	if not card then
+		card = self:newcard({
+			sid = sid,
+		})
+		self:addcard(card)
+	end
+	local oldamount = card:get("amount",0)
+	logger.log("info","card",string.format("addcardbysid,pid=%s id=%s sid=%s amount=%d+%d",self.pid,card.id,sid,oldamount,num))
+	card:add("amount",num)
 end
 
 function ccardlib:addcard(card,reason)
@@ -127,7 +158,7 @@ function ccardlib:decompose(card,amount)
 	amount = math.min(amount,oldamount)
 	local newamount = oldamount - amount
 	local reason = "decompose"
-	logger.log("info","card",string.format("decompose,pid=%s id=%s sid=%s amount=%s newamount=%s",self.pid,id,card.sid,amount,newamount))
+	logger.log("info","card",string.format("decompose,pid=%s id=%s sid=%s amount=%d-%d",self.pid,id,card.sid,oldamount,amount))
 	if newamount > 0 then
 		card:set("amount",newamount)
 	else
@@ -138,7 +169,7 @@ function ccardlib:decompose(card,amount)
 	player:addchip(decomposechip,reason)
 end
 
-function ccarddb:compose(sid)
+function ccardlib:compose(sid)
 	local player = playermgr.getplayer(self.pid)
 	local cardcls = getclassbycardsid(sid)
 	local composechip = cardcls.composechip
@@ -149,7 +180,9 @@ function ccarddb:compose(sid)
 	player:addchip(-composechip,reason)
 	local card = self:getcardbysid(sid)
 	if not card then
-		card = self:newwarcard(sid)
+		card = self:newcard({
+			sid = sid,
+		})
 		self:addcard(card,reason)
 	end
 	logger.log("info","card",string.format("compose,pid=%s id=%s sid=%s",self.pid,card.id,sid))

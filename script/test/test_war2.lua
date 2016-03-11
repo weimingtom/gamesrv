@@ -7,32 +7,33 @@ require "script.war.aux"
 local function test(pid1,pid2,race,ratios,num)
 	local player1 = playermgr.getplayer(pid1)
 	local player2 = playermgr.getplayer(pid2)
-	player1.carddb:clear()
+	player1.cardlib:clear()
 	player1.cardtablelib:clear()
-	player2.carddb:clear()
+	player2.cardlib:clear()
 	player2.cardtablelib:clear()
 	local cardsids = {}
 	race = race or RACE_GOLDEN
 	num = num or 30
 	cardsids = randomcardtable(ratios,num)
 	for i,cardsid in ipairs(cardsids) do
-		local carddb = player1:getcarddbbysid(cardsid)
-		carddb:addcardbysid(cardsid,1,"test")
-		carddb = player2:getcarddbbysid(cardsid)
-		carddb:addcardbysid(cardsid,1,"test")
+		player1.cardlib:addcardbysid(cardsid,1,"test")
+		player2.cardlib:addcardbysid(cardsid,1,"test")
 	end
 	local mode = CARDTABLE_MODE_NORMAL
-	local cardtable = {
-		id = 1,
-		mode = mode,
-		cards = cardsids,
+	local cardtable1 = {
 		race = race,
+		name = "test",
+		cards = cardsids,
 	}
-	pprintf("cardtable:%s",cardtable)
-	player1.cardtablelib:updatecardtable(cardtable)
-	player2.cardtablelib:updatecardtable(cardtable)
-	assert(player1.cardtablelib:getcardtable(1,mode))
-	assert(player2.cardtablelib:getcardtable(1,mode))
+	local cardtable2 = {
+		race = race,
+		name = "test",
+		cards = cardsids,
+	}
+
+	pprintf("cardtable:%s",cardtable1)
+	player1.cardtablelib:addcardtable("fight",cardtable1,"test")
+	player2.cardtablelib:addcardtable("fight",cardtable2,"test")
 	netwar.REQUEST.unsearch_opponent(player1,{
 		type = "fight",
 	})
@@ -42,11 +43,11 @@ local function test(pid1,pid2,race,ratios,num)
 
 	netwar.REQUEST.selectcardtable(player1,{
 		type = "fight",
-		cardtableid = 1,
+		cardtableid = cardtable1.id,
 	})
 	netwar.REQUEST.selectcardtable(player2,{
 		type = "fight",
-		cardtableid = 1,
+		cardtableid = cardtable2.id,
 	})
 	netwar.REQUEST.search_opponent(player1,{
 		type = "fight",
@@ -65,7 +66,6 @@ local function test(pid1,pid2,race,ratios,num)
 	netwar.REQUEST.confirm_handcard(player2,{
 		ids = {},
 	})	
-
 
 end
 

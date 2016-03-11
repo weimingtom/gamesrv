@@ -1,10 +1,9 @@
 
 require "script.card.init"
-require "script.card.carddb"
+require "script.card.cardlib"
 require "script.card.cardtablelib"
+require "script.cardbag.cardbaglib"
 require "script.friend.frienddb"
-require "script.card.cardbaglib"
-require "script.card.cardcontainer"
 require "script.achieve.achievedb"
 require "script.task.taskmgr"
 require "script.item.itemdb"
@@ -32,20 +31,7 @@ function cplayer:init(pid)
 	self.chip = nil
 
 	self.data = {}
-	self.golden_carddb = ccarddb.new{pid = self.pid,flag = "golden",}
-	self.wood_carddb = ccarddb.new{pid=self.pid,flag="wood",}
-	self.water_carddb = ccarddb.new{pid=self.pid,flag="water",}
-	self.fire_carddb = ccarddb.new{pid=self.pid,flag="fire",}
-	self.soil_carddb = ccarddb.new{pid=self.pid,flag="soil",}
-	self.neutral_carddb = ccarddb.new{pid=self.pid,flag="neutral",}
-	self.carddb = ccardcontainer.new{
-		golden = self.golden_carddb,
-		wood = self.wood_carddb,
-		water = self.water_carddb,
-		fire = self.fire_carddb,
-		soil = self.soil_carddb,
-		neutral = self.neutral_carddb,
-	}
+	self.cardlib = ccardlib.new(self.pid)
 	self.cardtablelib = ccardtablelib.new(self.pid)
 	self.cardbaglib = ccardbaglib.new(self.pid)
 	self.frienddb = cfrienddb.new(self.pid)
@@ -76,7 +62,7 @@ function cplayer:init(pid)
 	self.itemdb = citemdb.new(self.pid)
 	self.autosaveobj = {
 		time = self.timeattr,
-		card = self.carddb,
+		card = self.cardlib,
 		cardtablelib = self.cardtablelib, 
 		cardbaglib = self.cardbaglib,
 		friend = self.frienddb,
@@ -420,49 +406,13 @@ function cplayer:addchip(val,reason)
 	return val
 end
 
-function cplayer:getcarddbbysid(sid)
-	local cardcls = getclassbycardsid(sid)
-	local racename = getracename(cardcls.race)
-	local carddb = self.carddb:getcarddb_byname(racename)
-	return assert(carddb,"Invalid card sid:" .. tostring(sid))
-end
-
-function cplayer:getcard(cardid)
-	for name,_carddb in pairs(self.carddb.data) do
-		local card = _carddb.getcard(cardid)
-		if card then
-			return card
-		end
-	end
-end
-
-function cplayer:addcard(sid,num,reason)
-	local carddb = self:getcarddbbysid(sid)
-	carddb:addcardbysid(sid,num,reason)
-end
-
-function cplayer:addcards(cards,reason)
-	for i,v in ipairs(cards) do
-		self:addcard(v.itemid,v.num,reason)
-	end
-end
-
-function cplayer:addcardbag(id,num,reason)
-	if not self.cardbaglib:isvalidid(id) then
-		return 0
-	end
-	if num < 0 then
-		local hasnum = self.cardbaglib:getcardbagnum(id)
-		assert(hasnum + num >= 0,"[addcardbag] num not enough")
-	end
-	return self.cardbaglib:addcardbag(id,num,reason)
-end
 
 function cplayer:additem(itemid,num,reason)
-	if itemid <= MAX_ITEMID then -- cardbag
-		self:addcardbag(itemid,num,reason)
-	else	-- card
-		self:addcard(itemid,num,reason)
+	local typename = typenameof(itemid)
+	if typename == "cardbag" then
+		self.cardbaglib:addcardbag(itemid,num,reason)
+	elseif typename == "card" then
+		self.cardlib:addcardbysid(itemid,num,reason)
 	end
 end
 
@@ -502,7 +452,7 @@ end
 function cplayer:pack_fight_profile(wartype)
 	local mode = WarType[wartype]
 	local cardtableid = assert(self:query("fight.cardtableid"))
-	local cardtable = self.cardtablelib:getcardtable(cardtableid,mode)
+	local cardtable = self.cardtablelib:getcardtable(cardtableid)
 	
 	return {
 		pid = self.pid,

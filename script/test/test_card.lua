@@ -8,90 +8,72 @@ local function test(pid)
 	if not player then
 		return	
 	end
-	player.carddb:clear()
+	player.cardlib:clear()
 	player.cardtablelib:clear()
+	player.cardbaglib:clear()
+	player:addchip(1000000,"test")
 
-	local carddb = player:getcarddbbysid(11201)
-	carddb:addcardbysid(11201,3)
-	assert(carddb:getamountbysid(11201) == 3)
-	carddb:delcardbysid(11201,1)
-	assert(carddb:getamountbysid(11201) == 2)
-	local ok,result = pcall(carddb.delcardbysid,carddb,11201,4) -- not enough
-	assert(ok == false)
-	assert(carddb:getamountbysid(11201) == 2)
-	carddb:delcardbysid(11201,2)
-	assert(carddb:getamountbysid(11201)==0)
-	carddb:addcardbysid(11201,4)
-	assert(carddb:getamountbysid(11201) == 4)
-	local carddb2 = player:getcarddbbysid(21101)
-	carddb2:addcardbysid(21101,3)
-	assert(carddb2:getamountbysid(21101) == 3)
-	local ok,result = pcall(carddb.addcardbysid,carddb,1111111,10,"test") --error,card sid non exists
-	assert(ok == false)
-
-	-- compose/decompose
-	player:set("chip",0)
-	local cards = carddb.sid_cards[11201]
-	local card = cards[1]
-	local sid = card.sid
-	local decomposechip = card.decomposechip
-	local composechip = card.composechip
-	local num1 = carddb:getamountbysid(sid)
-	carddb:decompose(card,1)
-	print(num1,carddb:getamountbysid(sid))
-	assert(num1 - 1 == carddb:getamountbysid(sid))
-	print(player:getchip(),decomposechip)	
-	assert(player:getchip() == decomposechip)
-	local num1 = carddb:getamountbysid(sid)
-	carddb:compose(sid)  -- chip not enough
-	assert(num1 == carddb:getamountbysid(sid))
-	player:addchip(composechip-decomposechip,"test")
-	carddb:compose(sid)
-	assert(num1 + 1 == carddb:getamountbysid(sid))
-	assert(player:getchip() == 0)
-	local cardcls = getclassbycardsid(sid)
-	local addchip = math.max(0,carddb:getamountbysid(11201) - cardcls.max_amount) * cardcls.decomposechip
-	cardcls2 = getclassbycardsid(21101)
-	addchip = addchip + math.max(0,carddb2:getamountbysid(21101) - cardcls2.max_amount) * cardcls2.decomposechip
-	print(carddb.__flag)
-	for _,sid in ipairs({11201,21101,}) do
-		local tmpdb = player:getcarddbbysid(sid)
-		tmpdb:decomposeleft()
-	end
-	assert(player:getchip() == addchip)
-	assert(carddb:getamountbysid(11201) == cardcls.max_amount)
-	assert(carddb:getamountbysid(21101) == cardcls2.max_amount)
-	pprintf("card:%s",player.carddb:save())
+	player.cardlib:addcardbysid(141001,3)
+	assert(player.cardlib:getcardnum(141001)==3)
+	local card = player.cardlib:getcardbysid(141001)
+	player.cardlib:decompose(card,1)
+	assert(player.cardlib:getcardnum(141001)==2)
+	player.cardlib:decompose(card,2)
+	assert(player.cardlib:getcardbysid(141001)==nil)
+	player.cardlib:compose(141001)
+	assert(player.cardlib:getcardnum(141001)==1)
+	player.cardlib:compose(141001)
+	assert(player.cardlib:getcardnum(141001)==2)
+	player.cardlib:delcardbysid(141001)
+	assert(player.cardlib:getcardbysid(141001)==nil)
+	local card = player.cardlib:newcard({
+		sid = 141001,
+		amount = 5,
+	})
+	player.cardlib:addcard(card,"test")
+	assert(card == player.cardlib:getcard(card.id))
+	assert(card:get("amount")==5)
+	player.cardlib:delcard(card.id,"test")
+	assert(player.cardlib:getcardbysid(card.sid)==nil)
 
 	-- cardtable
 	local cards = randomcard(30,2)
 	local cardtable = {
-		id = 9,
-		race = 1,
+		name = "cardtable_name",
 		cards = cards,
-		mode = 0,
 	}
-	local ok,result = pcall(player.cardtablelib.updatecardtable,player.cardtablelib,cardtable)
-	assert(ok == false)
-	cardtable.id = 1
-	assert(player.cardtablelib.normal_cardtablelib[1] == nil)
-	local result = player.cardtablelib:updatecardtable(cardtable)
-	assert(result.result ~= 0) -- card not enough
-	for _,sid in ipairs(cardtable.cards) do
-		local carddb = player:getcarddbbysid(sid)
-		carddb:addcardbysid(sid,1,"test")
-	end
-	result = player.cardtablelib:updatecardtable(cardtable)
-	assert(result.result == 0)
-	--pprintf("normal_cardtablelib:%s",player.cardtablelib.normal_cardtablelib)
-	assert(player.cardtablelib.normal_cardtablelib[1] ~= nil)
-	cardtable.mode = 1
-	assert(player.cardtablelib.nolimit_cardtablelib[1] == nil)
-	player.cardtablelib:updatecardtable(cardtable)
-	assert(player.cardtablelib.nolimit_cardtablelib[1] ~= nil)
-	player.cardtablelib:delcardtable(1,1)
-	assert(player.cardtablelib.nolimit_cardtablelib[1] == nil)
-	pprintf("cardtable:%s",player.cardtablelib:save())
+	player.cardtablelib:addcardtable("fight",cardtable,"test")
+	assert(cardtable.id~=nil)
+	assert(player.cardtablelib:getcardtable(cardtable.id)==cardtable)
+	assert(cardtable.pos==1)
+	player.cardtablelib:updatecardtable(cardtable.id,{
+		name = "newname",
+		cards = {},
+	})
+	assert(player.cardtablelib:getcardtable(cardtable.id)==cardtable)
+	assert(cardtable.name == "newname")
+	assert(next(cardtable.cards)==nil)
+	player.cardtablelib:delcardtable(cardtable.id,"test")
+	assert(player.cardtablelib:getcardtable(cardtable.id)==nil)
+
+	-- cardbag
+	player.cardbaglib:addcardbag(1000,5)
+	assert(player.cardbaglib:getcardbagnum(1000)==5)
+	player.cardbaglib:removecardbag(1000,3)
+	assert(player.cardbaglib:getcardbagnum(1000)==2)
+	player.cardbaglib:addcardbag(1000,2)
+	assert(player.cardbaglib:getcardbagnum(1000)==4)
+	local cardbag = player.cardbaglib:newcardbag({
+		sid = 1001,
+		amount = 3,
+	})
+	player.cardbaglib:add(cardbag)
+	assert(cardbag.id ~= nil)
+	assert(player.cardbaglib:get(cardbag.id)==cardbag)
+	assert(player.cardbaglib:getcardbagnum(cardbag.sid) == 3)
+	assert(player.cardbaglib.len == 2)
+	player.cardbaglib:clear()
+	assert(player.cardbaglib.len == 0)
 end
 
 return test
