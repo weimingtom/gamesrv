@@ -3,7 +3,7 @@ from base import *
 import os
 import sys
 
-def parse_award_award(sheet_name,sheet_data,dstpath):
+def parse_formula(sheet_name,sheet_data,dstpath):
 	cfg = {
 			"linefmt" :
 """
@@ -20,7 +20,7 @@ def parse_award_award(sheet_name,sheet_data,dstpath):
 	daobiao(sheet,"data_formula",cfg,dstpath)
 
 parses = {
-		"公式" : parse_award_award,
+		u"公式" : parse_formula,
 }
 
 if __name__ == "__main__":

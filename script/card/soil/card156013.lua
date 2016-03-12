@@ -31,7 +31,7 @@ ccard156013 = class("ccard156013",super,{
         onuse = {addbuff={addatk=1,addmaxhp=1,addhp=1}},
         ondie = nil,
         onhurt = nil,
-        onrecorverhp = nil,
+        onrecoverhp = nil,
         onbeginround = nil,
         onendround = nil,
         ondelsecret = nil,

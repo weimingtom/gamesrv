@@ -31,7 +31,7 @@ ccard261015 = class("ccard261015",super,{
         onuse = {putinhand={sid=166027,num=2}},
         ondie = nil,
         onhurt = nil,
-        onrecorverhp = nil,
+        onrecoverhp = nil,
         onbeginround = nil,
         onendround = nil,
         ondelsecret = nil,

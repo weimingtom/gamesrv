@@ -18,7 +18,6 @@ data_achievement = {
 		desc = "金币达到1000",
 	},
 
-
 	[2] = {
 		id = 2,
 		name = "金币达到10000",
@@ -36,7 +35,6 @@ data_achievement = {
 		desc = "金币达到10000",
 	},
 
-
 	[3] = {
 		id = 3,
 		name = "金币达到100000",
@@ -53,7 +51,6 @@ data_achievement = {
 		award = {{type=1,value={[4]=1}}},
 		desc = "金币达到100000",
 	},
-
 
 }
 return data_achievement

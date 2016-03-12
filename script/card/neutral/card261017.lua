@@ -31,7 +31,7 @@ ccard261017 = class("ccard261017",super,{
         onuse = nil,
         ondie = nil,
         onhurt = nil,
-        onrecorverhp = nil,
+        onrecoverhp = nil,
         onbeginround = nil,
         onendround = {addfootman={sid=166021,num=1}},
         ondelsecret = nil,
