@@ -1,10 +1,10 @@
 --<<card 导表开始>>
-local super = require "script.card.init"
+local super = require "script.card.wood.card124006"
 
-ccard125010 = class("ccard125010",super,{
-    sid = 125010,
+ccard225003 = class("ccard225003",super,{
+    sid = 225003,
     race = 2,
-    name = "王者祝福",
+    name = "保护只手",
     type = 101,
     magic_immune = 0,
     assault = 0,
@@ -23,12 +23,12 @@ ccard125010 = class("ccard125010",super,{
     decomposechip = 10,
     atk = 0,
     maxhp = 0,
-    crystalcost = 4,
-    targettype = 22,
+    crystalcost = 1,
+    targettype = 32,
     halo = nil,
-    desc = "使一个随从获得+4/+4。（+4攻击力/+4生命值）",
+    desc = "使一个随从获得圣盾。",
     effect = {
-        onuse = {addbuff={addatk=4,addmaxhp=4,addhp=4}},
+        onuse = {shield=60},
         ondie = nil,
         onhurt = nil,
         onrecoverhp = nil,
@@ -72,32 +72,24 @@ ccard125010 = class("ccard125010",super,{
     },
 })
 
-function ccard125010:init(conf)
+function ccard225003:init(conf)
     super.init(self,conf)
 --<<card 导表结束>>
 
 end --导表生成
 
-function ccard125010:load(data)
+function ccard225003:load(data)
     if not data or not next(data) then
         return
     end
-    super.load(self,data.data)
+    super.load(self,data)
     -- todo: load data
 end
 
-function ccard125010:save()
-    local data = {}
-    data.data = super.save(self)
+function ccard225003:save()
+    local data = super.save(self)
     -- todo: save data
     return data
 end
 
-function ccard125010:onuse(pos,targetid,choice)
-	local owner = self:getowner()
-	local target = owner:gettarget(targetid)
-	local buff = self:newbuff(ccard125010.effect.onuse.addbuff)
-	target:addbuff(buff)
-end
-
-return ccard125010
+return ccard225003

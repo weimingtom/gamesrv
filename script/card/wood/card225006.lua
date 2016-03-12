@@ -1,15 +1,15 @@
 --<<card 导表开始>>
-local super = require "script.card.init"
+local super = require "script.card.wood.card124006"
 
-ccard125010 = class("ccard125010",super,{
-    sid = 125010,
+ccard225006 = class("ccard225006",super,{
+    sid = 225006,
     race = 2,
-    name = "王者祝福",
-    type = 101,
+    name = "真银之剑",
+    type = 301,
     magic_immune = 0,
     assault = 0,
     sneer = 0,
-    atkcnt = 0,
+    atkcnt = 1,
     shield = 0,
     warcry = 0,
     dieeffect = 0,
@@ -21,14 +21,14 @@ ccard125010 = class("ccard125010",super,{
     max_amount = 2,
     composechip = 100,
     decomposechip = 10,
-    atk = 0,
-    maxhp = 0,
+    atk = 4,
+    maxhp = 2,
     crystalcost = 4,
-    targettype = 22,
+    targettype = 0,
     halo = nil,
-    desc = "使一个随从获得+4/+4。（+4攻击力/+4生命值）",
+    desc = "每当你的英雄进攻时,为其恢复2点生命值。",
     effect = {
-        onuse = {addbuff={addatk=4,addmaxhp=4,addhp=4}},
+        onuse = nil,
         ondie = nil,
         onhurt = nil,
         onrecoverhp = nil,
@@ -49,7 +49,7 @@ ccard125010 = class("ccard125010",super,{
         after_beginround = nil,
         before_endround = nil,
         after_endround = nil,
-        before_atttack = nil,
+        before_atttack = {recoverhp=2},
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
@@ -72,32 +72,24 @@ ccard125010 = class("ccard125010",super,{
     },
 })
 
-function ccard125010:init(conf)
+function ccard225006:init(conf)
     super.init(self,conf)
 --<<card 导表结束>>
 
 end --导表生成
 
-function ccard125010:load(data)
+function ccard225006:load(data)
     if not data or not next(data) then
         return
     end
-    super.load(self,data.data)
+    super.load(self,data)
     -- todo: load data
 end
 
-function ccard125010:save()
-    local data = {}
-    data.data = super.save(self)
+function ccard225006:save()
+    local data = super.save(self)
     -- todo: save data
     return data
 end
 
-function ccard125010:onuse(pos,targetid,choice)
-	local owner = self:getowner()
-	local target = owner:gettarget(targetid)
-	local buff = self:newbuff(ccard125010.effect.onuse.addbuff)
-	target:addbuff(buff)
-end
-
-return ccard125010
+return ccard225006

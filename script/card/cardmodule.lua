@@ -461,16 +461,16 @@ require "script.card.wood.card224003"
 require "script.card.wood.card224004"
 require "script.card.wood.card224005"
 require "script.card.wood.card224006"
-require "script.card.wood.card125001"
-require "script.card.wood.card125002"
-require "script.card.wood.card125003"
-require "script.card.wood.card125004"
-require "script.card.wood.card125005"
-require "script.card.wood.card125006"
-require "script.card.wood.card125007"
-require "script.card.wood.card125008"
-require "script.card.wood.card125009"
-require "script.card.wood.card125010"
+require "script.card.wood.card225001"
+require "script.card.wood.card225002"
+require "script.card.wood.card225003"
+require "script.card.wood.card225004"
+require "script.card.wood.card225005"
+require "script.card.wood.card225006"
+require "script.card.wood.card225007"
+require "script.card.wood.card225008"
+require "script.card.wood.card225009"
+require "script.card.wood.card225010"
 require "script.card.wood.card226001"
 require "script.card.wood.card226002"
 require "script.card.wood.card226003"
@@ -1139,16 +1139,16 @@ cardmodule[224003] = ccard224003
 cardmodule[224004] = ccard224004
 cardmodule[224005] = ccard224005
 cardmodule[224006] = ccard224006
-cardmodule[125001] = ccard125001
-cardmodule[125002] = ccard125002
-cardmodule[125003] = ccard125003
-cardmodule[125004] = ccard125004
-cardmodule[125005] = ccard125005
-cardmodule[125006] = ccard125006
-cardmodule[125007] = ccard125007
-cardmodule[125008] = ccard125008
-cardmodule[125009] = ccard125009
-cardmodule[125010] = ccard125010
+cardmodule[225001] = ccard225001
+cardmodule[225002] = ccard225002
+cardmodule[225003] = ccard225003
+cardmodule[225004] = ccard225004
+cardmodule[225005] = ccard225005
+cardmodule[225006] = ccard225006
+cardmodule[225007] = ccard225007
+cardmodule[225008] = ccard225008
+cardmodule[225009] = ccard225009
+cardmodule[225010] = ccard225010
 cardmodule[226001] = ccard226001
 cardmodule[226002] = ccard226002
 cardmodule[226003] = ccard226003
