@@ -479,7 +479,7 @@ function cwarobj:canattack(target)
 	local sneer_footmans = {}
 	for _,id in ipairs(enemy.warcards) do
 		local card = enemy:getcard(id)
-		if card:hasstate("sneer") then
+		if card:hasstate("sneer") and not card:hasstate("immune") then
 			sneer_footmans[id] = true
 		end
 	end
