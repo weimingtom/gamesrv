@@ -4,7 +4,7 @@ require "script.playermgr"
 require "script.net.war"
 require "script.war.aux"
 
-local function test(pid1,pid2,race,ratios,num)
+local function test(pid1,pid2,race,num)
 	local player1 = playermgr.getplayer(pid1)
 	local player2 = playermgr.getplayer(pid2)
 	player1.cardlib:clear()
@@ -14,7 +14,10 @@ local function test(pid1,pid2,race,ratios,num)
 	local cardsids = {}
 	race = race or RACE_GOLDEN
 	num = num or 30
-	cardsids = randomcardtable(ratios,num)
+	local name = string.format("种族:%d",race)
+	local cardsids = getcards(name,function (cardcls)
+		return cardcls.race == race
+	end)
 	for i,cardsid in ipairs(cardsids) do
 		player1.cardlib:addcardbysid(cardsid,1,"test")
 		player2.cardlib:addcardbysid(cardsid,1,"test")
