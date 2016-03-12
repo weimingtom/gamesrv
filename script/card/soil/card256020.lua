@@ -24,9 +24,9 @@ ccard256020 = class("ccard256020",super,{
     atk = 0,
     maxhp = 0,
     crystalcost = 3,
-    targettype = 32,
+    targettype = 22,
     halo = nil,
-    desc = "嘲讽",
+    desc = "使一个随从+4生命值并具有嘲讽",
     effect = {
         onuse = {addbuff={addmaxhp=4,addhp=4,sneer=1}},
         ondie = nil,

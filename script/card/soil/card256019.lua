@@ -24,9 +24,9 @@ ccard256019 = class("ccard256019",super,{
     atk = 0,
     maxhp = 0,
     crystalcost = 3,
-    targettype = 32,
+    targettype = 22,
     halo = nil,
-    desc = "None",
+    desc = "使一个随从获得+4攻击力",
     effect = {
         onuse = {addbuff={addatk=4}},
         ondie = nil,

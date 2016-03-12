@@ -24,7 +24,7 @@ ccard114006 = class("ccard114006",super,{
     atk = 3,
     maxhp = 2,
     crystalcost = 2,
-    targettype = 23,
+    targettype = 0,
     halo = {addcrystalcost=-1},
     desc = "你的法术的法力值消耗减少1点",
     effect = {
