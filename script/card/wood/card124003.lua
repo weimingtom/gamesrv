@@ -82,13 +82,12 @@ function ccard124003:load(data)
     if not data or not next(data) then
         return
     end
-    super.load(self,data.data)
+    super.load(self,data)
     -- todo: load data
 end
 
 function ccard124003:save()
-    local data = {}
-    data.data = super.save(self)
+    local data = super.save(self)
     -- todo: save data
     return data
 end
