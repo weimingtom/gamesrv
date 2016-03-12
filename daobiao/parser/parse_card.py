@@ -202,7 +202,9 @@ return ccard%d
     ignorerow = parser.m_cfg.get("ignorerows",0) 
     for row in range(ignorerow,sheet.rows()):
         line = sheet.line(row)        
-        sid = line["sid"]
+        sid = int(line["sid"])
+        if sid >= 200000 and type(sid) == float:
+            print(sid,">>>")
         if sid / 100000 == 1:
             linefmt = cfg["inherit_head1"] + cfg["linefmt"]
         elif sid / 100000 == 2:
