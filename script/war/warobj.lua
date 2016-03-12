@@ -308,7 +308,7 @@ function cwarobj:getrecoverhp(recoverhp)
 	return self:is_cure_to_hurt() and -ret or ret
 end
 
-function cwarcard:is_cure_to_hurt()
+function cwarobj:is_cure_to_hurt()
 	for i,id in ipairs(self.warcards) do
 		local warcard = self:getcard(id)
 		if warcard.cure_to_hurt > 0 then
@@ -730,7 +730,6 @@ function cwarobj:delweapon()
 	if not weapon then
 		return
 	end
-	self:log("debug","war",string.format("delweapon,id=%d",warcardid))
 	self.hero:delweapon()
 end
 
