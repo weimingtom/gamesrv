@@ -23,7 +23,7 @@ end
 function cwoodhero:useskill(targetid)
 	chero.useskill(self,targetid)
 	local owner = self:getowner()
-	local warcard = owner:newwarcard(12602)
+	local warcard = owner:newwarcard(126002)
 	owner:putinwar(warcard)
 end
 

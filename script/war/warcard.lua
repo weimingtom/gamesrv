@@ -130,7 +130,7 @@ function cwarcard:__recoverhp(value,srcid)
 		if not owner:execute("before_recoverhp",self,recoverhp,srcid) then
 			return 0
 		end
-		self:execute("onrecorverhp",recoverhp,srcid)
+		self:execute("onrecoverhp",recoverhp,srcid)
 		self.hp = self.hp + recoverhp
 		owner:execute("after_recoverhp",self,recoverhp,srcid)
 	end
@@ -519,11 +519,12 @@ function cwarcard:checkhalo()
 end
 
 function cwarcard:checkstate()
+	local owner = self:getowner()
 	local updateattrs = {}
 	for k,_ in pairs(CAN_COST_STATE) do
 		local exceedround = self[k]
 		if exceedround then
-			if exceedround ~= 0 and exceedround <= self.roundcnt then
+			if exceedround ~= 0 and exceedround <= owner.roundcnt then
 				self[k] = 0
 				updateattrs[k] = self[k]
 			end

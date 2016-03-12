@@ -96,7 +96,7 @@ end
 function ccard125002:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local target = owner:gettarget(targetid)
-	local recorverhp = ccard125002.effect.onuse.recorverhp
+	local recoverhp = ccard125002.effect.onuse.recoverhp
 	recoverhp = self:getrecoverhp(recoverhp)
 	target:addhp(recoverhp,self.id)
 end

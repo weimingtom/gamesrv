@@ -255,9 +255,10 @@ function chero:addweapon(weapon)
 		self:delweapon()
 	end
 	local owner = self:getowner()
-	if not owner:execute("addweapon",weapon) then
+	if not owner:execute("before_addweapon",weapon) then
 		return
 	end
+	self:log("debug","war",string.format("addweapon,id=%d sid=%d",weapon.id,weapon.sid))
 	self.weapon = weapon
 	owner:execute("after_addweapon",weapon)
 end

@@ -722,7 +722,6 @@ function cwarobj:delsecret(warcardid,reason)
 end
 
 function cwarobj:addweapon(warcard)
-	self:log("debug","war",string.format("addweapon,id=%d sid=%d",warcard.id.warcard.sid))
 	self.hero:addweapon(warcard)
 end
 
