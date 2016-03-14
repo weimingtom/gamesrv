@@ -16,11 +16,12 @@ function ctaskdb:load(data)
 		local task = ctask.new(taskid)
 		task:load(d)
 		tmp[taskid] = task
-		if task.state == TASK_STATE_FINISH then
-			self.finishtask[taskid] = true
-		end
 	end
 	self.tasks = tmp
+	local finishtasks = data.finishtasks or {}
+	for i,taskid in ipairs(finishtasks) do
+		self.finishtasks[taskid] = true
+	end
 end
 
 function ctaskdb:save()
@@ -30,6 +31,7 @@ function ctaskdb:save()
 		tmp[tostring(taskid)] = task:save()
 	end
 	data.tasks = tmp
+	data.finishtasks = table.values(self.finishtasks)
 	return data
 end
 
@@ -62,36 +64,41 @@ end
 
 
 -- 可重写
-function ctaskdb:finishtask(taskid)
-	local task = self:gettask(taskid)
-	if not task then
-		return
-	end
+function ctaskdb:finishtask(task)
 	local taskid = task.taskid
 	local oldstate = task.state
 	logger.log("info","task",string.format("finishtask,pid=%d taskid=%d",self.pid,taskid))
-	self:settaskstate(taskid,TASK_STATE_FINISH,true)
+	self:settaskstate(task,TASK_STATE_FINISH,true)
 	local taskdata = gettaskdata(taskid)
 	if taskdata.autosubmit then
-		self:submittask(taskid)
+		if self:can_submittask(task) then
+			self:submittask(task)
+		end
 	end
 	return task
 end
 
-function ctaskdb:submittask(taskid)
-	local task = self:gettask(taskid)
-	if not task then
-		return
-	end
+-- 可重写
+function ctaskdb:addfinishtask(task)
+	local taskid = task.taskid
+	self.finishtasks[taskid] = true
+end
+
+-- 可重写
+function ctaskdb:isfinishtask(task)
+	return task.state == TASK_STATE_FINISH
+end
+
+function ctaskdb:submittask(task)
 	local taskid = task.taskid
 	self:deltask(taskid,"submit")
-	self.finishtasks[taskid] = true
+	self:addfinishtask(task)
 	self:bonustask(task)
 	local taskdata = gettaskdata(taskid)
 	if taskdata.autoaccept then
 		local ratios = {}
 		for tid,ratio in pairs(taskdata.nexttask) do
-			if self:canaccepttask(tid) then
+			if self:can_accepttask(tid) then
 				ratios[tid] = ratio
 			end
 		end
@@ -103,11 +110,7 @@ function ctaskdb:submittask(taskid)
 	return task
 end
 
-function ctaskdb:bonustask(taskid)
-	local task = self:getask(taskid)
-	if not task then
-		return
-	end
+function ctaskdb:bonustask(task)
 	local taskid = task.taskid
 	local taskdata = gettaskdata(taskid)
 	if taskdata.award then
@@ -133,19 +136,15 @@ function ctaskdb:giveuptask(taskid)
 end
 
 
-function ctaskdb:settaskstate(taskid,newstate,nolog)
-	local task = self:gettask(taskid)
-	if task then
-		local oldstate = task.state
-		if not nolog then
-			logger.log("info","task",string.format("settaskstate,pid=%d taskid=%d state=%s->%s",self.pid,taskid,oldstate,newstate))
-		end
-		task.state = newstate
-		return task
+function ctaskdb:settaskstate(task,newstate,nolog)
+	local oldstate = task.state
+	if not nolog then
+		logger.log("info","task",string.format("settaskstate,pid=%d taskid=%d state=%s->%s",self.pid,taskid,oldstate,newstate))
 	end
+	task.state = newstate
 end
 
-function ctaskdb:canaccepttask(taskid)
+function ctaskdb:can_accepttask(taskid)
 	local player = playermgr.getplayer(pid)
 	if not player then
 		return false
@@ -176,21 +175,17 @@ function ctaskdb:canaccepttask(taskid)
 	return true
 end
 
-function ctaskdb:cansubmittask(taskid)
-	local task = self:gettask(taskid)
-	if not task then
-		return false
-	end
-	if task.state ~= TASK_STATE_FINISH then
+function ctaskdb:can_submittask(task)
+	if not self:isfinishtask(task) then
 		return false,"任务未完成"
 	end
 	return true
 end
 
-function ctaskdb:cangiveuptask(taskid)
+function ctaskdb:can_giveuptask(taskid)
 	local taskdata = gettaskdata(taskid)
 	if not taskdata.cangiveup then
-		return false
+		return false,"该任务无法放弃"
 	end
 	return true
 end

@@ -1,6 +1,8 @@
 ctask = class("ctask")
 
 function ctask:init(taskid,data)
+	data = data or {}
+	data = deepcopy(data)
 	local taskdata = assert(gettaskdata(taskid))
 	assert(taskid==taskdata.taskid)
 	self.taskid = taskdata.taskid
@@ -22,7 +24,7 @@ function ctask:init(taskid,data)
 			self.exceedtime = os.time() + secs
 		end
 	end
-	self.data = data or {}
+	self.data = data
 end
 
 function ctask:load(data)
