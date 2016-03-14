@@ -102,7 +102,7 @@ function ccard133005:onbeginround()
 		end
 	end
 	if owner.hero.hp < owner.hero.maxhp then
-		table.insert(owner.hero.id)
+		table.insert(hitids,owner.hero.id)
 	end
 	if table.isempty(hitids) then
 		return

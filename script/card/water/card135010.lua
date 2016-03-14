@@ -99,7 +99,7 @@ function ccard135010:onuse(pos,targetid,choice)
 	end
 	local id = randlist(owner.enemy.handcards)
 	local warcard = owner:gettarget(id)
-	local clone_warcard = owner:clone(id)
+	local clone_warcard = owner:clone(warcard)
 	owner:putinhand(clone_warcard.id)
 end
 

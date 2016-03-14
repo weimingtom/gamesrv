@@ -94,7 +94,8 @@ end
 
 function ccard135003:canplaycard(pos,targetid,choice)
 	local owner = self:getowner()
-	local target = onwer:gettarget(targetid)
+	local target = owner:gettarget(targetid)
+	print("canplaycard",self.id,pos,targetid,target.atk)
 	if target.atk < 5 then
 		return false
 	end

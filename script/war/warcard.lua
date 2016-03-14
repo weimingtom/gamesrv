@@ -761,7 +761,7 @@ function cwarcard:issilence()
 end
 
 function cwarcard:silence()
-	logger.log("debug","war",string.format("[warid=%d] #%d card.silence,cardid=%d",self.warid,self.pid,self.id))
+	self:log("debug","war",string.format("silenceid=%d",self.id))
 	-- 恢复成初始属性
 	self:reinit()
 	self:clear()
