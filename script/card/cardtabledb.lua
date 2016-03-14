@@ -24,6 +24,7 @@ end
 
 function ccardtabledb:clear()
 	ccontainer.clear(self)
+	self.pos_id = {}
 end
 
 function ccardtabledb:getcardtable(id)

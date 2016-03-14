@@ -104,6 +104,9 @@ function ccard133005:onbeginround()
 	if owner.hero.hp < owner.hero.maxhp then
 		table.insert(owner.hero.id)
 	end
+	if table.isempty(hitids) then
+		return
+	end
 	local id = randlist(hitids)
 	local target = owner:gettarget(id)
 	local recoverhp = ccard133005.effect.onbeginround.recoverhp

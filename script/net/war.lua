@@ -18,15 +18,17 @@ netwar.REQUEST = REQUEST
 function REQUEST.selectcardtable(player,request)
 	local cardtableid = assert(request.cardtableid)
 	local type = assert(request.type)
+
 	if type == "fight" then
-		player:set("fight.cardtableid",cardtableid)	
+		player:set("fight.cardtableid",cardtableid)
+
 	end
 end
 
 function REQUEST.search_opponent(player,request)
-	local type = assert(request.type)	
+	local type = assert(request.type)
 	if type == "fight" then
-		local profile = player:pack_fight_profile(type)	
+		local profile = player:pack_fight_profile(type)
 		return cluster.call("warsrvmgr","war","search_opponent",profile)
 	end
 end

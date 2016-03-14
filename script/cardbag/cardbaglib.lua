@@ -31,6 +31,7 @@ end
 
 function ccardbaglib:clear()
 	ccontainer.clear(self)
+	self.sid_id = {}
 end
 
 function ccardbaglib:onadd(cardbag)

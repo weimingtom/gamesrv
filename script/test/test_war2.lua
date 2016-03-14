@@ -43,11 +43,11 @@ local function test(pid1,pid2,race,num)
 	netwar.REQUEST.unsearch_opponent(player2,{
 		type = "fight",
 	})
-
 	netwar.REQUEST.selectcardtable(player1,{
 		type = "fight",
 		cardtableid = cardtable1.id,
 	})
+
 	netwar.REQUEST.selectcardtable(player2,{
 		type = "fight",
 		cardtableid = cardtable2.id,
