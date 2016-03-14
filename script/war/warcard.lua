@@ -151,7 +151,7 @@ function cwarcard:setowner(owner)
 	local card = self_owner:getcard(self.id)
 	if card then
 		card.pid = owner.pid
-		self_owner:delcard(self.id,"setowner")
+		self_owner:delcard(self.id,string.format("setowner:%d",owner.pid))
 		owner:addcard(card)
 	end
 end
@@ -310,7 +310,7 @@ function cwarcard:addbuff(buff)
 		buff.exceedround = owner.roundcnt + buff.lifecircle
 		buff.lifecircle = nil
 	end
-	self:log("info","war",format("addbuff,buff=%s",buff))
+	self:log("info","war",format("addbuff buff=%s",buff))
 	table.insert(self.buffs,buff)
 	local syncattrs = {}
 	for k,v in pairs(buff) do
@@ -341,7 +341,7 @@ end
 function cwarcard:delbuffbypos(pos)
 	local buff = table.remove(self.buffs,pos)
 	if buff then
-		self:log("info","war",format("delbuff,pos=%s buff=%s",pos,buff))
+		self:log("info","war",format("delbuff pos=%s buff=%s",pos,buff))
 		local syncattrs = {}
 		for k,v in pairs(buff) do
 			if not self:cancompute(k) then
@@ -411,7 +411,7 @@ function cwarcard:addhalo(halo)
 		halo.exceedround = owner.roundcnt + halo.lifecircle
 		halo.lifecircle = nil
 	end
-	self:log("info","war",format("addhalo,halo=%s",halo))
+	self:log("info","war",format("addhalo halo=%s",halo))
 	table.insert(self.halofrom,halo)
 	local syncattrs = {}
 	for k,v in pairs(halo) do
@@ -446,7 +446,7 @@ function cwarcard:delhalobypos(pos)
 		local owner = self:getowner()
 		local halofrom_warcard = owner:gettarget(halo.srcid)
 		halofrom_warcard.haloto[self.id] = nil
-		self:log("info","war",format("delhalo,pos=%s halo=%s",pos,halo))
+		self:log("info","war",format("delhalo pos=%s halo=%s",pos,halo))
 		local syncattrs = {}
 		for k,v in pairs(halo) do
 			if not self:cancompute(k) then
@@ -603,7 +603,7 @@ function cwarcard:addeffect(effect)
 		effect.bheid = self.bheid
 	end
 	local packeffect = self:packeffect(effect)
-	self:log("info","war",format("addeffect,effect=%s",packeffect))
+	self:log("info","war",format("addeffect effect=%s",packeffect))
 	if not self.effects[name] then
 		self.effects[name] = {}
 	end
@@ -761,7 +761,7 @@ function cwarcard:issilence()
 end
 
 function cwarcard:silence()
-	self:log("debug","war",string.format("silenceid=%d",self.id))
+	self:log("debug","war",string.format("silence id=%d",self.id))
 	-- 恢复成初始属性
 	self:reinit()
 	self:clear()

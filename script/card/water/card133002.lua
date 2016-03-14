@@ -97,7 +97,7 @@ function ccard133002:onuse(pos,targetid,choice)
 	if owner:getfreespace("warcard") <= 0 then
 		return
 	end
-	local target = onwer:gettarget(targetid)
+	local target = owner:gettarget(targetid)
 	if target:getowner():removefromwar(target) then
 		target:setowner(owner)
 		local effect = self:neweffect({
@@ -111,6 +111,7 @@ function ccard133002:onuse(pos,targetid,choice)
 				return
 			end
 			if owner:removefromwar(self) then
+				self:setowner(owner.enemy)
 				owner.enemy:putinwar(self)
 			end
 		end

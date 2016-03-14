@@ -46,7 +46,7 @@ function warsrvmgr.allocer()
 end
 
 function warsrvmgr.onmatch(profile1,profile2)
-	logger.log("info","war",format("onmatch,%s -> %s",profile1,profile2))
+	logger.log("info","war",format("onmatch %s -> %s",profile1,profile2))
 	profile1.state = "match"
 	profile2.state = "match"
 	profile1.enemy_pid = profile2.pid

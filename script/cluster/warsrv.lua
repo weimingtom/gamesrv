@@ -58,7 +58,6 @@ function CMD.giveupwar(source,request)
 end
 
 function CMD.confirm_handcard(source,request)
-	logger.log("debug","war",format("confirm_handcard,source=%s request=%s",source,request))
 	local warid = assert(request.warid)
 	local pid = assert(request.pid)
 	local war = warmgr.getwar(warid)
