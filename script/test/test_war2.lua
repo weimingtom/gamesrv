@@ -61,6 +61,7 @@ local function test(pid1,pid2,race,num)
 	skynet.sleep(200)
 	local warid = assert(player1:query("fight.warid"))
 	local warsrvname = assert(player1:query("fight.warsrvname"))
+	print("startwar",warsrvname,pid1,pid2,warid)
 	cluster.call(warsrvname,"modmethod","war.ai",".inject_ai",warid,pid1)
 	cluster.call(warsrvname,"modmethod","war.ai",".inject_ai",warid,pid2)
 	netwar.REQUEST.confirm_handcard(player1,{

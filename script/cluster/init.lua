@@ -43,7 +43,9 @@ function cluster.__dispatch(session,source,srvname,cmd,...)
 		return clustermgr.heartbeat(srvname)
 	else
 		local mod = assert(netcluster[cmd],string.format("[cluster] from %s,unkonw cmd:%s",srvname,cmd))
-		return mod.dispatch(srvname,...)
+		local ret = {mod.dispatch(srvname,...)}
+		logger.log("debug","netcluster",format("[return] srvname=%s session=%s retval=%s",srvname,session,ret))
+		return table.unpack(ret)
 	end
 end
 
