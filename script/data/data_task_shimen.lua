@@ -26,7 +26,7 @@ data_task_shimen = {
 		name = "巡逻遇怪",
 		category = "师门",
 		type = 2,
-		param = {posid=10001,warid=10001},
+		param = {locid=10001,warid=10001},
 		award = {{type=1,value={[1]=100,[2]=200}},},
 		help_award = {},
 		openlv = 30,
