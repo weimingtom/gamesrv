@@ -49,7 +49,13 @@ function ai.onbeginround(warobj)
 		end
 	end
 	-- playcard
+	local cnt = 0
 	while warobj.crystal > 0 and not warmgr.isgameover(warid) do
+		cnt = cnt + 1
+		-- 最多打10张牌，防止某些牌打不出去造成死循环
+		if cnt > 10 then
+			break
+		end
 		local canuse_cardids = ai.getcanuse_cardids(warobj)
 		if #canuse_cardids == 0 then
 			break

@@ -18,6 +18,7 @@ end
 function cwaterhero:useskill(targetid)
 	chero.useskill(self,targetid)
 	local owner = self:getowner()
+	local target = owner:gettarget(targetid)
 	local recoverhp = owner:getrecoverhp(2)
 	target:addhp(recoverhp,self.id)
 end

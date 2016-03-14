@@ -4,7 +4,7 @@ require "script.playermgr"
 require "script.net.war"
 require "script.war.aux"
 
-local function test(pid1,pid2,race,num)
+local function test(pid1,pid2,race1,cardrace1,race2,cardrace2)
 	local player1 = playermgr.getplayer(pid1)
 	local player2 = playermgr.getplayer(pid2)
 	player1.cardlib:clear()
@@ -12,29 +12,35 @@ local function test(pid1,pid2,race,num)
 	player2.cardlib:clear()
 	player2.cardtablelib:clear()
 	local cardsids = {}
-	race = race or RACE_GOLDEN
-	num = num or 30
-	local name = string.format("种族:%d",race)
-	local cardsids = getcards(name,function (cardcls)
-		return cardcls.race == race
+	local name = string.format("种族:%d",race1)
+	local cardsids1 = getcards(name,function (cardcls)
+		return cardcls.race == cardrace1
 	end)
-	for i,cardsid in ipairs(cardsids) do
+	local name = string.format("种族:%d",race2)
+	local cardsids2 = getcards(name,function (cardcls)
+		return cardcls.race == cardrace2
+	end)
+	for i,cardsid in ipairs(cardsids1) do
 		player1.cardlib:addcardbysid(cardsid,1,"test")
+	end
+	for i,cardsid in ipairs(cardsids2) do
 		player2.cardlib:addcardbysid(cardsid,1,"test")
 	end
 	local mode = CARDTABLE_MODE_NORMAL
 	local cardtable1 = {
-		race = race,
+		race = race1,
 		name = "test",
-		cards = cardsids,
+		cards = cardsids1,
 	}
 	local cardtable2 = {
-		race = race,
+		race = race2,
 		name = "test",
-		cards = cardsids,
+		cards = cardsids2,
 	}
 
-	pprintf("cardtable:%s",cardtable1)
+	pprintf("pid=%s cardtable=%s",pid1,cardtable1)
+	pprintf("pid=%s cardtable=%s",pid2,cardtable2)
+
 	player1.cardtablelib:addcardtable("fight",cardtable1,"test")
 	player2.cardtablelib:addcardtable("fight",cardtable2,"test")
 	netwar.REQUEST.unsearch_opponent(player1,{
