@@ -5,86 +5,96 @@ function playermgr.getobject(pid)
 end
 
 function playermgr.getplayer(pid)
-	assert(pid > 0)
-	local player = playermgr.getobject(pid)
-	if player then
-		if player.__state == "offline" then
-			player.__activetime = os.time()
-		end
+	local obj = playermgr.getobject(pid)
+	if obj and obj.pid > 0 then
+		assert(obj.offline ~= true)
+		return obj
 	end
-	return player
 end
 
 function playermgr.unloadofflineplayer(pid)
-	local player = playermgr.getplayer(pid)
+	local player = playermgr.id_offlineplayer[pid]
 	if player then
-		if player.__state == "offline" then
-			self:delobject(pid,"unloadofflineplayer")
-			return player
-		end
+		playermgr.id_offlineplayer[pid] = nil
+		del_saveobj(player)
+		-- not need savetodatabase
 	end
 end
 
 function playermgr.loadofflineplayer(pid)
 	require "script.player"
-	local player = playermgr.getplayer(pid)
-	if player then
-		return player
+	local player = playermgr.id_offlineplayer[pid]
+	if not player then
+		player = cplayer.new(pid)
+		player:loadfromdatabase(true)
+		player.offline = true
 	end
-	player = cplayer.new(pid)
-	player:loadfromdatabase(true)
-	assert(player:isloaded())
-	player.__state = "offline"
-	self:addobject(player,"loadofflineplayer")
+	print(pid,player:isloaded())
+	if player:isloaded() then
+		playermgr.id_offlineplayer[pid] = player
+	end
+	return playermgr.id_offlineplayer[pid]
+end
+
+--[[
+function playermgr.loadofflineplayer(pid,modname)
+	require "script.player"
+	modname = modname or "all"
+	local player = playermgr.id_offlineplayer[pid]
+	if player then
+		if modname == "base" then
+			if player.loadstate == "loaded" then
+				return player
+			end
+		elseif modname == "all" then
+			player:loadfromdatabase(true)
+		else
+			assert(player.autosaveobj[modname],"Unknow modname:" .. tostring(modname))
+			local mod = player.autosave[modname]
+			if mod.loadstate == "loaded" then
+				return player
+			end
+		end
+	else
+		player = cplayer.new(pid)
+	end
+	player.offline = true
+	if modname == "base" then
+		player:loadfromdatabase(false)
+	elseif modname == "all" then
+		player:loadfromdatabase(true)
+	else
+		assert(player.autosaveobj[modname],"Unknow modname:" .. tostring(modname))
+		local mod = player.autosaveobj[modname]
+		if not mod.loadstate or mod.loadstate == "unload" then
+			mod.loadstate = "loading"
+			local data = db:get(db:key("role",self.pid,modname))
+			mod:load(data)
+			mod.loadstate = "loaded"
+		end
+	end
 	return player
 end
+]]
 
 function playermgr.getobjectbyfd(fd)
-	local id = self.fd_id[fd]
-	if id then
-		return self:getobject(id)
-	end
+	return playermgr.fd_obj[fd]
 end
 
-function playermgr.allobject(state)
-	local list = {}
-	for pid,obj in pairs(self.id_obj) do
-		local mystate = obj.__state or "online"
-		if not state or mystate == state then
-			table.insert(list,pid)
-		end
-	end
-	return list
-end
-
--- 返回所有在线玩家ID列表
 function playermgr.allplayer()
-	local list = {}
-	for pid,obj in pairs(self.id_obj) do
-		local mystate = obj.__state or "online"
-		if mystate == "online" then
-			table.insert(list,pid)
-		end
-	end
-	return list
+	return playermgr.id_obj
 end
 
-function playermgr.addobject(obj,reason)
+function playermgr.addobject(obj)
+	logger.log("info","playermgr","addobject,pid=" .. tostring(obj.pid))
 	local pid = obj.pid
-	logger.log("info","playermgr",string.format("addobject,pid=%s agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
 	assert(playermgr.id_obj[pid] == nil,"repeat object pid:" .. tostring(pid))
 	playermgr.id_obj[pid] = obj
 	if obj.__fd then
-		playermgr.fd_id[obj.__fd] = pid
+		playermgr.fd_obj[obj.__fd] = obj
 	end
 	playermgr.num = playermgr.num + 1
-	if obj.__state == "link" then
-		playermgr.linknum = playermgr.linknum + 1
-	elseif obj.__state == "offline" then
-		playermgr.offlinenum = playermgr.offlinenum + 1
-	elseif obj.__state == "kuafu" then
-		playermgr.kuafunum = playermgr.kuafunum + 1
-	else
+	if obj.__type and obj.__type.__name == "cplayer" then
 		playermgr.onlinenum = playermgr.onlinenum + 1
 	end
 end
@@ -93,24 +103,18 @@ function playermgr.delobject(pid,reason)
 	obj = playermgr.id_obj[pid]
 	if obj then
 
-		logger.log("info","playermgr",string.format("delobject,pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
+		logger.log("info","playermgr",string.format("delobject,pid=%d reason=%s",pid,reason))
 		-- 保证删除对象前下线
-		if not obj.__state or obj.__state == "online" then
+		if obj.__type and obj.__type.__name == "cplayer" then
 			xpcall(obj.disconnect,onerror,obj,reason)
 		end
+		playermgr.id_obj[pid] = nil
 		playermgr.num = playermgr.num - 1
-		if obj.__state == "link" then
-			playermgr.linknum = playermgr.linknum - 1
-		elseif obj.__state == "offline" then
-			playermgr.offlinenum = playermgr.offlinenum - 1
-		elseif obj.__state == "kuafu" then
-			playermgr.kuafunum = playermgr.kuafunum - 1
-		else
+		if obj.__type and obj.__type.__name == "cplayer" then
 			playermgr.onlinenum = playermgr.onlinenum - 1
 		end
-		playermgr.id_obj[pid] = nil
 		if obj.__fd then
-			playermgr.fd_id[obj.__fd] = nil
+			playermgr.fd_obj[obj.__fd] = nil
 		end
 		if obj.__saveobj_flag then
 			del_saveobj(obj)
@@ -124,16 +128,14 @@ end
 function playermgr.kick(pid,reason)
 	local obj = playermgr.getobject(pid)
 	if obj then
-		logger.log("info","playermgr",string.format("kick,pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
-		-- if hasn't '__agent', proto.kick will ignore it
-		playermgr.delobject(pid,"kick")
+		logger.log("info","playermgr",string.format("kick,pid=%d,reason=%s",pid,reason))
 		proto.kick(obj.__agent,obj.__fd)
 	end
 end
 
 function playermgr.kickall(reason)
-	for _,pid in ipairs(playermgr.allobject()) do
-		playermgr.kick(pid,reason)
+	for pid,obj in pairs(playermgr.allplayer()) do
+		playermgr.kick(pid,reason)	
 	end
 end
 
@@ -195,10 +197,9 @@ function playermgr.nettransfer(obj1,obj2)
 	obj2.__fd = obj1.__fd
 	obj2.__ip = obj1.__ip
 	obj2.__port = obj1.__port
-	obj2.__state = "online"	
-
+	
 	playermgr.delobject(id1,"nettransfer")
-	playermgr.addobject(obj2,"nettransfer")
+	playermgr.addobject(obj2)
 	connect.pid = id2	
 end
 
@@ -271,22 +272,14 @@ function playermgr.starttimer_checktoken()
 	end
 end
 
---/*
--- 所有与玩家相关对象均置入id_obj中，其中包括
--- 连线对象（link)/离线玩家(offline)/跨服玩家（kuafu)/在线玩家（online)
--- 连线对象/在线对象，有连接ID，同时在fd_id中作标记
---*/
 function playermgr.init()
 	logger.log("info","playermgr","init")
-	playermgr.num = 0 -- playermgr.num == playermgr.onlinenum + playermgr.offlinenum + playermgr.kuafunum + playermgr.linknum
+	playermgr.num = 0
 	playermgr.onlinenum = 0
-	playermgr.offlinenum = 0
-	playermgr.kuafunum = 0
-	playermgr.linknum = 0
 	playermgr.id_obj = {}
-	playermgr.fd_id = {}
+	playermgr.fd_obj = {}
+	playermgr.id_offlineplayer = {}
 
-	-- 跨服对象相关
 	playermgr.tokens = {}
 	playermgr.starttimer_checktoken()
 end

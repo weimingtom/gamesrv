@@ -114,7 +114,8 @@ end
 
 
 function netmsg.bulletin(msg,func)
-	for pid,player in pairs(playermgr.allplayer()) do
+	for i,pid in ipairs(playermgr.allplayer()) do
+		local player = playermgr.getplayer(pid)
 		if player then
 			if not func or func(player) then
 				netmsg.notify(pid,msg)

@@ -94,7 +94,7 @@ end
 
 function ccard142003:onuse(pos,targetid,choice)
 	local owner = self:getowner()
-	local target = owner:gettaret(targetid)
+	local target = owner:gettarget(targetid)
 	local buff = self:newbuff(ccard142003.effect.onuse.addbuff)
 	target:addbuff(buff)
 end

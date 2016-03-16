@@ -95,7 +95,7 @@ end
 function ccard143001:ondie()
 	local owner = self:getowner()
 	local num = ccard143001.effect.ondie.addfootman.num
-	num = math.min(num,owner:getfreepos("warcard"))
+	num = math.min(num,owner:getfreespace("warcard"))
 	local sid = ccard143001.effect.ondie.addfootman.sid
 	sid = togoldsidif(sid,is_goldcard(self.sid))
 	for i=1,num do

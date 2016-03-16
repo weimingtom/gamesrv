@@ -109,11 +109,14 @@ end
 
 
 function ccard145002:onputinwar(pos,reason)
-	ccard145002:provide_halo(self)
+	ccard145002.provide_halo(self)
 end
 
 
 function ccard145002:after_putinwar(footman,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
 	pos = footman.pos
 	if pos == self.pos + 1 or pos == self.pos - 1 then
 		self:clearhaloto()
@@ -122,6 +125,9 @@ function ccard145002:after_putinwar(footman,pos,reason)
 end
 
 function ccard145002:after_removefromwar(footman,pos,reason)
+	if self.inarea ~= "war" then
+		return
+	end
 	if self.haloto[footman.id] then
 		self:clearhaloto()
 		ccard145002.provide_halo(self)

@@ -95,8 +95,13 @@ end
 function ccard164028:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local target = owner:gettarget(targetid)
-	local buff = self:newbuff(ccard164028.effect.onuse.addbuff)
-	target:addbuff(buff)
+	if owner:ishero(target) then
+		local freeze = ccard164028.effect.onuse.addbuff.lifecircle
+		target:setstate("freeze",freeze)
+	else
+		local buff = self:newbuff(ccard164028.effect.onuse.addbuff)
+		target:addbuff(buff)
+	end
 end
 
 return ccard164028

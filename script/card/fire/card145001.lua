@@ -95,16 +95,14 @@ end
 function ccard145001:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local num = 3
-	local warcards = {}
 	local ids = {}
 	for i=1,num do
-		local warcard = owner:pickcard()
-		if warcard then
-			table.insert(warcards,warcard)
-			table.insert(ids,warcard.id)
+		local id = owner:pickcard()
+		if id then
+			table.insert(ids,id)
 		end
 	end
-	owner.lookcards = warcards	
+	owner.lookcards = ids
 	warmgr.refreshwar(self.warid,self.pid,"lookcards",ids)
 end
 

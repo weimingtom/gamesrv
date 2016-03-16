@@ -94,8 +94,8 @@ end
 
 function ccard152001:onuse(pos,targetid,choice)
 	local owner = self:getowner()
-	local sid = ccard152001.effect.onuse.sid
-	local num = ccard152001.effect.onuse.num
+	local sid = ccard152001.effect.onuse.addfootman.sid
+	local num = ccard152001.effect.onuse.addfootman.num
 	num = math.min(num,owner:getfreespace("warcard"))
 	for i=1,num do
 		local warcard = owner:newwarcard(sid)

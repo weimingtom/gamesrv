@@ -28,7 +28,7 @@ ccard266027 = class("ccard266027",super,{
     halo = nil,
     desc = "使一个随从获得+1/+1",
     effect = {
-        onuse = {addbuff={addatk=1,addmaxp=1,addhp=1}},
+        onuse = {addbuff={addatk=1,addmaxhp=1,addhp=1}},
         ondie = nil,
         onhurt = nil,
         onrecoverhp = nil,
