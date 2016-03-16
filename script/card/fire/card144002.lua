@@ -100,11 +100,14 @@ function ccard144002:after_putinwar(footman,pos,reason)
 		return
 	end
 	local owner = self:getowner()
-	if not owner:isenmey(footman.id) then
+	if not owner:isenemy(footman) then
 		return
 	end
 	local costhp = ccard144002.effect.after_putinwar.costhp
 	footman:addhp(-costhp,self.id)
+	if footman:isdie() then
+		return true,true
+	end
 end
 
 return ccard144002

@@ -95,8 +95,8 @@ end
 function ccard143004:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local target = owner:gettarget(targetid)
-	local magic_hurt = ccard143004.onuse.magic_hurt
-	local lr_magic_hurt = ccard143004.onuse.lr_magic_hurt
+	local magic_hurt = ccard143004.effect.onuse.magic_hurt
+	local lr_magic_hurt = ccard143004.effect.onuse.lr_magic_hurt
 	magic_hurt = self:get_magic_hurt(magic_hurt)
 	lr_magic_hurt = self:get_magic_hurt(lr_magic_hurt)
 	local pos = target.pos

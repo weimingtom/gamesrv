@@ -28,7 +28,7 @@ ccard145008 = class("ccard145008",super,{
     halo = nil,
     desc = "造成3点伤害。如果你有野兽,那么造成5点伤害取而代之。",
     effect = {
-        onuse = {maigc_hurt=3,magic_hurt2=5},
+        onuse = {magic_hurt=3,magic_hurt2=5},
         ondie = nil,
         onhurt = nil,
         onrecoverhp = nil,
@@ -93,7 +93,7 @@ function ccard145008:save()
 end
 
 function ccard145008:onuse(pos,targetid,choice)
-	local owner = getowner()
+	local owner = self:getowner()
 	local target = owner:gettarget(targetid)
 	local hasanimal = false
 	for i,id in ipairs(owner.warcards) do
@@ -105,9 +105,9 @@ function ccard145008:onuse(pos,targetid,choice)
 	end
 	local magic_hurt
 	if hasanimal then
-		magic_hurt = ccard145008.onuse.magic_hurt2
+		magic_hurt = ccard145008.effect.onuse.magic_hurt2
 	else
-		magic_hurt = ccard145008.onse.magic_hurt
+		magic_hurt = ccard145008.effect.onuse.magic_hurt
 	end
 	magic_hurt = self:get_magic_hurt(magic_hurt)
 	target:addhp(-magic_hurt,self.id)

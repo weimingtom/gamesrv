@@ -107,9 +107,9 @@ function ccard142001:before_attack(attacker,defenser)
 	assert(is_footman(defenser.type))
 	owner:delsecret(self.id,"trigger")
 	local sid = is_goldcard(self.sid) and 24
-	local num = ccard142001.effect.addfootman.num
+	local num = ccard142001.effect.before_attack.addfootman.num
 	num = math.min(num,owner:getfreespace("warcard"))
-	local sid = ccard142001.effect.addfootman.sid
+	local sid = ccard142001.effect.before_attack.addfootman.sid
 	sid = togoldsidif(sid,is_goldcard(self.sid))
 	for i=1,num do
 		local warcard = owner:newwarcard(sid)
