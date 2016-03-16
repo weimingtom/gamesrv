@@ -12,11 +12,11 @@ local function test(pid1,pid2,race1,cardrace1,race2,cardrace2)
 	player2.cardlib:clear()
 	player2.cardtablelib:clear()
 	local cardsids = {}
-	local name = string.format("种族:%d",race1)
+	local name = string.format("种族:%d",cardrace1)
 	local cardsids1 = getcards(name,function (cardcls)
 		return cardcls.race == cardrace1
 	end)
-	local name = string.format("种族:%d",race2)
+	local name = string.format("种族:%d",cardrace2)
 	local cardsids2 = getcards(name,function (cardcls)
 		return cardcls.race == cardrace2
 	end)
