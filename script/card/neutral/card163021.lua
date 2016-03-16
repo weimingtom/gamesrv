@@ -33,7 +33,7 @@ ccard163021 = class("ccard163021",super,{
         onhurt = nil,
         onrecoverhp = nil,
         onbeginround = nil,
-        onendround = {costhp=1,addfootman={166007,num=1}},
+        onendround = {costhp=1,addfootman={sid=166007,num=1}},
         ondelsecret = nil,
         onputinwar = nil,
         onremovefromwar = nil,
@@ -93,6 +93,9 @@ function ccard163021:save()
 end
 
 function ccard163021:onendround()
+	if self.inarea ~= "war" then
+		return
+	end
 	local owner = self:getowner()
 	local costhp = ccard163021.effect.onendround.costhp
 	local sid = ccard163021.effect.onendround.addfootman.sid

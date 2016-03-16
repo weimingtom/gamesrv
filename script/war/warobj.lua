@@ -271,7 +271,7 @@ function cwarobj:endround(roundcnt)
 	warmgr.check_endwar(self.warid)
 	if not warmgr.isgameover(self.warid) then
 		--self.enemy:beginround()
-		timer.timeout("timer.beginround",1,functor(self.enemy.beginround,self))
+		timer.timeout2("timer.beginround",10,functor(self.enemy.beginround,self.enemy))
 	end
 end
 

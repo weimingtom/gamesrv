@@ -28,7 +28,7 @@ ccard256009 = class("ccard256009",super,{
     halo = nil,
     desc = "获得2个法力水晶",
     effect = {
-        onuse = {addemeptycrystal=2},
+        onuse = {addemptycrystal=2},
         ondie = nil,
         onhurt = nil,
         onrecoverhp = nil,

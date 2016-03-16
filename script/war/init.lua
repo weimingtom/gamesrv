@@ -82,36 +82,37 @@ function cwar:adds2c(pid,cmd,args)
 	end
 end
 
+function cwar:forward(srvname,pid,netdata,startpos,endpos)
+	for pos=startpos,endpos,50 do
+		local cmds = slice(netdata,pos,pos+50)
+		cluster.call(srvname,"forward",pid,"war","sync",{
+			cmds = cmds,
+		})
+	end
+end
+
 function cwar:s2csync()
 	local attacker_endpos = #self.s2cdata.attacker
 	local defenser_endpos = #self.s2cdata.defenser
-	local attacker_s2cdata = slice(self.s2cdata.attacker,self.s2cdata.attacker_sendpos,attacker_endpos)
-	local defenser_s2cdata = slice(self.s2cdata.defenser,self.s2cdata.defenser_sendpos,defenser_endpos)
+	local attacker_sendpos = self.s2cdata.attacker_sendpos
+	local defenser_sendpos = self.s2cdata.defenser_sendpos
 	self.s2cdata.attacker_sendpos = attacker_endpos + 1
 	self.s2cdata.defenser_sendpos = defenser_endpos + 1
-	if next(attacker_s2cdata) then
-		cluster.call(self.attacker.srvname,"forward",self.attacker.pid,"war","sync",{
-			cmds = attacker_s2cdata,
-		})
+	if attacker_sendpos < attacker_endpos then
+		self:forward(self.attacker.srvname,self.attacker.pid,self.s2cdata.attacker,attacker_sendpos,attacker_endpos)
 	end
-	if next(defenser_s2cdata) then
-		cluster.call(self.defenser.srvname,"forward",self.defenser.pid,"war","sync",{
-			cmds = defenser_s2cdata
-		})
+	if defenser_sendpos < defenser_endpos then
+		self:forward(self.defenser.srvname,self.defenser.pid,self.s2cdata.defenser,defenser_sendpos,defenser_endpos)
 	end
 	-- watcher
-	if next(attacker_s2cdata) then
+	if attacker_sendpos < attacker_endpos then
 		for i,v in ipairs(self.s2cdata.attacker_listener) do
-			cluster.call(v.srvname,"forward",v.pid,"war","sync",{
-				cmds = attacker_s2cdata,
-			})
+			self:forward(v.srvname,v.pid,self.s2cdata.attacker,attacker_sendpos,attacker_endpos)
 		end
 	end
-	if next(defenser_s2cdata) then
+	if defenser_sendpos < defenser_endpos then
 		for i,v in ipairs(self.s2cdata.defenser_listener) do
-			cluster.call(v.srvname,"forward",v.pid,"war","sync",{
-				cmds = defenser_s2cdata,
-			})
+			self:forward(v.srvname,v.pid,self.s2cdata.defenser,defenser_sendpos,defenser_endpos)
 		end
 	end
 end

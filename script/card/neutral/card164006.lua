@@ -96,7 +96,7 @@ function ccard164006:onputinwar(pos,reason)
 	local owner = self:getowner()
 	for i,id in ipairs(owner.handcards) do
 		local handcard = owner:gettarget(id)
-		if is_footman(handcard) then
+		if is_footman(handcard.type) then
 			self:addhaloto(handcard)
 		end
 	end

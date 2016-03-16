@@ -12,6 +12,7 @@ function cobject:init(agent,fd,ip)
 	self.__fd = fd
 	self.__ip = ip
 	self.__port = nil
+	self.__state == "link"
 	local pos = string.find(ip,":")
 	if pos then
 		self.__ip = ip:sub(1,pos-1)
