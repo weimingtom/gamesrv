@@ -4,7 +4,6 @@ function proto.kick(agent,fd)
 	local connect = proto.connection[agent]
 	if connect then
 		local pid = assert(connect.pid,"invalid pid:" .. tostring(connect.pid))
-		playermgr.delobject(pid,"kick")
 		proto.connection[agent] = nil
 		fd = fd or connect.fd
 		skynet.send(agent,"lua","kick",fd)
@@ -184,9 +183,11 @@ function proto.reloadproto()
 	sprotoloader.save(bin_c2s,1)
 	sprotoloader.save(bin_s2c,2)
 	if game.initall then
-		for pid,obj in pairs(playermgr:allplayer()) do
-			local agent = obj.__agent
-			skynet.send(agent,"lua","reloadproto")
+		for _,pid in ipairs(playermgr.allobject()) do
+			local obj = playermgr.getobject(pid)
+			if obj.__agent then
+				skynet.send(obj.__agent,"lua","reloadproto")
+			end
 		end
 	end
 end

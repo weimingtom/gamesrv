@@ -28,7 +28,7 @@ ccard261021 = class("ccard261021",super,{
     halo = nil,
     desc = "战吼：使你的武器获得+1/+1。",
     effect = {
-        onuse = {addbuff={addatk=1,addmaxphp=1,addhp=1}},
+        onuse = {addbuff={addatk=1,addmaxhphp=1,addhp=1}},
         ondie = nil,
         onhurt = nil,
         onrecoverhp = nil,

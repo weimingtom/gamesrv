@@ -109,7 +109,7 @@ function ccard164033:rehaloto()
 end
 
 function ccard164033:onputinwar(pos,reason)
-	self:rehaloto()
+	ccard164033.rehaloto(self)
 end
 
 function ccard164033:after_putinwar(footman,pos,reason)
@@ -119,7 +119,7 @@ function ccard164033:after_putinwar(footman,pos,reason)
 	if math.abs(self.pos-footman.pos) ~= 1 then
 		return
 	end
-	self:rehaloto()
+	ccard164033.rehaloto(self)
 end
 
 function ccard164033:after_removefromwar(footman)
@@ -129,7 +129,7 @@ function ccard164033:after_removefromwar(footman)
 	if not self.haloto[footman.id] then
 		return
 	end
-	self:rehaloto()
+	ccard164033.rehaloto(self)
 end
 
 return ccard164033

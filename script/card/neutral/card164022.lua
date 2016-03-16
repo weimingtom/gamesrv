@@ -97,14 +97,14 @@ function ccard164022:onuse(pos,targetid,choice)
 	local costhp = ccard164022.effect.onuse.costhp
 	local id_hp = {}
 	id_hp[owner.hero.id] = owner.hero.hp
-	for i,id in ipairs(self.warcards) do
+	for i,id in ipairs(owner.warcards) do
 		if self.id ~= id then
 			local warcard = owner:gettarget(id)
 			id_hp[id] = warcard.hp
 		end
 	end
 	id_hp[owner.enemy.hero.id] = owner.enemy.hero.hp
-	for i,id in ipairs(self.warcards) do
+	for i,id in ipairs(owner.enemy.warcards) do
 		local warcard = owner:gettarget(id)
 		id_hp[id] = warcard.hp
 	end

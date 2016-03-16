@@ -145,7 +145,10 @@ function cplayer:savetodatabase()
 			db:set(db:key("role",self.pid,k),v:save())
 		end
 	end
-	playermgr.unloadofflineplayer(self.pid)
+	-- 离线对象已超过过期时间则删除
+	if self.__state == "offline" and not self.__activetime or os.time() - self.__activetime > 300 then
+		playermgr.unloadofflineplayer(self.pid)
+	end
 end
 
 function cplayer:loadfromdatabase(loadall)
