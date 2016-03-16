@@ -28,7 +28,7 @@ ccard145008 = class("ccard145008",super,{
     halo = nil,
     desc = "造成3点伤害。如果你有野兽,那么造成5点伤害取而代之。",
     effect = {
-        onuse = {magic_hurt=3,magic_hurt2=5},
+        onuse = {maigc_hurt=3,magic_hurt2=5},
         ondie = nil,
         onhurt = nil,
         onrecoverhp = nil,
@@ -49,7 +49,7 @@ ccard145008 = class("ccard145008",super,{
         after_beginround = nil,
         before_endround = nil,
         after_endround = nil,
-        before_atttack = nil,
+        before_attack = nil,
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,

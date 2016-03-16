@@ -49,7 +49,7 @@ ccard163005 = class("ccard163005",super,{
         after_beginround = nil,
         before_endround = nil,
         after_endround = nil,
-        before_atttack = nil,
+        before_attack = nil,
         after_attack = nil,
         before_playcard = nil,
         after_playcard = {addfootman={sid=166006,num=1}},

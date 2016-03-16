@@ -49,7 +49,7 @@ ccard244005 = class("ccard244005",super,{
         after_beginround = nil,
         before_endround = nil,
         after_endround = nil,
-        before_atttack = {magic_hurt=2},
+        before_attack = {magic_hurt=2},
         after_attack = nil,
         before_playcard = nil,
         after_playcard = nil,
