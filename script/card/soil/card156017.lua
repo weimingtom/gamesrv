@@ -97,7 +97,7 @@ function ccard156017:onuse(pos,targetid,choice)
 	local target = owner:gettarget(targetid)
 	local magic_hurt = ccard156017.effect.onuse.magic_hurt
 	magic_hurt = self:get_magic_hurt(magic_hurt)
-	target:add_magic_hurt(-magic_hurt,self.id)
+	target:addhp(-magic_hurt,self.id)
 end
 
 return ccard156017

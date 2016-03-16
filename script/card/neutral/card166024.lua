@@ -93,6 +93,9 @@ function ccard166024:save()
 end
 
 function ccard166024:onbeginround()
+	if self.inarea ~= "war" then
+		return
+	end
 	local owner = self:getowner()
 	self:die()
 	local num = ccard166024.effect.onbeginround.pickcard.num

@@ -77,7 +77,8 @@ end
 function timer.ontimeout(flag,id)
 	local func = timer.gettimer(flag,id)
 	if func then
-		func()
+		--func()
+		xpcall(func,onerror)
 	end
 end
 

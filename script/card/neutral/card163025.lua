@@ -96,7 +96,7 @@ function ccard163025:onuse(pos,targetid,choice)
 	local owner = self:getowner()
 	local target = owner:gettarget(targetid)
 	local buff = self:newbuff({
-		addmaxhp = target.atk - target.addmaxhp,
+		addmaxhp = target.atk - target.hp,
 		addatk = target.hp - target.atk,
 	})
 	target:addbuff(buff)

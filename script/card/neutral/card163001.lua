@@ -94,8 +94,8 @@ end
 
 function ccard163001:onuse(pos,targetid,choice)
 	local owner = self:getowner()
-	local addemptycrastal = ccard163001.effect.onuse.addemptycrastal
-	owner.enemy:addemptycrastal(addemptycrastal)
+	local addemptycrystal = ccard163001.effect.onuse.addemptycrystal
+	owner.enemy:addemptycrystal(addemptycrystal)
 end
 
 return ccard163001

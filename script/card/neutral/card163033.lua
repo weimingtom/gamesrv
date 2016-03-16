@@ -93,6 +93,9 @@ function ccard163033:save()
 end
 
 function ccard163033:onbeginround()
+	if self.inarea ~= "war" then
+		return
+	end
 	local owner = self:getowner()
 	local ids = {}
 	for i,id in ipairs(owner.handcards) do
