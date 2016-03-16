@@ -146,7 +146,7 @@ function cplayer:savetodatabase()
 		end
 	end
 	-- 离线对象已超过过期时间则删除
-	if not self.__activetime or os.time() - self.__activetime > 300 then
+	if self.__state == "offline" and not self.__activetime or os.time() - self.__activetime > 300 then
 		playermgr.unloadofflineplayer(self.pid)
 	end
 end

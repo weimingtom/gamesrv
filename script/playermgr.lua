@@ -7,16 +7,21 @@ end
 function playermgr.getplayer(pid)
 	assert(pid > 0)
 	local player = playermgr.getobject(pid)
-	if player.__state == "offline" then
-		player.__activetime = os.time()
+	if player then
+		if player.__state == "offline" then
+			player.__activetime = os.time()
+		end
 	end
+	return player
 end
 
 function playermgr.unloadofflineplayer(pid)
 	local player = playermgr.getplayer(pid)
-	if player.__state == "offline" then
-		self:delobject(pid,"unloadofflineplayer")
-		return player
+	if player then
+		if player.__state == "offline" then
+			self:delobject(pid,"unloadofflineplayer")
+			return player
+		end
 	end
 end
 
