@@ -98,7 +98,7 @@ function ccard143002:before_attack(attacker,defenser)
 	end
 	local owner = self:getowner()
 	if owner.hero.id == defenser.id then
-		self:delsecret(self.id)	
+		owner:delsecret(self.id)	
 		local allid = {}
 		table.insert(allid,owner.hero.id)
 		for i,id in ipairs(owner.warcards) do
@@ -111,7 +111,7 @@ function ccard143002:before_attack(attacker,defenser)
 		local id = randlist(allid)
 		local target = owner:gettarget(id)
 		attacker:getowner():__launchattack(attacker,target)
-		return
+		return true,true
 	end
 end
 
