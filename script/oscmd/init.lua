@@ -23,7 +23,7 @@ function oscmd.ontimer()
 
 	 
 	for i,line in ipairs(lines) do
-		local tbl = {pcall(oscmd.docmd,line)}
+		local tbl = {xpcall(oscmd.docmd,onerror,line)}
 		local issuccess = table.remove(tbl,1)
 		local result
 		if next(tbl) then
@@ -47,6 +47,10 @@ function oscmd.docmd(line)
 	elseif cmd == "gm" then
 		pid,leftcmd = string.match(leftcmd,"^([%d]+)%s+(.*)$")
 		pid = tonumber(pid)
+		if not pid then
+			logger.log("info","oscmd",format("docmd='%s' no pid",line))
+			return
+		end
 		return gm.docmd(pid,leftcmd)
 	end
 end

@@ -8,14 +8,10 @@ require "script.achieve.achievedb"
 require "script.task.taskmgr"
 require "script.item.itemdb"
 
-cplayer = class("cplayer",csaveobj,cdatabaseable)
+cplayer = class("cplayer",cdatabaseable)
 
 function cplayer:init(pid)
 	self.flag = "cplayer"
-	csaveobj.init(self,{
-		pid = pid,
-		flag = self.flag,
-	})
 	cdatabaseable.init(self,{
 		pid = pid,
 		flag = self.flag,
@@ -72,7 +68,9 @@ function cplayer:init(pid)
 	}
 
 	self.loadstate = "unload"
-	self:autosave()
+
+	self.savename = string.format("%s.%s",self.flag,self.pid)
+	autosave(self)
 end
 
 function cplayer:save()

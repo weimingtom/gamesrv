@@ -63,7 +63,7 @@ function resumemgr.delresume(pid)
 	if resume then
 		logger.log("info","resume",format("delresume,pid=%d",pid))
 		resume:savetodatabase()
-		del_saveobj(resume)
+		closesave(resume)
 		local srvname = cserver.srvname
 		if cserver.isresumesrv(srvname) then
 		else

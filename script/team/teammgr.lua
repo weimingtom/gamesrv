@@ -1,6 +1,6 @@
 require "script.team.init"
 
-cteammgr = class("cteammgr",csaveobj)
+cteammgr = class("cteammgr")
 
 
 function cteammgr.startgame()
@@ -16,7 +16,9 @@ function cteammgr:init()
 	-- 内存数据
 	self.automatch_pids = {}
 	self.automatch_teams = {}
-	self:autosave()
+
+	self.savename = string.format("cteammgr")
+	autosave(self)
 end
 
 function cteammgr:clear()
@@ -109,6 +111,10 @@ function cteammgr:dismissteam(player)
 	logger.log("info","team",string.format("dismissteam,pid=%d teamid=%d",pid,teamid))
 
 	local team = self:getteam(teamid)
+	if not team then
+		return
+	end
+	closesave(team)
 	team:dismissteam()
 	self.teams[teamid] = nil
 	self:after_dismissteam(player,teamid)

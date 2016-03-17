@@ -5,7 +5,7 @@ function playermgr.getobject(pid)
 end
 
 function playermgr.getplayer(pid)
-	assert(pid > 0)
+	assert(pid >= 0)
 	local player = playermgr.getobject(pid)
 	if player then
 		if player.__state == "offline" then
@@ -94,6 +94,9 @@ function playermgr.delobject(pid,reason)
 	if obj then
 
 		logger.log("info","playermgr",string.format("delobject,pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
+		if obj.__state ~= "link" then
+			closesave(obj)
+		end
 		-- 保证删除对象前下线
 		if not obj.__state or obj.__state == "online" then
 			xpcall(obj.disconnect,onerror,obj,reason)
@@ -112,9 +115,7 @@ function playermgr.delobject(pid,reason)
 		if obj.__fd then
 			playermgr.fd_id[obj.__fd] = nil
 		end
-		if obj.__saveobj_flag then
-			del_saveobj(obj)
-		end
+
 	end
 	require "script.loginqueue"
 	loginqueue.remove(pid)

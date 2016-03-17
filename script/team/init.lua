@@ -1,4 +1,4 @@
-cteam = class("cteam",csaveobj)
+cteam = class("cteam")
 
 function cteam:init(teamid,param)
 	param = param or {}
@@ -10,12 +10,9 @@ function cteam:init(teamid,param)
 	self.applyers = {}
 	self.target = param.target or 0
 	self.stage = param.stage or 0
-
-	csaveobj.init(self,{
-		pid = 0,
-		flag = "cteam"
-	})
-	self:autosave()
+	
+	self.savename = string.format("cteam.%s",self.teamid)
+	autosave(self)
 end
 
 function cteam:load(data)

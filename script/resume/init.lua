@@ -1,5 +1,5 @@
 
-cresume = class("cresume",cdatabaseable,csaveobj)
+cresume = class("cresume",cdatabaseable)
 
 function cresume:init(pid)
 	self.flag = "cresume"
@@ -7,17 +7,15 @@ function cresume:init(pid)
 		pid = pid,
 		flag = self.flag,
 	})
-	csaveobj.init(self,{
-		pid = pid,
-		flag = self.flag
-	})
 	self.pid_ref = {}
 	self.srvname_ref = {}
 	self.data = {}
 	if not cserver.isresumesrv() then
 		self.nosavetodatabase = true
 	end
-	self:autosave()
+
+	self.savename = string.format("%s.%s",self.flag,self.pid)
+	autosave(self)
 end
 
 function cresume:load(data)

@@ -2,20 +2,18 @@
 local MIN_MAILID = 1000
 local MAX_MAILID = MAX_NUMBER
 
-cmailbox = class("cmailbox",csaveobj)
+cmailbox = class("cmailbox")
 
 function cmailbox:init(pid)
 	self.flag = "cmailbox"
-	csaveobj.init(self,{
-		pid = pid,
-		flag = self.flag,
-	})
 	self.pid = pid
 	self.loadstate = "unload"
 	self.mailid = MIN_MAILID
 	self.mails = {}
 	self.maillist = {}
-	self:autosave()
+
+	self.savename = string.format("%s.%s",self.flag,self.pid)
+	autosave(self)
 end
 
 function cmailbox:load(data)

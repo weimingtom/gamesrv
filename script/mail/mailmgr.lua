@@ -26,6 +26,7 @@ end
 function mailmgr.unloadmailbox(pid)
 	local mailbox = mailmgr.mailboxs[pid]
 	if mailbox then
+		closesave(mailbox)
 		mailbox:savetodatabase()
 		mailmgr.mailboxs[pid] = nil
 	end

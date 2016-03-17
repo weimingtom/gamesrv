@@ -96,7 +96,7 @@ function gm.docmd(pid,cmdline)
 		player = 0
 	end
 	master = player
-	local tbl = {pcall(docmd,player,cmdline)}
+	local tbl = {xpcall(docmd,onerror,player,cmdline)}
 	master = nil
 	local issuccess = table.remove(tbl,1)
 	local result

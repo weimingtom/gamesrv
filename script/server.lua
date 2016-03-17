@@ -1,4 +1,4 @@
-cserver = class("cserver",cdatabaseable,csaveobj,{
+cserver = class("cserver",cdatabaseable,{
 	srvname = skynet.getenv("srvname"),
 	serverid = skynet.getenv("serverid"),
 	gameflag = skynet.getenv("gameflag"),
@@ -13,15 +13,12 @@ function cserver:init()
 		pid = 0,
 		flag = self.flag,
 	})
-	csaveobj.init(self,{
-		pid = 0,
-		flag = self.flag,
-	})
 	self.loadstate = "unload"
 	self.data = {}
 	self.onlinelimit = 20000	
 
-	self:autosave()
+	self.savename = string.format("%s.%s",self.flag,self.pid)
+	autosave(self)
 	logger.log("info","server","init")
 end
 

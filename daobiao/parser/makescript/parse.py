@@ -153,7 +153,10 @@ class CParser(object):
 		for name,fmt in lst:
 			if line[name] == None:
 				if "d" in fmt or "f" in fmt:
-					line[name] = 0.0
+				if "%d" in fmt:
+					line[name] = 0
+				elif "%f" in fmt:
+				 	line[name] = 0.0
 				else:
 					line[name] = ""
 		return linefmt % line

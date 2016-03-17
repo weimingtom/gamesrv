@@ -7,13 +7,10 @@ function huodongmgr.init()
 	setmetatable(huodongmgr,{
 		__index = csaveobj,
 	})
-	csaveobj.init(huodongmgr,{
-		pid = 0,
-		flag = "huodongmgr"
-	})
-	
-	huodongmgr:autosave()
-	huodongmgr.loadfromdatabase()	
+	huodongmgr.loadfromdatabase()
+
+	huodongmgr.savename = "huodongmgr"
+	autosave(huodongmgr)
 end
 
 
@@ -155,6 +152,8 @@ function huodongmgr.loadfromdatabase()
 	end
 end
 
+-- just adpater for autosave
+-- function huodongmgr:savetodatabase() is ok
 function huodongmgr.savetodatabase()
 	if huodongmgr.loadstate ~= "loaded" then
 		return
@@ -164,15 +163,8 @@ function huodongmgr.savetodatabase()
 	db:set(db:key("global","huodong"),data)
 end
 
-function huodongmgr.autosave()
-	timer.timeout("timer.huodongmgr.autosave",SAVE_DELAY,huodongmgr.autosave)
-	huodongmgr.savetodatabase()
-end
-
 function huodongmgr.startgame()
 	huodongmgr.init()
-	huodongmgr.loadfromdatabase()
-	huodongmgr.autosave()
 end
 
 return huodongmgr
