@@ -310,7 +310,7 @@ function cwarcard:addbuff(buff)
 		buff.exceedround = owner.roundcnt + buff.lifecircle
 		buff.lifecircle = nil
 	end
-	self:log("info","war",format("addbuff buff=%s",buff))
+	self:log("info","war",format("addbuff id=%s buff=%s",self.id,buff))
 	table.insert(self.buffs,buff)
 	local syncattrs = {}
 	for k,v in pairs(buff) do
@@ -341,7 +341,7 @@ end
 function cwarcard:delbuffbypos(pos)
 	local buff = table.remove(self.buffs,pos)
 	if buff then
-		self:log("info","war",format("delbuff pos=%s buff=%s",pos,buff))
+		self:log("info","war",format("delbuff id=%s pos=%s buff=%s",self.id,pos,buff))
 		local syncattrs = {}
 		for k,v in pairs(buff) do
 			if not self:cancompute(k) then
@@ -411,7 +411,7 @@ function cwarcard:addhalo(halo)
 		halo.exceedround = owner.roundcnt + halo.lifecircle
 		halo.lifecircle = nil
 	end
-	self:log("info","war",format("addhalo halo=%s",halo))
+	self:log("info","war",format("addhalo id=%s halo=%s",self.id,halo))
 	table.insert(self.halofrom,halo)
 	local syncattrs = {}
 	for k,v in pairs(halo) do
@@ -446,7 +446,7 @@ function cwarcard:delhalobypos(pos)
 		local owner = self:getowner()
 		local halofrom_warcard = owner:gettarget(halo.srcid)
 		halofrom_warcard.haloto[self.id] = nil
-		self:log("info","war",format("delhalo pos=%s halo=%s",pos,halo))
+		self:log("info","war",format("delhalo id=%s pos=%s halo=%s",self.id,pos,halo))
 		local syncattrs = {}
 		for k,v in pairs(halo) do
 			if not self:cancompute(k) then
@@ -894,8 +894,15 @@ function cwarcard:onputinhand()
 	self:clear()
 end
 
-
 function cwarcard:execute(cmd,...)
+	local ignore_later_event,ignore_later_action = self:__execute(cmd,...)
+	if ignore_later_event or ignore_later_action then
+		self:log("info","war",string.format("execute,id=%s cmd=%s ignore_later_event=%s ignore_later_action=%s",self.id,cmd,ignore_later_event,ignore_later_action))
+	end
+	return ignore_later_event,ignore_later_action
+end
+
+function cwarcard:__execute(cmd,...)
 	local noexec_later_action = false
 	local func = self[cmd]
 	if func then
