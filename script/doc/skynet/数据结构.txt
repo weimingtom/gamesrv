@@ -1,0 +1,59 @@
+//每个服务唯一对应一个上下文,也唯一对应一个Lua_State
+struct skynet_context {
+	void * instance;
+	struct skynet_module * mod;
+	void * cb_ud;					//注册给消息调度函数使用的数据结构,根据消息调度函数需求定制
+	skynet_cb cb;					//消息调度函数
+	struct message_queue *queue;	//消息队列
+	FILE * logfile;					//日志文件,记录所有收到的消息，调试时可以打开
+	char result[32];		//存放中间计算结果
+	uint32_t handle;		//句柄，唯一标示一个服务
+	int session_id;			//消息sessionid，本服务唯一，发送方创建，接收方原样返回，保证正确回调
+	int ref;				//服务被引用的次数
+	bool init;				//初始化标志，true:成功初始化，false:初始化失败
+	bool endless;			//可能陷入死循环标志，true:已陷入死循环，false:未陷入死循环
+
+	CHECKCALLING_DECL
+};
+
+//一个skynet节点，对应一个进程,每个节点下可以拥有若干服务
+struct skynet_node {
+	int total;			//正在运行的服务数
+	int init;			//初始化标志，1:已初始化，0:未初始化
+	uint32_t monitor_exit; //服务退出的“监听服务”句柄
+	pthread_key_t handle_key; //thread local 键值
+};
+
+
+//消息队列(单向，FIFO)
+struct message_queue {
+	uint32_t handle;		//服务句柄
+	int cap;				//容量
+	int head;				//消息起点位置
+	int tail;				//消息结束后一个位置,即有效消息为[head,tail)
+	int lock;				//锁
+	int release;
+	int in_global;			//是否在全局队列中
+	int overload;			//是否过载
+	int overload_threshold; //过载阈值
+	struct skynet_message *queue; //消息队列
+	struct message_queue *next;	  //下一个消息队列，置入全局队列后有效
+};
+
+
+//全局队列（单向，FIFO)
+struct global_queue {
+	struct message_queue *head;  //队列头
+	struct message_queue *tail; // 队列尾
+	int lock;					//锁
+};
+
+
+
+//
+struct modules {
+	int count;	//载入的模块数量
+	int lock;	//锁
+	const char * path;	//模块
+	struct skynet_module m[MAX_MODULE_TYPE];
+};

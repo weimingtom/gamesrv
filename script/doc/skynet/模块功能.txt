@@ -1,0 +1,42 @@
+skynet-src/									skynet引擎核心代码
+	socket_server.c							
+	skynet_timer.c							定时器
+	skynet_start.c							启动模块
+	skynet_socket.c							套接字/网络模块
+	skynet_server.c							skynet服务/节点
+	skynet_mq.c								消息队列模块
+	skynet_monitor.c						服务监控模块，检测服务是否可能陷入死循环
+	skynet_module.c
+	skynet_main.c
+	skynet_log.c							服务之间消息日志，可选择打开
+	skynet_harbor.c							
+	skynet_handle.c
+	skynet_error.c
+	skynet_env.c
+	skynet_daemon.c
+	malloc_hook.c
+
+service-src/
+	service_snlua.c
+	service_logger.c
+	service_harbor.c
+	service_gate.c
+
+lualib-src/
+	lua-stm.c
+	lua-socket.c
+	lua-skynet.c
+	lua-sharedata.c
+	lua-seri.c
+	lua-profile.c
+	lua-netpack.c
+	lua-mysqlaux.c
+	lua-multicast.c
+	lua-mongo.c
+	lua-memory.c
+	lua-debugchannel.c
+	lua-crypt.c
+	lua-cluster.c
+	lua-clientsocket.c
+	lua-bson.c
+	lsha1.c
