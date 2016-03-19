@@ -1,0 +1,61 @@
+服务：
+skynet中用"引用计数"维持一个服务生命期，初始值为1（实现是先置成2，再立即释放一次),降为0时删除
+服务由skynet_context_new创建，通过handle_exit退出(lua层通过skynet.exit/skynet.kill退出一个服务）。
+每个服关联一个消息队列，当收到消息时，如果没有在全局队列中（热服务队列），则置入全局队列，
+交给工作线程调度，调度流程如下：从全局服务队列中FIFO取出一个服务队列，根据权值处理该服务队列的
+若干消息（即将消息丢给服务注册的回调函数处理）
+
+线程:
+skynet共给我们开辟了thread+3线程（thread个worker线程+socket线程+定时器线程+监听线程),thread值由
+应用者根据自身机器cpu数配置，worker线程为热服务（消息队列不为空的服务）调度消息，一般我们是用第三
+方数据库，即数据库通信是进程之间的通信，通常为了提高效率会单独开一个db服务，由worker线程调度以减少
+IO阻塞
+
+套接字线程:
+接受连接/接受数据/对方主动断开连接，这些都会打包成一个socket消息，通知给上层
+
+定时器线程：
+int skynet_timeout(uint32_t handle, int time, int session)
+通过以上接口向定时器线程注册一个ID，时间到后定时器线程给handle对应的服务压入一条"定时器消息",此处
+只要我们上层给session注册一个回调函数，即可实现对应定时器逻辑，lua层skynet.timeout已经为我们做好
+了处理
+
+
+监听线程：
+用于监听服务是否可能陷入死循环，原理如下：处理消息前后增加当前版本(version)，监听线程定时同步
+当前版本(check_version),如果发现check_version == version,则说明当前处理消息开销过大,如果多次
+发现check_version == version,则很可能陷入了死循环
+
+lua层c2s/s2c通信
+##相关知识##
+1. skynet引擎sokcet消息都是和调用socketdriver.listen的服务通信，我们通常称为gate服务,lua层看来所有
+套接字消息都是由gate发出的。
+2. 在我们游戏中，agent服务只是一个中转，启动/关闭/收到数据都是转发给主服处理
+
+##c2s##
+1. listen
+主服创建一个watchdog服务，watchdog服务创建一个gate服务，gate新建服务端套接字，在指定端口监听
+
+2. accept
+当客户端连上服务器时，gate通知watchdog，watchdog启动一个对应agent服务（和玩家/客户端套接字一一对应)
+
+3. data
+开启agent后，agent通知gate，后续收到的消息都转发到我的服，当收到客户端消息时，gate直接将消息转发给
+agent，让agent对应处理，在我们游戏中，agent将消息处理权交给了主服。
+
+4. close
+当客户端断开连接/连接出错时，gate通知
+watchdog,watchdog通知agent客户端已经断开连接，并且kill掉对应的agent服。
+
+##s2c##
+1. 主服发消息给agent，agent将消息写入绑定的套接字(发送给对应客户端)
+
+
+lua层s2s通信
+s2s通信和s2c通信一样，我们可以将自身服看成server，其他服看成client，因此也需要一个gate，
+这个gate具体由clusterd服务启动，clusterd服务专门负责集群通信(s2s)
+
+skynet.call/skynet.send
+skynet.call/skynet.send引擎实现上没有区别，skynet.call是异步回调,skynet.send表示发送方不关心处理结果
+skynet.call通过lua coruntine将异步写法改成了同步写法，引擎实现原理:消息发送方发送消息时带一个唯一
+ID(session),将消息打包给接收方，接收方处理完消息后,如果session~=0就将结果和session返回给接收方

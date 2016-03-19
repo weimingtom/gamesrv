@@ -32,9 +32,16 @@ function needret_retpack(noret,...)
 	end
 end
 
+skynet.init(function ()
+	print("skynet.init")
+end)
+
 skynet.start(function ()
+	print("skynet.start")
 	skynet.dispatch("lua",function (session,source,cmd,...)
 		local func = CMD[cmd]
 		needret_retpack(func(...))
 	end)
 end)
+
+print("module code")

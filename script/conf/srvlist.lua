@@ -1,7 +1,7 @@
 srvlist = {
 	accountcenter = {
 		ip = "127.0.0.1",
-		port = 8000,
+		port = 7000,
 		db = {
 			host = "127.0.0.1",
 			port = 6800,
@@ -10,7 +10,7 @@ srvlist = {
 	},
 	gamesrv_100 = {
 		ip = "127.0.0.1",
-		port = 8000,
+		port = 8001,
 		minroleid = 10000,
 		maxroleid = 9999999,
 		maxclient = 10240,
@@ -23,7 +23,7 @@ srvlist = {
 	},
 	gamesrv_101 = {
 		ip = "127.0.0.1",
-		port = 8001,
+		port = 8002,
 		minroleid = 10000,
 		maxroleid = 9999999,
 		maxclient = 10240,

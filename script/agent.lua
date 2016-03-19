@@ -49,6 +49,12 @@ skynet.register_protocol {
 	end,
 }
 
+--/*
+-- 客户端连上服务器（接受一个客户端套接字)
+-- @param integer gate 网关服务地址
+-- @param integer fd 客户端套接字描述符
+-- @param string addr 客户端ip:port
+--*/
 function CMD.start(gate, fd,addr)
 	agent.fd = fd
 	agent.ip = addr
@@ -59,6 +65,9 @@ function CMD.start(gate, fd,addr)
 	skynet.send(".MAINSRV","lua","client","start",fd,addr)
 end
 
+--/*
+-- 客户端主动断开连接/连接出错
+--*/
 function CMD.close()
 	agent.fd = nil
 	agent.ip = nil
@@ -66,6 +75,10 @@ function CMD.close()
 	skynet.send(".MAINSRV","lua","client","close")
 end
 
+--/*
+-- 服务端主动断开一个客户端连接
+-- @param integer fd 客户端套接字描述符
+--*/
 function CMD.kick(fd)
 	print("agent.kick",fd)
 	skynet.call(agent.gate,"lua","kick",fd)
