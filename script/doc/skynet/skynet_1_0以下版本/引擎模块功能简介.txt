@@ -1,0 +1,45 @@
+skynet-src/									skynet引擎核心代码
+	socket_server.c							服务模块,包括服务新建/销毁/消息调度/向服务发送的内置命令/服务间消息传递等等核心内容
+	skynet_timer.c							定时器
+	skynet_start.c							启动模块
+	skynet_socket.c							套接字/网络模块
+	skynet_server.c							skynet服务/节点
+	skynet_mq.c								消息队列模块
+	skynet_monitor.c						服务监控模块，检测服务是否可能陷入死循环
+	skynet_module.c							内置c服务模块管理器（内置的c服务在skynet/cservice/*.so下)
+	skynet_main.c							主函数所在模块，初始化配置信息，调用skynet_start启动引擎
+	skynet_log.c							服务之间消息日志，可选择打开
+	skynet_harbor.c							skynet节点通信模块
+	skynet_handle.c							服务句柄模块，用HASH表管理所有服务，handle构成:0x__ffffff,其中'__'为harborid,
+	skynet_error.c							错误输出日志（引擎一些正常输出也用了该模块)
+	skynet_env.c							环境信息/配置信息，配置信息都放到_G中，由于main会开一个主LuaState(不是服务),因此这对其他服务没有影响
+	skynet_daemon.c							根据配置将skynet进入后台运行模块
+	malloc_hook.c							skynet内存分配模块
+	socket_server.c							套接字模块(包括服务端套接字和客户端套接字)
+	skynet_socket.c							对socket_server.c/skynet_epoll.h的包装模块,提供套接字消息
+	
+
+service-src/
+	service_snlua.c
+	service_logger.c
+	service_harbor.c
+	service_gate.c
+
+lualib-src/
+	lua-stm.c
+	lua-socket.c							套接字模块
+	lua-skynet.c							skynet引擎lua层API
+	lua-sharedata.c
+	lua-seri.c								lua序列化模块，服务间通信,skynet.pack/skynet.unpack使用该模块实现
+	lua-profile.c							效率统计模块，另外包装coruotine,防止用户层直接使用lua的coroutine打乱流程
+	lua-netpack.c
+	lua-mysqlaux.c							mysql驱动
+	lua-multicast.c
+	lua-mongo.c								mongo驱动
+	lua-memory.c							skynet使用内存信息统计api
+	lua-debugchannel.c
+	lua-crypt.c								加密模块
+	lua-cluster.c							集群模块，固定消息传递格式
+	lua-clientsocket.c						客户端套接字
+	lua-bson.c
+	lsha1.c									sha1签名模块
