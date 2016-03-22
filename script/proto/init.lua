@@ -115,7 +115,6 @@ function CMD.data(agent,typ,...)
 	end
 	if typ == "REQUEST" then
 		local result = onrequest(agent,...)
-		skynet.ret(skynet.pack(result))
 	else
 		assert(typ == "RESPONSE")
 		onresponse(agent,...)
