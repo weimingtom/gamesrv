@@ -1,0 +1,119 @@
+lualib/skynet.lua
+##数据结构##
+	session_id_coroutine			#session->coroutine,保存会话ID对应的协程
+	session_coroutine_id			#coroutine->session,保存协程对应的会话ID
+	session_coroutine_address		#coroutine->address,保存协程对应会话的发起方服务地址
+	session_response				#标记会话是否回复过/保存本次会话的回复函数
+	unresponse						#会话对应的回复函数是否调用过的标记表
+	wakeup_session					#待唤醒会话
+	sleep_session					#睡眠中的会话
+	watching_service				#会话发起方服务地址->引用次数,即保存了其他服对本服的引用次数
+	watching_session				#会话ID->会话接收方服务地址,skynet.call会注册，对方报错/退出服务时，会反馈错误信息，触发skynet.call调用报错
+	error_queue						#出错的会话,skynet.call调用失败进入队列，后续对该错误队列的调度会触发skynet.call报错
+	dead_service					#退出/挂掉的服务
+	fork_queue						#
+	
+
+##异步写法改成同步写法##
+	假定有这样需求（如玩家登录），我们需要从数据库载入多份数据，如：base,item,task等等
+	低端异步写法:
+	function onloadall(...)
+		dosomething()
+	end
+	function onloadtask(...)
+		dosomething()
+		onloadall()
+	end
+
+	function onloaditem(...)
+		dosomething()
+		load("task",onloadtask)
+	end
+	function onloadbase(...)
+		dosomething()
+		load("item",onloaditem)
+	end
+	load("base",onloadbase)
+
+	这种写法基本相当于“同步阻塞”，即一份数据一份数据取，取完一份再取后一份，全部取完后在处理数，时间开销为载入所有数据开销总和
+
+	高端异步写法:
+	local ready_loads = {base=false,item=false,task=fasle}
+	function onload(key)
+		ready_loads[key] = true	
+		isloadall = true
+		for _,isload in pairs(ready_loads) do
+			if not isload then
+				isloadall = false
+				break
+			end
+		end
+		if isloadall then
+			onloadall()
+		end
+	end
+	for loadkey,_ in pairs(ready_loads) do
+		load(loadkey,onload)
+	end
+	这种写法时间开销为所有载入数据需要时间的最大值
+
+	低端异步改成同步写法
+	local ready_loads = {base=false,item=false,task=false}
+	for loadkey in pairs(ready_loads) do
+		local data  = skynet.call(dbsrv,loadkey,...)
+		ready_loads[loadkey] = data
+	end
+	onloadall()
+
+	高端异步改成同步写法
+	local ready_loads = {base=false,item=false,task=false}
+	function loadfromdatabase(loadkey)
+		local data = skynet.call(dbsrv,loadkey,...)
+		ready_loads[loadkey] = data
+		isloadall = true
+		for _,isload in pairs(ready_loads) do
+			if not isload then
+				isloadall = false
+				break
+			end
+		end
+		if isloadall then
+			onloadall()
+		end
+	end
+	for loadkey in pairs(ready_loads) do
+		skynet.fork(loadfromdatabase,loadkey)
+	end
+	
+	似乎和高端异步写法差不多了，但是同一个会话中要求载入多个数据的地方并不多，通常只是要求载入一个数据，假定我们提供一个本服玩家简介服(resumesrv),获取简介：local resume = skynet.call(resumesrv,玩家ID),即使有需要载入多个数据的需求，通常载入多个数据都要先后依赖关系，如获取完简介后，根据其名字继续载入其他数据
+
+
+##lua API理解##
+lua API文档具体看https://github.com/cloudwu/skynet/wiki
+skynet.response 返回本次会话的回复函数，举例来说，假定某个场景下，特定地方我们暂时不知道
+怎么回复对方，那我们可以先获取回复函数，等以后知道怎么回复时再用该函数回复对方，如：我们要向某个服(srv)获取A,B,C
+数据,要求返回结构为{A=xxx,B=xxx,C=xxx},,那么在srv方收到这样的请求时处理如下:
+local response = skynet.response()
+local ready_loads = {A=false,B=false,C=false}
+for loadkey in pairs(ready_loads) do
+	skynet.fork(loaddata,response,loadkey)
+end
+
+function loaddata(response,loadkey)
+	local data = load loadkey's data from somewhere
+	ready_loads[loadkey] = data
+	isloadall = true
+	for _,isload in pairs(ready_loads) do
+		if not isload then
+			isloadall = false
+			break
+		end
+	end
+	if isloadall then
+		response(true,ready_loads)
+	end
+end
+
+
+skynet.sleep 等价于一个带超时的skynet.wait
+skynet.wait一般配合skynet.wakeup用，一般应用场景有"多次会话之间有依赖关系",如skynet.queue的实现就是典型例子，它保证了同一个服会话的时序执行,游戏中我们很少有机会用到这两个接口
