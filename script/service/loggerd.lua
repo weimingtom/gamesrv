@@ -104,7 +104,7 @@ function logger.gethandle(name)
 end
 
 function logger.setmode(mode)
-	assert(type(mode) == "number","invalid logger mode:%s" .. tostring(mode))
+	assert(type(mode) == "number","invalid logger mode:" .. tostring(mode))
 	logger.mode = mode
 end
 

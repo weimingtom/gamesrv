@@ -19,7 +19,7 @@ function playermgr.unloadofflineplayer(pid)
 	local player = playermgr.getplayer(pid)
 	if player then
 		if player.__state == "offline" then
-			self:delobject(pid,"unloadofflineplayer")
+			playermgr.delobject(pid,"unloadofflineplayer")
 			return player
 		end
 	end
@@ -35,20 +35,20 @@ function playermgr.loadofflineplayer(pid)
 	player:loadfromdatabase(true)
 	assert(player:isloaded())
 	player.__state = "offline"
-	self:addobject(player,"loadofflineplayer")
+	playermgr.addobject(player,"loadofflineplayer")
 	return player
 end
 
 function playermgr.getobjectbyfd(fd)
-	local id = self.fd_id[fd]
+	local id = playermgr.fd_id[fd]
 	if id then
-		return self:getobject(id)
+		return playermgr.getobject(id)
 	end
 end
 
 function playermgr.allobject(state)
 	local list = {}
-	for pid,obj in pairs(self.id_obj) do
+	for pid,obj in pairs(playermgr.id_obj) do
 		local mystate = obj.__state or "online"
 		if not state or mystate == state then
 			table.insert(list,pid)
@@ -60,7 +60,7 @@ end
 -- 返回所有在线玩家ID列表
 function playermgr.allplayer()
 	local list = {}
-	for pid,obj in pairs(self.id_obj) do
+	for pid,obj in pairs(playermgr.id_obj) do
 		local mystate = obj.__state or "online"
 		if mystate == "online" then
 			table.insert(list,pid)

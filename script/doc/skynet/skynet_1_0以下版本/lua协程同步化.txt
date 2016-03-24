@@ -5,14 +5,22 @@ lualib/skynet.lua
 	session_coroutine_address		#coroutine->address,保存协程对应会话的发起方服务地址
 	session_response				#标记会话是否回复过/保存本次会话的回复函数
 	unresponse						#会话对应的回复函数是否调用过的标记表
-	wakeup_session					#待唤醒会话
+	wakeup_session					#已唤醒会话,等待后续调度
 	sleep_session					#睡眠中的会话
 	watching_service				#会话发起方服务地址->引用次数,即保存了其他服对本服的引用次数
 	watching_session				#会话ID->会话接收方服务地址,skynet.call会注册，对方报错/退出服务时，会反馈错误信息，触发skynet.call调用报错
 	error_queue						#出错的会话,skynet.call调用失败进入队列，后续对该错误队列的调度会触发skynet.call报错
 	dead_service					#退出/挂掉的服务
-	fork_queue						#
+	fork_queue						#fork的协程队列
 	
+
+##skynet异步代码改成同步写法原理##
+	利用协程“多入口多出口”特性，将本来需要异步等待数据的处理逻辑，转成同步阻塞，数据来后在执行逻辑，实现技巧是
+	在每次请求会话时(服务的回调函数被调用时)创建协程，会话中异步获取数据时coroutine.yield阻塞协程，在数据到来后
+	用coroutine.resume将收到的数据在上一次coroutine.yield入口重新进入函数。
+	为了便于写同步代码，skynet提供以下接口:
+	skynet.call/skynet.ret
+
 
 ##异步写法改成同步写法##
 	假定有这样需求（如玩家登录），我们需要从数据库载入多份数据，如：base,item,task等等
@@ -82,7 +90,7 @@ lualib/skynet.lua
 		end
 	end
 	for loadkey in pairs(ready_loads) do
-		skynet.fork(loadfromdatabase,loadkey)
+		skynet.fork(loadfromdatabase,loadkey) -- skynet.timeout(0,function () loadfromdatabase(loadkey) end)
 	end
 	
 	似乎和高端异步写法差不多了，但是同一个会话中要求载入多个数据的地方并不多，通常只是要求载入一个数据，假定我们提供一个本服玩家简介服(resumesrv),获取简介：local resume = skynet.call(resumesrv,玩家ID),即使有需要载入多个数据的需求，通常载入多个数据都要先后依赖关系，如获取完简介后，根据其名字继续载入其他数据

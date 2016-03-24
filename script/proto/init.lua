@@ -78,7 +78,7 @@ end
 local function onresponse(agent,session,response)
 	local connect = proto.connection[agent]
 	if not connect then
-		logger.log("warning","netclient",format("[NON EXIST AGENT] onrequest,agent=%s cmd=%s request=%s",agent,cmd,request))
+		logger.log("warning","netclient",format("[NON EXIST AGENT] onresponse,agent=%s cmd=%s request=%s",agent,cmd,request))
 		return
 	end
 	-- 替换下线时，旧对象已被删除，忽略其收到的回复
@@ -115,6 +115,7 @@ function CMD.data(agent,typ,...)
 	end
 	if typ == "REQUEST" then
 		local result = onrequest(agent,...)
+		skynet.ret(skynet.pack(result))
 	else
 		assert(typ == "RESPONSE")
 		onresponse(agent,...)

@@ -11,7 +11,6 @@ function ccarddb:load(data)
 		return
 	end
 	ccontainer.load(self,data,function (carddata)
-		pprintf("%s",carddata)
 		local card = ccard.create({
 			pid = self.pid,
 			sid = carddata.sid,

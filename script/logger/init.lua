@@ -30,16 +30,18 @@ function logger.log(mode,filename,...)
 end
 
 function logger.sendmail(to_list,subject,content)
-	skynet.send(LGGERSRV,"lua","sendmail",to_list,subject,content)
+	skynet.send(LOGGERSRV,"lua","sendmail",to_list,subject,content)
 end
 
 -- console/print
 function logger.print(...)
-	print(string.format("[%s]",os.date("%Y-%m-%d %H:%M:%S")),...)
+	--print(string.format("[%s]",os.date("%Y-%m-%d %H:%M:%S")),...)
+	skynet.send(LOGGERSRV,"lua","print",...)
 end
 
 function logger.pprintf(fmt,...)
-	pprintf(string.format("[%s] %s",os.date("%Y-%m-%d %H:%M:%S"),fmt),...)
+	--pprintf(string.format("[%s] %s",os.date("%Y-%m-%d %H:%M:%S"),fmt),...)
+	skynet.send(LOGGERSRV,"lua","pprintf",fmt,...)
 end
 
 
