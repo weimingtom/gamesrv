@@ -14,12 +14,18 @@ lualib/skynet.lua
 	fork_queue						#fork的协程队列
 	
 
-##skynet异步代码改成同步写法原理##
-	利用协程“多入口多出口”特性，将本来需要异步等待数据的处理逻辑，转成同步阻塞，数据来后在执行逻辑，实现技巧是
+##skynet异步回调改成同步写法原理##
+	+利用协程“多入口多出口”特性，将本来需要异步等待数据的处理逻辑，转成同步阻塞，数据来后在执行逻辑，实现技巧是
 	在每次请求会话时(服务的回调函数被调用时)创建协程，会话中异步获取数据时coroutine.yield阻塞协程，在数据到来后
 	用coroutine.resume将收到的数据在上一次coroutine.yield入口重新进入函数。
 	为了便于写同步代码，skynet提供以下接口:
 	skynet.call/skynet.ret
+
+	+集群rpc异步回调同步原理，调用cluster.call时,skynet.wait阻塞，数据到来后用skynet.wakeup唤醒，并把收到的数据返回给调用者。
+	具体实现借助socketchannel,socketchannel在首次连接目标机器时，用skynet.fork执行调度函数，在收到请求时，将本次会话ID,
+	读取返回数据函数压入调度队列，调用skynet.wait阻塞等待数据，调度到来后阻塞读取回复，收到回复后,保存回复数据，并用skynet.wakeup唤醒本次前面的skynet.wait,skynet.wait后续逻辑就可以返回保存的结果（收到的数据)
+
+
 
 
 ##异步写法改成同步写法##
@@ -125,3 +131,10 @@ end
 
 skynet.sleep 等价于一个带超时的skynet.wait
 skynet.wait一般配合skynet.wakeup用，一般应用场景有"多次会话之间有依赖关系",如skynet.queue的实现就是典型例子，它保证了同一个服会话的时序执行,游戏中我们很少有机会用到这两个接口
+
+
+cluster.call用于集群的rpc调用,如果习惯用skynet.call，我们也可以通过cluster.proxy代理进行转换，如:
+cluster.call(node,address,...)
+等价于下面代码
+node_address_proxy = cluster.proxy(node,address)
+skynet.call(node_address_proxy,...)
