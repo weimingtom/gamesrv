@@ -80,6 +80,7 @@ lualib/skynet.lua
 	onloadall()
 
 	高端异步改成同步写法
+	local co = coroutine.running()
 	local ready_loads = {base=false,item=false,task=false}
 	function loadfromdatabase(loadkey)
 		local data = skynet.call(dbsrv,loadkey,...)
@@ -98,8 +99,11 @@ lualib/skynet.lua
 	for loadkey in pairs(ready_loads) do
 		skynet.fork(loadfromdatabase,loadkey) -- skynet.timeout(0,function () loadfromdatabase(loadkey) end)
 	end
-	
-	似乎和高端异步写法差不多了，但是同一个会话中要求载入多个数据的地方并不多，通常只是要求载入一个数据，假定我们提供一个本服玩家简介服(resumesrv),获取简介：local resume = skynet.call(resumesrv,玩家ID),即使有需要载入多个数据的需求，通常载入多个数据都要先后依赖关系，如获取完简介后，根据其名字继续载入其他数据
+	skynet.wait()
+	local data = ready_loads
+	-- dosomething for data
+
+	写法和高端异步写法有点类似，但调用者可以用同步写法获取数据。即使我们用低端异步写法，影响效率也不大，只是影响了载入多个数据的单次会话开销，这些效率影响不大的地方“可读性”比效率更重要
 
 
 ##lua API理解##

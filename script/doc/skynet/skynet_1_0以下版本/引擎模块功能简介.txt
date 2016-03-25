@@ -1,9 +1,9 @@
 skynet-src/									skynet引擎核心代码
-	socket_server.c							服务模块,包括服务新建/销毁/消息调度/向服务发送的内置命令/服务间消息传递等等核心内容
+	socket_server.c							套接字模块(包括服务端套接字和客户端套接字)					
 	skynet_timer.c							定时器
 	skynet_start.c							启动模块
 	skynet_socket.c							套接字/网络模块
-	skynet_server.c							skynet服务/节点
+	skynet_server.c							skynet服务/节点，包括服务新建/销毁/消息调度/向服务发送的内置命令/服务间消息传递等等核心内容
 	skynet_mq.c								消息队列模块
 	skynet_monitor.c						服务监控模块，检测服务是否可能陷入死循环
 	skynet_module.c							内置c服务模块管理器（内置的c服务在skynet/cservice/*.so下)
@@ -15,7 +15,6 @@ skynet-src/									skynet引擎核心代码
 	skynet_env.c							环境信息/配置信息，配置信息都放到_G中，由于main会开一个主LuaState(不是服务),因此这对其他服务没有影响
 	skynet_daemon.c							根据配置将skynet进入后台运行模块
 	malloc_hook.c							skynet内存分配模块
-	socket_server.c							套接字模块(包括服务端套接字和客户端套接字)
 	skynet_socket.c							对socket_server.c/skynet_epoll.h的包装模块,提供套接字消息
 	
 
