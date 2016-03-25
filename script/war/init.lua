@@ -1,6 +1,6 @@
 
 require "script.war.warobj"
-require "script.war.aux"
+require "script.war.auxilary"
 
 --- 1. player ready
 --- 2. startwar

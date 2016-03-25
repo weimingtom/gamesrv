@@ -1,6 +1,6 @@
 
 require "script.playermgr"
-require "script.war.aux"
+require "script.war.auxilary"
 
 local function test(pid)
 	pid = assert(tonumber(pid),"Invalid pid:" .. tostring(pid))
