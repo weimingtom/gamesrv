@@ -158,7 +158,7 @@ function cplayer:loadfromdatabase(loadall)
 		self.loadstate = "loading"
 		local db = dbmgr.getdb(cserver.getsrvname(self.pid))
 		local data = db:get(db:key("role",self.pid,"data"))
-		pprintf("role:data=>%s",data)
+		--pprintf("role:data=>%s",data)
 		-- 正常角色至少会有基本数据
 		if not data or not next(data) then
 			self.loadstate = "loadnull"

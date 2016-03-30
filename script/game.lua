@@ -32,6 +32,7 @@ function game.init()
 	if fd then
 		local d = fd:read(4)
 		math.randomseed(os.time() + d:byte(1) + (d:byte(2) * 256) + (d:byte(3) * 65536) + (d:byte(4) * 4294967296))
+		fd:close()
 	end
 	console.init()
 	logger.init()

@@ -110,7 +110,8 @@ function autosave(obj)
 	end
 	obj.savetype = "autosave"
 	if not isopensave(obj) then
-		local name = string.format("%s.%s",obj.flag,obj.pid)
+		assert(obj.savename,"属性'savename'未设置")
+		local name = string.format("%s.%s",obj.savename,obj.pid)
 		opensave(obj,name)
 	end
 	logger.log("info","saveobj",string.format("autosave,uniqueflag=%s",uniqueflag(obj)))
@@ -122,7 +123,8 @@ function oncesave(obj)
 	end
 	obj.savetype = "oncesave"
 	if not isopensave(obj) then
-		local name = string.format("%s.%s",obj.flag,obj.pid)
+		assert(obj.savename,"属性'savename'未设置")
+		local name = string.format("%s.%s",obj.savename,obj.pid)
 		opensave(obj,name)
 	end
 	logger.log("info","saveobj",string.format("oncesave,uniqueflag=%s",uniqueflag(obj)))

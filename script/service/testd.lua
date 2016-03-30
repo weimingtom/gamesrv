@@ -39,6 +39,7 @@ end)
 skynet.start(function ()
 	print("skynet.start")
 	skynet.dispatch("lua",function (session,source,cmd,...)
+		print(session,source,cmd,...)
 		local func = CMD[cmd]
 		needret_retpack(func(...))
 	end)

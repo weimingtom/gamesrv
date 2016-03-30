@@ -16,7 +16,6 @@ function cserver:init()
 	self.loadstate = "unload"
 	self.data = {}
 	self.onlinelimit = 20000	
-
 	self.savename = string.format("%s.%s",self.flag,self.pid)
 	autosave(self)
 	logger.log("info","server","init")
