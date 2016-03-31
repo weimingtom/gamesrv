@@ -32,6 +32,9 @@
 	cd /home/game/servers/gamesrv_100
 	cp /home/game/servers/gamesrv_100/script/conf/template/gamesrv_100.conf script/conf/gamesrv_100.conf
 	将配置文件中的srvname字段改成：srvname = "gamesrv_100"
+	
+	-- 编译引入的第三方库，后续初始化服务器也类似，不再累述
+	cd /home/game/servers/gamesrv_100/3rd && make clean && make all
 
 2. 中心节点服（方便做世界服、跨服好友哦，主要保存玩家简介信息）
 	cd /home/game/servers
