@@ -256,8 +256,8 @@ login_queue 2 {
 
 login_reentergame 3 {
 	request {
-		srvname 0 : string
-		token 1 : string
+		token 0 : string
+		go_srvname 1 : string
 	}
 }
 msg_notify 100 {

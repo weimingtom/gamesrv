@@ -1,4 +1,4 @@
--- 当前范围:[1,1100)
+-- 当前范围:[1,1200)
 local proto = {}
 proto.c2s = [[
 .RoleType {
