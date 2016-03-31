@@ -10,5 +10,6 @@ function net.init()
 	net.team = require "script.net.team"
 	net.scene = require "script.net.scene"
 	net.task = require "script.net.task"
+	net.kuafu = require "script.net.kuafu"
 end
 return net
