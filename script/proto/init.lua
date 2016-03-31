@@ -19,7 +19,7 @@ function proto.sendpackage(agent,protoname,cmd,request,onresponse)
 	end
 	connect.session = connect.session + 1
 	logger.log("debug","netclient",format("[send] source=%s session=%d pid=%d protoname=%s cmd=%s request = %s onresponse=%s",agent,connect.session,connect.pid,protoname,cmd,request,onresponse))
-	logger.pprintf("Request:%s\n",{
+	logger.pprintf("[send] REQUEST:%s\n",{
 		pid = connect.pid,
 		session = connect.session,
 		agent = skynet.address(agent),
@@ -48,7 +48,7 @@ local function onrequest(agent,cmd,request)
 		logger.log("warning","netclient",format("[NON EXIST OBJECT] onrequest,agent=%s cmd=%s request=%s",agent,cmd,request))
 		return
 	end
-	logger.pprintf("REQUEST:%s\n",{
+	logger.pprintf("[recv] REQUEST:%s\n",{
 		pid = obj.pid,
 		agent = skynet.address(agent),
 		cmd = cmd,
@@ -71,7 +71,7 @@ local function onrequest(agent,cmd,request)
     end
 
 	local r = func(obj,request)
-	logger.pprintf("Response:%s\n",{
+	logger.pprintf("[send] RESPONSE:%s\n",{
 		pid = obj.pid,
 		cmd = cmd,
 		response = r,
@@ -90,7 +90,7 @@ local function onresponse(agent,session,response)
 	if not obj then
 		return
 	end
-	logger.pprintf("RESPONSE:%s\n",{
+	logger.pprintf("[recv] RESPONSE:%s\n",{
 		pid = obj.pid,
 		agent = skynet.address(agent),
 		session = session,

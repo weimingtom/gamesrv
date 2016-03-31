@@ -205,7 +205,8 @@ function REQUEST.entergame(obj,request)
 	end
 	if oldplayer then	-- 顶号
 		local go_srvname
-		if oldplayer.__state == "kuafu" and oldplayer.go_srvname then
+		-- token认证登录不检查：是否可以自动跳到跨服
+		if not token and oldplayer.__state == "kuafu" and oldplayer.go_srvname then
 			go_srvname = oldplayer.go_srvname
 		end
 		if oldplayer.__agent then -- 连线对象才提示，非连线对象可能有：离线对象/跨服对象
@@ -222,7 +223,8 @@ function REQUEST.entergame(obj,request)
 	end
 	local player = playermgr.recoverplayer(roleid)
 	if token_cache and token_cache.home_srvname then
-		player.home_srvname = token_cache.home_srvname
+		local home_srvname = token_cache.home_srvname
+		player.home_srvname = home_srvname
 		player.player_data = token_cache.player_data
 		local now_srvname = cserver.srvname
 		cluster.call(home_srvname,"rpc","playermgr.set_go_srvname",roleid,now_srvname)
