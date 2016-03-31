@@ -45,6 +45,7 @@ login_login 3 {
 login_entergame 4 {
 	request {
 		roleid 0 : integer
+		token 1 : string
 	}
 	response {
 		# see errcode.lua
@@ -71,8 +72,8 @@ login_queue 2 {
 
 login_reentergame 3 {
 	request {
-		srvname 0 : string
-		token 1 : string
+		token 0 : string
+		go_srvname 1 : string
 	}
 }
 ]]

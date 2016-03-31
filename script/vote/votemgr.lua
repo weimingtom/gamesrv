@@ -82,13 +82,16 @@ function cvotemgr:delvote(id,typ)
 end
 
 function cvotemgr:__delvote(id,typ)
-	local id_vote =self.type_id_vote[typ]
+	local id_vote = self.type_id_vote[typ]
 	if id_vote then
 		local vote = id_vote[id]
 		if vote then
 			logger.log("info","vote",string.format("delvote type=%s id=%s",typ,id))
 			xpcall(self.ondelvote,onerror,self,vote)
 			id_vote[id] = nil
+			for pid,_ in pairs(vote.member_vote) do
+				self.type_pid_id[typ][pid] = nil
+			end
 			return vote
 		end
 	end

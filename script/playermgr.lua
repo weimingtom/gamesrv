@@ -82,7 +82,7 @@ function playermgr.addobject(obj,reason)
 		playermgr.linknum = playermgr.linknum + 1
 	elseif obj.__state == "offline" then
 		playermgr.offlinenum = playermgr.offlinenum + 1
-	elseif obj.__state == "kuafu" then
+	elseif obj.__state == "kuafu" then -- 去其他服跨服的对象
 		playermgr.kuafunum = playermgr.kuafunum + 1
 	else
 		playermgr.onlinenum = playermgr.onlinenum + 1
@@ -208,38 +208,6 @@ function playermgr.transfer_mark(obj1,obj2)
 	obj2.passwd = obj1.passwd
 end
 
-
--- 跨服
-function playermgr.gosrv(player,srvname)
-	local pid = player.pid
-	local token = uuid()
-	local self_srvname = cserver.srvname
-	logger.log("info","kuafu",string.format("gosrv,pid=%d srvname=%s->%s token=%s",pid,self_srvname,srvname,token))
-	--cluster.call(srvname,"modmethod","playermgr",".addtoken",token,{pid=pid,})
-	cluster.call(srvname,"rpc","playermgr.addtoken",token,{pid=pid,home_srvname=self_srvname})
-	player:ongosrv(srvname)
-	net.login.reentergame(pid,{
-		home_srvname = self_srvname,
-		go_srvname = srvname,
-		token = token,
-	})	
-	playermgr.kick(pid)
-end
-
-function playermgr.gohome(player)
-	local pid = player.pid
-	local self_srvname = cserver.srvname
-	local srvname = cserver.getsrvname(pid)
-	local token = uuid()
-	logger.log("info","kuafu",string.format("gohome,pid=%d,srvname=%s->%s token=%s",pid,self_srvname,srvname,token))
-	player:ongohome()
-	net.login.reentergame(pid,{
-		srvname = srvname,
-		token = token,
-	})
-	playermgr.kick(pid)
-end
-
 -- token auth
 function playermgr.addtoken(token,ext)
 	local v = playermgr.tokens[token]
@@ -273,6 +241,7 @@ function playermgr.starttimer_checktoken()
 		end
 	end
 end
+
 
 --/*
 -- 所有与玩家相关对象均置入id_obj中，其中包括

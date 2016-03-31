@@ -177,12 +177,16 @@ end
 function REQUEST.entergame(obj,request)
 	local roleid = assert(request.roleid)
 	local token = request.token
+	local home_srvname
 	if not obj.passlogin then
 		-- token auth
 		if token then
 			local v = playermgr.gettoken(token)
 			if not v or v.pid ~= roleid then
 				return {result=STATUS_UNAUTH}
+			end
+			if v.home_srvname then
+				home_srvname = v.home_srvname
 			end
 		else
 			return {result=STATUS_UNAUTH}
@@ -193,32 +197,46 @@ function REQUEST.entergame(obj,request)
 	if obj == oldplayer then
 		return {result = STATUS_REPEAT_LOGIN,}
 	end
-	local server = globalmgr.server
-	if playermgr.onlinenum >= server.onlinelimit then
-		loginqueue.push({pid=obj.pid,roleid=roleid})
-		netlogin.queue(obj.pid,{waitnum=loginqueue.len()})
-		return {result = STATUS_OVERLIMIT,}
+	if not token then -- token认证登录不排队
+		local server = globalmgr.server
+		if playermgr.onlinenum >= server.onlinelimit then
+			loginqueue.push({pid=obj.pid,roleid=roleid})
+			netlogin.queue(obj.pid,{waitnum=loginqueue.len()})
+			return {result = STATUS_OVERLIMIT,}
+		end
 	end
 	if oldplayer then	-- 顶号
-		net.msg.notify(oldplayer.pid,string.format("您的帐号被%s替换下线",gethideip(obj.__ip)))
-		net.msg.notify(obj.pid,string.format("%s的帐号已被你替换下线",gethideip(oldplayer.__ip)))
+		local go_srvname
+		if oldplayer.__state == "kuafu" and oldplayer.go_srvname then
+			go_srvname = oldplayer.go_srvname
+		end
+		if oldplayer.__agent then -- 连线对象才提示，非连线对象可能有：离线对象/跨服对象
+			net.msg.notify(oldplayer.pid,string.format("您的帐号被%s替换下线",gethideip(obj.__ip)))
+			net.msg.notify(obj.pid,string.format("%s的帐号已被你替换下线",gethideip(oldplayer.__ip)))
+		end
 		netlogin.kick(oldplayer.pid,"replace")
 		-- kick will delobject
 		--playermgr.delobject(oldplayer.pid,"replace")
+		if go_srvname then
+			playermgr.gosrv(obj,go_srvname)
+			return {result = STATUS_REDIRECT_SERVER,}
+		end
 	end
 	local player = playermgr.recoverplayer(roleid)
+	if home_srvname then
+		player.home_srvname = home_srvname
+		local now_srvname = cserver.srvname
+		cluster.call(home_srvname,"rpc","playermgr.set_go_srvname",pid,now_srvname)
+	end
 	playermgr.transfer_mark(obj,player)
 	playermgr.nettransfer(obj,player)
 	player:entergame()
 	return {result = STATUS_OK,}
 end
 
-function REQUEST.exitgame(player) 
+function REQUEST.exitgame(player)
 	player:exitgame()
 end
-
-
-
 
 local RESPONSE = {}
 netlogin.RESPONSE = RESPONSE
