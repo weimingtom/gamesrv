@@ -89,7 +89,7 @@ function playermgr.addkuafuplayer(pid)
 	return player
 end
 
-function playermgr.set_go_srvname(pid)
+function playermgr.set_go_srvname(pid,go_srvname)
 	local player = playermgr.getplayer(pid)
 	if not player then
 		player = playermgr.addkaufuplayer(pid)

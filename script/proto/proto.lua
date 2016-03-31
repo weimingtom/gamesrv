@@ -9,6 +9,7 @@ local protomods = {
 	"card",
 	"team",
 	"scene",
+	"kuafu",
 }
 
 local proto = {}

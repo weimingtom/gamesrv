@@ -603,3 +603,13 @@ scene_enter 903 {
 		pos 1 : PosType
 	}
 }
+kuafu_gosrv 1100 {
+	request {
+		go_srvname 0 : string
+	}
+}
+
+kuafu_gohome 1101 {
+	request {
+	}
+}

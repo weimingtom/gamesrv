@@ -226,7 +226,7 @@ function REQUEST.entergame(obj,request)
 	if home_srvname then
 		player.home_srvname = home_srvname
 		local now_srvname = cserver.srvname
-		cluster.call(home_srvname,"rpc","playermgr.set_go_srvname",pid,now_srvname)
+		cluster.call(home_srvname,"rpc","playermgr.set_go_srvname",roleid,now_srvname)
 	end
 	playermgr.transfer_mark(obj,player)
 	playermgr.nettransfer(obj,player)

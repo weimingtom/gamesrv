@@ -1,5 +1,3 @@
-
-
 netkuafu = netkuafu or {}
 
 -- c2s
