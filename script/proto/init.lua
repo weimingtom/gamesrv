@@ -55,14 +55,18 @@ local function onrequest(agent,cmd,request)
 		request = request,
 	})
 	local protoname,subprotoname = string.match(cmd,"([^_]-)%_(.+)") 
+	if not obj.passlogin and protoname ~= "login" then
+		logger.log("warning","netclient",format("[not passlogin] pid=%s cmd=%s request=%s",pid,cmd,request))
+		return
+	end
 	if not net[protoname] then
-		logger.log("warning","error",format("unknow proto,pid=%s cmd=%s request=%s",pid,cmd,request))
+		logger.log("warning","netclient",format("unknow proto,pid=%s cmd=%s request=%s",pid,cmd,request))
 		return
 	end
 	local REQUEST = net[protoname].REQUEST
     local func = REQUEST[subprotoname]
     if not func then
-        logger.log("warning","error",format("unknow cmd,pid=%s,cmd=%s request=%s",pid,cmd,request))
+        logger.log("warning","netclient",format("unknow cmd,pid=%s,cmd=%s request=%s",pid,cmd,request))
         return
     end
 
@@ -134,7 +138,10 @@ function CMD.start(agent,fd,ip)
 end
 
 function CMD.close(agent)
-	local connect = assert(proto.connection[agent],"invalid agent:" .. tostring(agent))
+	local connect = proto.connection[agent]
+	if not connect then
+		return
+	end
 	connect.sessions = nil
 	local pid = assert(connect.pid,"invalid pid:" .. tostring(connect.pid))
 	playermgr.delobject(pid,"disconnect")

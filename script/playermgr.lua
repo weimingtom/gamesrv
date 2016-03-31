@@ -206,6 +206,7 @@ end
 function playermgr.transfer_mark(obj1,obj2)
 	obj2.account = obj1.account
 	obj2.passwd = obj1.passwd
+	obj2.passlogin = obj1.passlogin
 end
 
 -- token auth

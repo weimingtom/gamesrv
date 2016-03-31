@@ -177,20 +177,18 @@ end
 function REQUEST.entergame(obj,request)
 	local roleid = assert(request.roleid)
 	local token = request.token
-	local home_srvname
+	local token_cache
 	if not obj.passlogin then
 		-- token auth
 		if token then
-			local v = playermgr.gettoken(token)
-			if not v or v.pid ~= roleid then
+			token_cache = playermgr.gettoken(token)
+			if not token_cache or token_cache.pid ~= roleid then
 				return {result=STATUS_UNAUTH}
-			end
-			if v.home_srvname then
-				home_srvname = v.home_srvname
 			end
 		else
 			return {result=STATUS_UNAUTH}
 		end
+		obj.passlogin = true
 	end
 	
 	local oldplayer = playermgr.getplayer(roleid) 
@@ -223,8 +221,9 @@ function REQUEST.entergame(obj,request)
 		end
 	end
 	local player = playermgr.recoverplayer(roleid)
-	if home_srvname then
-		player.home_srvname = home_srvname
+	if token_cache and token_cache.home_srvname then
+		player.home_srvname = token_cache.home_srvname
+		player.player_data = token_cache.player_data
 		local now_srvname = cserver.srvname
 		cluster.call(home_srvname,"rpc","playermgr.set_go_srvname",roleid,now_srvname)
 	end
@@ -240,8 +239,6 @@ end
 
 local RESPONSE = {}
 netlogin.RESPONSE = RESPONSE
-
-
 
 
 function netlogin.kick(pid)

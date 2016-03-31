@@ -39,6 +39,7 @@
 playermgr = require "script.playermgr"
 
 function playermgr.gosrv(player,go_srvname,home_srvname)
+	-- player是连线对象，不一定是玩家对象
 	local pid = player.pid
 	local now_srvname = cserver.srvname
 	if not home_srvname then
@@ -52,9 +53,15 @@ function playermgr.gosrv(player,go_srvname,home_srvname)
 	assert(go_srvname ~= home_srvname)
 	local token = uuid()
 	logger.log("info","kuafu",string.format("gosrv,pid=%d home_srvname=%s srvname=%s->%s token=%s",pid,home_srvname,now_srvname,go_srvname,token))
-	--cluster.call(go_srvname,"modmethod","playermgr",".addtoken",token,{pid=pid,})
-	cluster.call(go_srvname,"rpc","playermgr.addtoken",token,{pid=pid,home_srvname=home_srvname})
-	player:ongosrv(go_srvname)
+	local player_data = playermgr.packplayer4kuafu(pid)
+	cluster.call(go_srvname,"rpc","playermgr.addtoken",token,{
+		pid=pid,
+		home_srvname=home_srvname,
+		player_data = player_data,
+	})
+	if player.ongosrv then
+		player:ongosrv(go_srvname)
+	end
 	net.login.reentergame(pid,{
 		go_srvname = go_srvname,
 		token = token,
@@ -92,10 +99,15 @@ end
 function playermgr.set_go_srvname(pid,go_srvname)
 	local player = playermgr.getplayer(pid)
 	if not player then
-		player = playermgr.addkaufuplayer(pid)
+		player = playermgr.addkuafuplayer(pid)
 	end
 	assert(player.__state == "kuafu")
 	player.go_srvname = go_srvname
+end
+
+-- 打包与玩家相关的本服全局数据，如服务器等级，开服天数等
+function playermgr.packplayer4kuafu(pid)
+	return data
 end
 
 return playermgr
