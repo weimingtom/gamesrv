@@ -27,19 +27,14 @@
 	cd /home/game/servers/gamesrv_100
 	git submodule init
 	git submodule update
-	如果git submodule update 失败，则重新初始化一遍子模块，如:
-	rm -rf shell
-	git rm -r shell
-	git submodule add https://github.com/sundream/shell.git shell
-
-	rm -rf skynet
-	git rm -r skynet
-	git submodule add https://github.com/sundream/skynet.git skynet
 	
 	修改配置文件:
 	cd /home/game/servers/gamesrv_100
 	cp /home/game/servers/gamesrv_100/script/conf/template/gamesrv_100.conf script/conf/gamesrv_100.conf
 	将配置文件中的srvname字段改成：srvname = "gamesrv_100"
+	
+	-- 编译引入的第三方库，后续初始化服务器也类似，不再累述
+	cd /home/game/servers/gamesrv_100/3rd && make clean && make all
 
 2. 中心节点服（方便做世界服、跨服好友哦，主要保存玩家简介信息）
 	cd /home/game/servers
@@ -68,24 +63,25 @@
 5. 客户端
 	cd /home/game
 	git clone --recursive https://github.com/sundream/client.git client
-	-- -- 如果skynet子模块没有初始化，则执行以下操作，后续robert的检出也类似，不再累述
-	cd /home/game/client
-	git submodule init
-	git submodule update
-	如果git submodule update 失败，则重新初始化一遍子模块，如:
-	rm -rf skynet
-	git rm -r skynet
-	git submodule add https://github.com/sundream/skynet.git skynet
 
+6. 机器人
+	cd /home/game
 	git clone --recursive https://github.com/sundream/robert.git robert
 ```
 
 ## 启动服务器
 ```
+cd $SERVER_ROOT/shell && sh startredis.sh
+cd $SERVER_ROOT/shell && sh startserver.sh
+如:
 cd /home/game/servers/gamesrv_100/shell && sh startredis.sh
 cd /home/game/servers/accountcenter/shell && sh startserver.sh
 cd /home/game/servers/resumesrv/shell && sh startserver.sh
 cd /home/game/servers/gamesrv_100/shell && sh startserver.sh
+```
+## 关闭服务器
+```
+cd $SERVER_ROOT/shell && sh shutdown.sh
 ```
 
 ## 启动客户端
