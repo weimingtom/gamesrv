@@ -4,7 +4,7 @@
 	+ mkdir /home/game 或者 adduser game
 	+ mkdir /home/upload
 	+ cd /home/game/ && mkdir servers
-	+ cd /home/game/servers && mkdir -p ds/data/gamesrv_100
+	+ cd /home/game/servers && mkdir -p ds/gamesrv_100/data
 
 2. [redis](http://redis.io/download)
 	cd /home/game/servers/ds
