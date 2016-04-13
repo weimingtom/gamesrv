@@ -99,22 +99,22 @@ end
 
 -- class method
 function cserver.isfrdsrv(srvname)
-	srvname = srvname or cserver.srvname
+	srvname = srvname or cserver.getsrvname()
 	return string.find(srvname,"frdsrv") ~= nil
 end
 
 function cserver.isresumesrv(srvname)
-	srvname = srvname or cserver.srvname
+	srvname = srvname or cserver.getsrvname()
 	return string.find(srvname,"resume") ~= nil
 end
 
 function cserver.isgamesrv(srvname)
-	srvname = srvname or cserver.srvname
+	srvname = srvname or cserver.getsrvname()
 	return string.find(srvname,"gamesrv") ~= nil
 end
 
 function cserver.iswarsrv(srvname)
-	srvname = srvname or cserver.srvname
+	srvname = srvname or cserver.getsrvname()
 	if srvname == "warsrvmgr" then
 		return false
 	end
@@ -122,15 +122,13 @@ function cserver.iswarsrv(srvname)
 end
 
 function cserver.iswarsrvmgr(srvname)
-	srvname = srvname or cserver.srvname
+	srvname = srvname or cserver.getsrvname()
 	return string.find(srvname,"warsrvmgr") ~= nil
 end
 
-function cserver.getsrvname(pid)
-	local srvname = route.getsrvname(pid)
-	if not srvname then
-	end
-	return srvname
+-- 得到自身服务器名
+function cserver.getsrvname()
+	return skynet.getenv("srvname")
 end
 
 return cserver

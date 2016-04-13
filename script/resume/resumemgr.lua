@@ -64,7 +64,7 @@ function resumemgr.delresume(pid)
 		logger.log("info","resume",format("delresume,pid=%d",pid))
 		resume:savetodatabase()
 		closesave(resume)
-		local srvname = cserver.srvname
+		local srvname = cserver.getsrvname()
 		if cserver.isresumesrv(srvname) then
 		else
 			cluster.call("resumesrv","resumemgr","delref",pid)

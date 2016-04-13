@@ -6,7 +6,7 @@ netkuafu.REQUEST = REQUEST
 
 function REQUEST.gosrv(player,request)
 	local go_srvname = request.go_srvname
-	local now_srvname = cserver.srvname
+	local now_srvname = cserver.getsrvname()
 	if now_srvname == go_srvname then
 		return
 	end

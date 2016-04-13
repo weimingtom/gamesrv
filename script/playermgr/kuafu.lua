@@ -41,9 +41,9 @@ playermgr = require "script.playermgr"
 function playermgr.gosrv(player,go_srvname,home_srvname)
 	-- player是连线对象，不一定是玩家对象
 	local pid = player.pid
-	local now_srvname = cserver.srvname
+	local now_srvname = cserver.getsrvname()
 	if not home_srvname then
-		-- home_srvname = cserver.getsrvname(pid)
+		-- home_srvname = route.getsrvname(pid)
 		if player.home_srvname then
 			home_srvname = player.home_srvname
 		else
@@ -71,10 +71,10 @@ end
 
 function playermgr.gohome(player)
 	local pid = player.pid
-	-- local home_srvname = cserver.getsrvname(pid)
+	-- local home_srvname = route.getsrvname(pid)
 	assert(player.home_srvname)
 	local home_srvname = assert(player.home_srvname)
-	local now_srvname = cserver.srvname
+	local now_srvname = cserver.getsrvname()
 	assert(home_srvname ~= now_srvname)
 	local token = uuid()
 	logger.log("info","kuafu",string.format("gohome,pid=%d,srvname=%s->%s token=%s",pid,now_srvname,home_srvname,token))

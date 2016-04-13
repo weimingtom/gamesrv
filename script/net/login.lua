@@ -74,7 +74,7 @@ function REQUEST.login(obj,request)
 		local result,body = unpackbody(body)
 		if result == 0 then
 			obj.passlogin = true
-			url = string.format("/rolelist?gameflag=%s&srvname=%s&acct=%s",cserver.gameflag,cserver.srvname,account)
+			url = string.format("/rolelist?gameflag=%s&srvname=%s&acct=%s",cserver.gameflag,cserver.getsrvname(),account)
 			local status2,body2 = httpc.get(cserver.accountcenter.host,url)
 			if status2 == 200 then
 				local result2,roles = unpackbody(body2)
@@ -150,7 +150,7 @@ function REQUEST.createrole(obj,request)
 		lv = 0,
 		gold = 0,
 	}
-	local url = string.format("/createrole?gameflag=%s&srvname=%s&acct=%s&roleid=%s",cserver.gameflag,cserver.srvname,account,pid)
+	local url = string.format("/createrole?gameflag=%s&srvname=%s&acct=%s&roleid=%s",cserver.gameflag,cserver.getsrvname(),account,pid)
 	local data = cjson.encode(newrole)
 	local status,body = httpc.get(cserver.accountcenter.host,url,nil,nil,data)
 	if status == 200 then
@@ -226,7 +226,7 @@ function REQUEST.entergame(obj,request)
 		local home_srvname = token_cache.home_srvname
 		player.home_srvname = home_srvname
 		player.player_data = token_cache.player_data
-		local now_srvname = cserver.srvname
+		local now_srvname = cserver.getsrvname()
 		cluster.call(home_srvname,"rpc","playermgr.set_go_srvname",roleid,now_srvname)
 	end
 	playermgr.transfer_mark(obj,player)

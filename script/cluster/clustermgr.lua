@@ -16,7 +16,7 @@ end
 
 function clustermgr.checkserver()
 	timer.timeout("clustermgr.checkserver",60,clustermgr.checkserver)
-	local self_srvname = cserver.srvname
+	local self_srvname = cserver.getsrvname()
 	for srvname,_ in pairs(clustermgr.srvlist) do
 		if srvname ~= self_srvname then
 			local ok,result = pcall(cluster.call,srvname,"heartbeat")
@@ -37,7 +37,7 @@ function clustermgr.onconnect(srvname)
 	local oldstate = clustermgr.connection[srvname]
 	clustermgr.connection[srvname] = true
 	if not oldstate then
-		logger.log("info","cluster",string.format("server(%s->%s) connected",cserver.srvname,srvname))
+		logger.log("info","cluster",string.format("server(%s->%s) connected",cserver.getsrvname(),srvname))
 		if cserver.isresumesrv(srvname) then
 			broadcast(function (player)
 				sendpackage(player.pid,"player","switch",{
@@ -53,7 +53,7 @@ function clustermgr.disconnect(srvname)
 	local oldstate = clustermgr.connection[srvname]
 	clustermgr.connection[srvname] = nil
 	if oldstate then
-		logger.log("critical","cluster",string.format("server(%s->%s) lost connect",cserver.srvname,srvname))
+		logger.log("critical","cluster",string.format("server(%s->%s) lost connect",cserver.getsrvname(),srvname))
 		if cserver.isresumesrv(srvname) then
 			broadcast(function (player)
 				sendpackage(player.pid,"player","switch",{

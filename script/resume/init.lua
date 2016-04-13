@@ -135,7 +135,7 @@ function cresume:set(key,val,notsync)
 end
 
 function cresume:sync(data)
-	data.srvname = cserver.srvname
+	data.srvname = cserver.getsrvname()
 	for pid,_ in pairs(self.pid_ref) do
 		if pid ~= self.pid then
 			sendpackage(pid,"friend","sync",data)

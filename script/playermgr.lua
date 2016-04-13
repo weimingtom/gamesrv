@@ -152,13 +152,15 @@ function playermgr.genpid()
 	require "script.cluster.route"
 	local srvname = skynet.getenv("srvname")
 	local conf = srvlist[srvname]
+	local minroleid = math.floor(tonumber(skynet.getenv("minroleid")))
+	local maxroleid = math.floor(tonumber(skynet.getenv("maxroleid")))
 	local db = dbmgr.getdb()
-	local pid = db:get(db:key("role","maxroleid")) or conf.minroleid
+	local pid = db:get(db:key("role","maxroleid")) or minroleid
 	pid = pid + 1
-	if pid > conf.maxroleid then
+	if pid >= maxroleid then
 		return nil
 	end
-	assert(not db:get(db:key("role",pid)),"maxroleid error")
+	assert(not db:get(db:key("role",pid)),"roleid repeat:" .. tostring(pid))
 	db:set(db:key("role","maxroleid"),pid)
 	return pid
 end

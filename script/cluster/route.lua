@@ -4,11 +4,8 @@ function route.init()
 	require "script.cluster.clustermgr"
 	route.map = {}
 	route.sync_state = {}
-	for srvname,_ in pairs(srvlist) do
-		route.map[srvname] = {}
-		route.sync_state[srvname] = false
-	end
 	local self_srvname = skynet.getenv("srvname")
+	route.map[self_srvname] = {}
 	local pids = route.map[self_srvname]
 	local db = dbmgr.getdb()
 	local pidlist = db:hkeys(db:key("role","list")) or {}

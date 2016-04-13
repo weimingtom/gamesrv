@@ -213,7 +213,7 @@ function cfrienddb:req_delfriend(pid)
 		return
 	end
 	local srvname = route.getsrvname(pid)
-	if srvname == cserver.srvname then
+	if srvname == cserver.getsrvname() then
 		local target = playermgr.getplayer(pid)
 		if not target then
 			target = playermgr.loadofflineplayer(pid)
@@ -238,7 +238,7 @@ function cfrienddb:apply_addfriend(pid)
 	self.thistemp:set("toapplylist",toapplylist,300)
 	net.friend.addlist(self.pid,"toapply",pid,true)
 	local srvname = route.getsrvname(pid)
-	if srvname == cserver.srvname then
+	if srvname == cserver.getsrvname() then
 		local target = playermgr.getplayer(pid)
 		if target then
 			target.frienddb:addapplyer(self.pid)
@@ -277,7 +277,7 @@ function cfrienddb:agree_addfriend(pid)
 		net.msg.notify(self.pid,"该玩家不存在")
 		return
 	end
-	if srvname == cserver.srvname then
+	if srvname == cserver.getsrvname() then
 		local target = playermgr.getplayer(pid)
 		if target then
 			target.frienddb:addfriend(self.pid)
@@ -306,7 +306,7 @@ function cfrienddb:sendmsg(pid,msg)
 	end
 	logger.log("debug","friend",string.format("#%d sendmsg to %d,msg=%s",self.pid,pid,msg))
 	local srvname = route.getsrvname(pid)
-	if srvname == cserver.srvname then
+	if srvname == cserver.getsrvname() then
 		net.friend.addmsgs(pid,self.pid,msg)
 	else
 		cluster.call(srvname,"modmethod","net.friend",".addmsgs",pid,self.pid,msg)
