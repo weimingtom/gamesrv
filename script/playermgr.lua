@@ -176,7 +176,7 @@ function playermgr.createplayer(pid,conf)
 	end
 	local player = playermgr.newplayer(pid,true)
 	player:create(conf)
-	player:nowsave()
+	nowsave(player)
 	return player
 end
 

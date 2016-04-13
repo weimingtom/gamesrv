@@ -98,7 +98,7 @@ function cresume:create(resume)
 	if cserver.isgamesrv() then
 		cluster.call("resumesrv","resumemgr","create",self.pid,self:save())
 	elseif cserver.isresumesrv() then
-		self:nowsave()
+		nowsave(self)
 	end
 end
 
