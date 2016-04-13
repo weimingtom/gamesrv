@@ -30,7 +30,7 @@
 	
 	修改配置文件:
 	cd /home/game/servers/gamesrv_100
-	cp /home/game/servers/gamesrv_100/script/conf/template/gamesrv_100.conf script/conf/gamesrv_100.conf
+	cp script/conf/template/gamesrv.conf script/conf/gamesrv_100.conf
 	将配置文件中的srvname字段改成：srvname = "gamesrv_100"
 	
 	-- 编译引入的第三方库，后续初始化服务器也类似，不再累述
@@ -42,7 +42,7 @@
 	
 	修改配置文件:
 	cd /home/game/servers/resumesrv
-	cp /home/game/servers/gamesrv_100/script/conf/template/resumesrv.conf script/conf/resumesrv.conf
+	cp script/conf/template/resumesrv.conf script/conf/resumesrv.conf
 	将配置文件中的srvname字段改成：srvname = "resumesrv"
 
 3. 账号中心
@@ -51,7 +51,7 @@
 	
 	修改配置文件:
 	cd /home/game/servers/accountcenter
-	cp /home/game/servers/gamesrv_100/script/conf/template/accountcenter.conf script/conf/accountcenter.conf
+	cp script/conf/template/accountcenter.conf script/conf/accountcenter.conf
 	将配置文件中的srvname字段改成：srvname = "accountcenter"
 
 4. 其他服（不是必须，跟业务逻辑有关）
