@@ -142,7 +142,6 @@ function CMD.close(agent)
 	if not connect then
 		return
 	end
-	connect.sessions = nil
 	local pid = assert(connect.pid,"invalid pid:" .. tostring(connect.pid))
 	playermgr.delobject(pid,"disconnect")
 	proto.connection[agent] = nil
