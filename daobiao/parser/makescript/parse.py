@@ -152,13 +152,15 @@ class CParser(object):
 		#对None值的默认处理
 		for name,fmt in lst:
 			if line[name] == None:
-				if "d" in fmt or "f" in fmt:
-				if "%d" in fmt:
+				if "d" in fmt:
 					line[name] = 0
-				elif "%f" in fmt:
+				elif "f" in fmt:
 				 	line[name] = 0.0
 				else:
-					line[name] = ""
+					if self.m_cfg.get("none2nil"):
+						line[name] = "nil"
+					else:
+						line[name] = ""
 		return linefmt % line
 		
 	

@@ -10,7 +10,7 @@ cmds = {
     2 : "python parse_award.py ../xls/award.xls " + data_dstpath,
     3 : "python parse_huodong.py ../xls/huodong.xls " + data_dstpath,
     4 : "python parse_team.py ../xls/team.xls " + data_dstpath,
-    5 : "python parse_task.py ../xls/task.xls " + data_dstpath,
+    5 : "python parse_orgrunring.py ../xls/帮派跑环.xls " + data_dstpath,
     6 : "python parse_formula.py ../xls/formula.xls " + data_dstpath,
 	7 : "python parse_achievement.py ../xls/成就.xls " + data_dstpath,
 
