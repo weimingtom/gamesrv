@@ -30,7 +30,7 @@ function chuodong:inittime(conf)
 	self.end_readytime = conf.end_readytime or self.endtime
 	self.join_endtime = conf.join_endtime or self.readytime
 	self.join_starttime = conf.join_starttime or self.join_endtime
-	logger.log("info","huodong/huodong",string.format("inittime,name=%s join_starttime=%d join_endtime=%d readytime=%d starttime=%d end_readytime=%d endtime=%d",
+	logger.log("info","huodong/huodong",string.format("[inittime] name=%s join_starttime=%d join_endtime=%d readytime=%d starttime=%d end_readytime=%d endtime=%d",
 		self.name,self.join_starttime,self.join_endtime,self.readytime,self.starttime,self.end_readytime,self.endtime))
 end
 
@@ -52,7 +52,7 @@ function chuodong:settime(times)
 	if not huodong_data.JoinStartTime then
 		self.join_starttime = self.join_endtime
 	end
-	logger.log("info","huodong/huodong",string.format("settime,name=%s join_starttime=%d join_endtime=%d readytime=%d starttime=%d end_readytime=%d endtime=%d",
+	logger.log("info","huodong/huodong",string.format("[settime] name=%s join_starttime=%d join_endtime=%d readytime=%d starttime=%d end_readytime=%d endtime=%d",
 		self.name,self.join_starttime,self.join_endtime,self.readytime,self.starttime,self.end_readytime,self.endtime))
 end
 
@@ -92,7 +92,7 @@ end
 
 function chuodong:checkhuodong()
 	local pass_secs = getdaysecond()
-	logger.log("info","huodong/huodong",string.format("checkhuodong,name=%s pass_secs=%d join_starttime=%d join_endtime=%d readytime=%d starttime=%d end_readytime=%d endtime=%d bforceend=%s",
+	logger.log("info","huodong/huodong",string.format("[checkhuodong] name=%s pass_secs=%d join_starttime=%d join_endtime=%d readytime=%d starttime=%d end_readytime=%d endtime=%d bforceend=%s",
 		self.name,pass_secs,self.join_starttime,self.join_endtime,self.readytime,self.starttime,self.end_readytime,self.endtime,self.bforceend))
 	-- 活动开启阶段有强制结束标志，则忽略活动状态变更检查
 	--logger.log("info","huodong/huodong",self.name,self.starttime,pass_secs,self.endtime,self.bforceend)

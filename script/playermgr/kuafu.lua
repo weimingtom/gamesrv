@@ -52,7 +52,7 @@ function playermgr.gosrv(player,go_srvname,home_srvname)
 	end
 	assert(go_srvname ~= home_srvname)
 	local token = uuid()
-	logger.log("info","kuafu",string.format("gosrv,pid=%d home_srvname=%s srvname=%s->%s token=%s",pid,home_srvname,now_srvname,go_srvname,token))
+	logger.log("info","kuafu",string.format("[gosrv] pid=%d home_srvname=%s srvname=%s->%s token=%s",pid,home_srvname,now_srvname,go_srvname,token))
 	local player_data = playermgr.packplayer4kuafu(pid)
 	cluster.call(go_srvname,"rpc","playermgr.addtoken",token,{
 		pid=pid,
@@ -77,7 +77,7 @@ function playermgr.gohome(player)
 	local now_srvname = cserver.getsrvname()
 	assert(home_srvname ~= now_srvname)
 	local token = uuid()
-	logger.log("info","kuafu",string.format("gohome,pid=%d,srvname=%s->%s token=%s",pid,now_srvname,home_srvname,token))
+	logger.log("info","kuafu",string.format("[gohome] pid=%d,srvname=%s->%s token=%s",pid,now_srvname,home_srvname,token))
 	cluster.call(home_srvname,"rpc","playermgr.addtoken",token,{pid=pid,})
 	player:ongohome(home_srvname)
 	net.login.reentergame(pid,{

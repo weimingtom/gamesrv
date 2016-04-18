@@ -76,7 +76,7 @@ function cresume:onloadnull()
 	if cserver.isgamesrv() then
 		print("resume:create",route.getsrvname(self.pid),skynet.getenv("srvname"),self.pid)
 		if route.getsrvname(self.pid) ~= skynet.getenv("srvname") then
-			logger.log("error","error",string.format("from resumesrv loadnull,srvname=%s pid=%s",route.getsrvname(self.pid),self.pid))
+			logger.log("error","error",string.format("[from resumesrv loadnull] srvname=%s pid=%s",route.getsrvname(self.pid),self.pid))
 			return
 		end
 		player = playermgr.getplayer(self.pid)
@@ -91,7 +91,7 @@ end
 
 function cresume:create(resume)
 	assert(resume)
-	logger.log("info","resume",format("create,pid=%d resume=%s",self.pid,resume))
+	logger.log("info","resume",format("[create] pid=%d resume=%s",self.pid,resume))
 	self.loadstate = "loaded"
 	self.loadnull = nil
 	self.data = resume

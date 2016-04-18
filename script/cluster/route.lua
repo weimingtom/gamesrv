@@ -70,7 +70,7 @@ function route.syncto(srvname)
 		end
 		local pidlist = route.map[self_srvname]
 		pidlist = keys(pidlist)
-		logger.log("debug","route",format("syncto,server(%s->%s) pidlist=%s",skynet.getenv("srvname"),srvname,pidlist))
+		logger.log("debug","route",format("[syncto] server(%s->%s) pidlist=%s",skynet.getenv("srvname"),srvname,pidlist))
 		for i = 1,#pidlist,step do
 			cluster.call(srvname,"route","addroute",slice(pidlist,i,i+step-1))
 		end
@@ -80,17 +80,17 @@ end
 
 local CMD = {}
 function CMD.addroute(srvname,pids)
-	logger.log("debug","route",format("[CMD] addroute,srvname=%s pids=%s",srvname,pids))
+	logger.log("debug","route",format("[CMD.addroute] srvname=%s pids=%s",srvname,pids))
 	route.addroute(pids,srvname)
 end
 
 function CMD.sync_finish(srvname)
-	logger.log("debug","route",string.format("[CMD] sync_finish,srvname=%s",srvname))
+	logger.log("debug","route",string.format("[CMD.sync_finish] srvname=%s",srvname))
 	route.sync_state[srvname] = true
 end
 
 function CMD.delroute(srvname,pids)
-	logger.log("debug","route",format("[CMD] delroute,srvname=%s pids=%s",srvname,pids))
+	logger.log("debug","route",format("[CMD.delroute] srvname=%s pids=%s",srvname,pids))
 	route.delroute(pids,srvname)
 end
 

@@ -79,10 +79,10 @@ function ccardbaglib:addcardbag(sid,num,reason)
 			sid = sid,
 		})
 		local id = self:genid()
-		logger.log("info","cardbag",string.format("add,pid=%s id=%s sid=%s reason=%s",self.pid,id,sid,reason))
+		logger.log("info","cardbag",string.format("[add] pid=%s id=%s sid=%s reason=%s",self.pid,id,sid,reason))
 		self:add(cardbag,id)
 	end
-	logger.log("info","cardbag",string.format("addcardbag,pid=%s id=%s sid=%s num=%s reason=%s",self.pid,cardbag.id,sid,num,reason))
+	logger.log("info","cardbag",string.format("[addcardbag] pid=%s id=%s sid=%s num=%s reason=%s",self.pid,cardbag.id,sid,num,reason))
 	cardbag.amount = cardbag.amount + num
 end
 
@@ -92,10 +92,10 @@ end
 function ccardbaglib:removecardbag(sid,num,reason)
 	local cardbag = self:getcardbag(sid)
 	assert(cardbag.amount >= num)
-	logger.log("info","cardbag",string.format("removecardbag,pid=%s id=%s sid=%s num=%s reason=%s",self.pid,cardbag.id,sid,num,reason))
+	logger.log("info","cardbag",string.format("[removecardbag] pid=%s id=%s sid=%s num=%s reason=%s",self.pid,cardbag.id,sid,num,reason))
 	cardbag.amount = cardbag.amount - num
 	if cardbag.amount <= 0 then
-		logger.log("info","cardbag",string.format("del,pid=%s id=%s sid=%s reason=%s",self.pid,cardbag.id,cardbag.sid,reason))
+		logger.log("info","cardbag",string.format("[del] pid=%s id=%s sid=%s reason=%s",self.pid,cardbag.id,cardbag.sid,reason))
 		self:del(cardbag.id)
 	end
 end

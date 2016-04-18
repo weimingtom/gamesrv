@@ -8,7 +8,7 @@ function timer.timeout(flag,ti,func)
 end
 
 function timer.timeout2(flag,ti,func)
-	logger.log("debug","timer",string.format("timeout,flag=%s,ti=%s func=%s",flag,ti,func))
+	logger.log("debug","timer",string.format("[timeout] flag=%s,ti=%s func=%s",flag,ti,func))
 	local id = timer.addtimer(flag,func)
 	skynet.timeout(ti,function ()
 		timer.ontimeout(flag,id)
@@ -17,14 +17,14 @@ function timer.timeout2(flag,ti,func)
 end
 
 function timer.untimeout(flag,id)
-	logger.log("debug","timer",string.format("untimeout,flag=%s,id=%s",flag,id))
+	logger.log("debug","timer",string.format("[untimeout] flag=%s,id=%s",flag,id))
 	return timer.deltimer(flag,id)
 end
 
 function timer.deltimerbyid(id)
 	for flag,funcs in pairs(timer.timers) do
 		if funcs[id] then
-			logger.log("debug","timer",string.format("deltimerbyid,flag=%s,id=%s",flag,id))
+			logger.log("debug","timer",string.format("[deltimerbyid] flag=%s,id=%s",flag,id))
 			local func = funcs[id]
 			funcs[id] = nil
 			return func,flag

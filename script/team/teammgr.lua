@@ -91,7 +91,7 @@ function cteammgr:createteam(player,param)
 		return
 	end
 	local teamid = self:genid()
-	logger.log("info","team",string.format("createteam,pid=%d teamid=%d",pid,teamid))
+	logger.log("info","team",string.format("[createteam] pid=%d teamid=%d",pid,teamid))
 	local team = cteam.new(teamid,{})
 	team:create(player,param)
 	self.teams[teamid] = team
@@ -108,7 +108,7 @@ function cteammgr:dismissteam(player)
 	if not self:before_dismissteam(player,teamid) then
 		return false
 	end
-	logger.log("info","team",string.format("dismissteam,pid=%d teamid=%d",pid,teamid))
+	logger.log("info","team",string.format("[dismissteam] pid=%d teamid=%d",pid,teamid))
 
 	local team = self:getteam(teamid)
 	if not team then
@@ -129,7 +129,7 @@ function cteammgr:jointeam(player,teamid)
 	if not self:before_jointeam(player,teamid) then
 		return false
 	end
-	logger.log("info","team",string.format("jointeam,pid=%d teamid=%d",pid,teamid))
+	logger.log("info","team",string.format("[jointeam] pid=%d teamid=%d",pid,teamid))
 	local team = self:getteam(teamid)
 	team:join(player)
 	self:unautomatch(pid,"jointeam")
@@ -146,7 +146,7 @@ function cteammgr:quitteam(player)
 	if not self:before_quitteam(player,teamid) then
 		return false
 	end
-	logger.log("info","team",string.format("quitteam,pid=%d teamid=%d",pid,teamid))
+	logger.log("info","team",string.format("[quitteam] pid=%d teamid=%d",pid,teamid))
 	local team = self:getteam(teamid)
 	team:quit(player)
 	self:after_quitteam(player,teamid)
@@ -169,7 +169,7 @@ function cteammgr:leaveteam(player)
 	if not self:before_leaveteam(player,teamid) then
 		return false
 	end
-	logger.log("info","team",string.format("leaveteam,pid=%d teamid=%d",pid,teamid))
+	logger.log("info","team",string.format("[leaveteam] pid=%d teamid=%d",pid,teamid))
 	team:leaveteam(player)
 	self:after_leaveteam(player,teamid)
 	return true
@@ -188,7 +188,7 @@ function cteammgr:backteam(player)
 	if not self:before_backteam(player,teamid) then
 		return false
 	end
-	logger.log("info","team",string.format("backteam,pid=%d teamid=%d",pid,teamid))
+	logger.log("info","team",string.format("[backteam] pid=%d teamid=%d",pid,teamid))
 	team:back(player)
 	self:after_backteam(player,teamid)
 	return true
@@ -199,7 +199,7 @@ function cteammgr:changecaptain(teamid,tid)
 	if not self:before_changecaptain(teamid,tid) then
 		return false
 	end
-	logger.log("info","team",string.format("changecaptain,teamid=%d captain=%d->%d",teamid,team.captain,tid))
+	logger.log("info","team",string.format("[changecaptain] teamid=%d captain=%d->%d",teamid,team.captain,tid))
 	team:changecaptain(tid)
 	self:after_changecaptain(teamid,tid)
 	return true
@@ -215,7 +215,7 @@ function cteammgr:publishteam(player,publish)
 	if team.captain ~= pid then
 		return
 	end
-	logger.log("info","team",format("publishteam,pid=%d publish=%s",pid,publish))
+	logger.log("info","team",format("[publishteam] pid=%d publish=%s",pid,publish))
 	team.target = publish.target
 	team.stage = publish.stage
 	local now = os.time()
@@ -252,7 +252,7 @@ end
 function cteammgr:delpublishteam(teamid)
 	local publish = self.publish_teams[temaid]
 	if publish then
-		logger.log("info","team",string.format("delpublishteam,teamid=%d",teamid))
+		logger.log("info","team",string.format("[delpublishteam] teamid=%d",teamid))
 		self.publish_teams[teamid] = nil
 	end
 end
@@ -289,7 +289,7 @@ end
 function cteammgr:team_unautomatch(teamid,reason)
 	local matchdata = self.automatch_teams[teamid]
 	if matchdata then
-		logger.logger("info","team",string.format("unautomatch,teamid=%d reason=%s",teamid,reason))
+		logger.logger("info","team",string.format("[unautomatch] teamid=%d reason=%s",teamid,reason))
 		self.automatch_teams[teamid] = nil
 	end
 end
@@ -297,7 +297,7 @@ end
 function cteammgr:unautomatch(pid,reason)
 	local matchdata = self.automatch_pids[pid]
 	if matchdata then
-		logger.log("info","team",string.format("unautomatch,pid=%d reason=%s",pid,reason))
+		logger.log("info","team",string.format("[unautomatch] pid=%d reason=%s",pid,reason))
 		self.automatch_pids[pid] = nil
 	end
 end

@@ -45,7 +45,7 @@ end
 
 function cdb:get(key)
 	local value = skynet.call(self.dbsrv,"lua","get",key)
-	logger.log("debug","db",format("get,key=%s value=%s",key,value))
+	logger.log("debug","db",format("[get] key=%s value=%s",key,value))
 	if value then
 		value = cjson.decode(value)
 	end
@@ -57,7 +57,7 @@ function cdb:set(key,value)
 	if value == nil then
 		return
 	end
-	logger.log("debug","db",format("set,key=%s value=%s",key,value))
+	logger.log("debug","db",format("[set] key=%s value=%s",key,value))
 	value = cjson.encode(value)
 	return skynet.call(self.dbsrv,"lua","set",key,value)
 end

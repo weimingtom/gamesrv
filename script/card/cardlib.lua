@@ -119,7 +119,7 @@ function ccardlib:addcardbysid(sid,num,reason)
 		self:addcard(card)
 	end
 	local oldamount = card:get("amount",0)
-	logger.log("info","card",string.format("addcardbysid,pid=%s id=%s sid=%s amount=%d+%d",self.pid,card.id,sid,oldamount,num))
+	logger.log("info","card",string.format("[addcardbysid] pid=%s id=%s sid=%s amount=%d+%d",self.pid,card.id,sid,oldamount,num))
 	card:add("amount",num)
 end
 
@@ -158,7 +158,7 @@ function ccardlib:decompose(card,amount)
 	amount = math.min(amount,oldamount)
 	local newamount = oldamount - amount
 	local reason = "decompose"
-	logger.log("info","card",string.format("decompose,pid=%s id=%s sid=%s amount=%d-%d",self.pid,id,card.sid,oldamount,amount))
+	logger.log("info","card",string.format("[decompose] pid=%s id=%s sid=%s amount=%d-%d",self.pid,id,card.sid,oldamount,amount))
 	if newamount > 0 then
 		card:set("amount",newamount)
 	else
@@ -185,7 +185,7 @@ function ccardlib:compose(sid)
 		})
 		self:addcard(card,reason)
 	end
-	logger.log("info","card",string.format("compose,pid=%s id=%s sid=%s",self.pid,card.id,sid))
+	logger.log("info","card",string.format("[compose] pid=%s id=%s sid=%s",self.pid,card.id,sid))
 	card:add("amount",1)
 end
 

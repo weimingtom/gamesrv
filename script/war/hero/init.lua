@@ -244,7 +244,7 @@ function chero:delweapon()
 			return
 		end
 		local weapon = self.weapon
-		self:log("debug","war",string.format("delweapon id=%d sid=%d",weapon.id,weapon.sid))
+		self:log("debug","war",string.format("[delweapon] id=%d sid=%d",weapon.id,weapon.sid))
 		self.weapon = nil
 		weapon:die()
 		owner:execute("after_delweapon",weapon)
@@ -259,7 +259,7 @@ function chero:addweapon(weapon)
 	if not owner:execute("before_addweapon",weapon) then
 		return
 	end
-	self:log("debug","war",string.format("addweapon id=%d sid=%d",weapon.id,weapon.sid))
+	self:log("debug","war",string.format("[addweapon] id=%d sid=%d",weapon.id,weapon.sid))
 	weapon.inarea = "war"
 	self.weapon = weapon
 	owner:execute("after_addweapon",weapon)
@@ -274,7 +274,7 @@ function chero:canuseskill(targetid)
 end
 
 function chero:useskill(targetid)
-	self:log("debug","war",string.format("useskill targetid=%s",targetid))
+	self:log("debug","war",string.format("[useskill] targetid=%s",targetid))
 	local owner = self:getowner()
 	owner:addcrystal(-self.skillcost)
 	self.useskillcnt = self.useskillcnt + 1

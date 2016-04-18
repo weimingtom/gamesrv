@@ -89,7 +89,7 @@ end
 
 function cplayer:load(data)
 	if not data or not next(data) then
-		logger.log("error","error",string.format("cplayer:load null,pid=%d",self.pid))
+		logger.log("error","error",string.format("[cplayer:load null] pid=%d",self.pid))
 		return
 	end
 	self.data = data.data
@@ -196,7 +196,7 @@ function cplayer:create(conf)
 	local name = assert(conf.name)
 	local roletype =assert(conf.roletype)
 	local account = assert(conf.account)
-	logger.log("info","createrole",string.format("createrole,account=%s pid=%s name=%s roletype=%s ip=%s:%s",account,self.pid,name,roletype,conf.__ip,conf.__port))
+	logger.log("info","createrole",string.format("[createrole] account=%s pid=%s name=%s roletype=%s ip=%s:%s",account,self.pid,name,roletype,conf.__ip,conf.__port))
 
 	self.loadstate = "loaded"
 	self.account = account
@@ -272,7 +272,7 @@ local function heartbeat(pid)
 end
 
 function cplayer:oncreate()
-	logger.log("info","register",string.format("register,account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip()))
+	logger.log("info","createrole",string.format("[createrole end] account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s:%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port()))
 	for k,obj in pairs(self.autosaveobj) do
 		if obj.oncreate then
 			obj:oncreate(self)
@@ -294,7 +294,7 @@ function cplayer:comptible_process()
 end
 
 function cplayer:onlogin()
-	logger.log("info","login",string.format("login,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s agent=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port(),skynet.address(self.__agent)))
+	logger.log("info","login",string.format("[login] account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s agent=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port(),skynet.address(self.__agent)))
 	self:comptible_process()
 	local server = globalmgr.server
 	heartbeat(self.pid)
@@ -321,7 +321,7 @@ function cplayer:onlogin()
 end
 
 function cplayer:onlogoff()
-	logger.log("info","login",string.format("logoff,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s agent=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port(),skynet.address(self.__agent)))
+	logger.log("info","login",string.format("[logoff] account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s agent=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port(),skynet.address(self.__agent)))
 	mailmgr.onlogoff(self)
 	for k,obj in pairs(self.autosaveobj) do
 		if obj.onlogoff then
@@ -335,7 +335,7 @@ end
 
 function cplayer:ondisconnect(reason)
 
-	logger.log("info","login",string.format("disconnect,account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s reason=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port(),reason))
+	logger.log("info","login",string.format("[disconnect] account=%s pid=%s name=%s roletype=%s lv=%s gold=%s ip=%s:%s reason=%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port(),reason))
 	loginqueue.pop()
 end
 
@@ -372,14 +372,14 @@ end
 
 function cplayer:setlv(val,reason)
 	local oldval = self.lv
-	logger.log("info","lv",string.format("setlv,pid=%d lv=%d->%d reason=%s",self.pid,oldval,val,reason))
+	logger.log("info","lv",string.format("[setlv] pid=%d lv=%d->%d reason=%s",self.pid,oldval,val,reason))
 	self.lv = val
 end
 
 function cplayer:addlv(val,reason)
 	local oldval = self.lv
 	local newval = oldval + val
-	logger.log("info","lv",string.format("addlv,pid=%d lv=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
+	logger.log("info","lv",string.format("[addlv] pid=%d lv=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
 	self.resume:set("lv",newval)
 end
 
@@ -387,7 +387,7 @@ function cplayer:addgold(val,reason)
 	val = math.floor(val)
 	local oldval = self.gold
 	local newval = oldval + val
-	logger.log("info","resource/gold",string.format("addgold,pid=%d gold=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
+	logger.log("info","resource/gold",string.format("[addgold] pid=%d gold=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
 	assert(newval >= 0,string.format("not enough gold:%d+%d=%d",oldval,val,newval))
 	self.gold = newval
 	local addgold = newval - oldval
@@ -401,7 +401,7 @@ function cplayer:addchip(val,reason)
 	val = math.floor(val)
 	local oldval = self.chip
 	local newval = oldval + val
-	logger.log("info","resource/chip",string.format("addchip,pid=%d chip=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
+	logger.log("info","resource/chip",string.format("[addchip] pid=%d chip=%d+%d=%d reason=%s",self.pid,oldval,val,newval,reason))
 	assert(newval >= 0,string.format("not enough chip:%d+%d=%d",oldval,val,newval))
 	self.chip = newval
 	return val
@@ -515,14 +515,14 @@ function cplayer:getteamid()
 	if self.teamid then
 		local team = teammgr:getteam(self.teamid)
 		if not team then
-			logger.log("error","team",string.format("getteamid [no team],pid=%d teamid=%d",self.pid,self.teamid))
+			logger.log("error","team",string.format("[getteamid but no team] pid=%d teamid=%d",self.pid,self.teamid))
 			sendpackage(self.pid,"team","delmember",{
 				teamid = self.teamid,
 				pid = self.pid,
 			})
 			self.teamid = nil
 		elseif not team:ismember(self.pid) then
-			logger.log("error","team",string.format("getteamid [not a member],pid=%d teamid=%d",self.pid,self.teamid))
+			logger.log("error","team",string.format("[getteamid but not a member] pid=%d teamid=%d",self.pid,self.teamid))
 			sendpackage(self.pid,"team","delmember",{
 				teamid = self.teamid,
 				pid = self.pid,

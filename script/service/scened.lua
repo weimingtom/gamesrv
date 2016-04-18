@@ -188,7 +188,7 @@ function scene.setpos(pid,pos)
 	if not scene.canmove(pid) then
 		return
 	end
-	logger.log("debug","scene",string.format("setpos,address=%s sceneid=%d pid=%d pos(x=%s,y=%s,dir=%s)",scene.address,scene.sceneid,pid,pos.x,pos.y,pos.dir))
+	logger.log("debug","scene",string.format("[setpos] address=%s sceneid=%d pid=%d pos(x=%s,y=%s,dir=%s)",scene.address,scene.sceneid,pid,pos.x,pos.y,pos.dir))
 	player.pos = pos
 	local package = {
 		pid = pid,
@@ -217,10 +217,10 @@ end
 function scene.enter(player)
 	local pid = player.pid
 	if scene.players[pid] then
-		logger.log("warning","scene",string.format("reenter,address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
+		logger.log("warning","scene",string.format("[reenter] address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
 
 	end
-	logger.log("info","scene",string.format("enter,address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
+	logger.log("info","scene",string.format("[enter] address=%s sceneid=%d pid=%d player=%s",scene.address,scene.sceneid,pid,scene.sceneid,pid,player))
 	scene.players[pid] = player
 	local package = {
 		pid = pid,
@@ -236,7 +236,7 @@ end
 function scene.exit(pid)
 	local player = scene.players[pid]
 	if player then
-		logger.log("info","scene",string.format("[%s] exit,address=%s sceneid=%d pid=%d",scene.address,scene.sceneid,scene.sceneid,pid))
+		logger.log("info","scene",string.format("[exit] address=%s sceneid=%d pid=%d",scene.address,scene.sceneid,pid))
 		scene.players[pid] = nil
 	end
 	local package = {
@@ -279,7 +279,7 @@ skynet.start(function ()
 	skynet.dispatch("lua",function (session,source,cmd,...)
 		local func = command[cmd]
 		if not func then
-			logger.log("warning","error",string.format("[scene] invalid cmd:%s",cmd))
+			logger.log("warning","error",string.format("[scene] invalid_cmd=%s",cmd))
 			return
 		end
 		func(...)

@@ -113,7 +113,7 @@ local clone_ignore_attr = {
 
 function cwarobj:clone(warcard)
 	local clone_warcard = self:newwarcard(warcard.sid)
-	self:log("debug","war",string.format("clone srcid=%s toid=%s",warcard.id,clone_warcard.id))
+	self:log("debug","war",string.format("[clone] srcid=%s toid=%s",warcard.id,clone_warcard.id))
 	local cloneattr = deepcopy(warcard)
 	for k,v in pairs(cloneattr) do
 		if not clone_ignore_attr[k] then
@@ -148,7 +148,7 @@ end
 -- 置入牌库
 function cwarobj:puttocardlib(id,israndom)
 	local warcard = assert(self:getcard(id),"Invalid warcardid:" .. tostring(id))
-	self:log("debug","war",string.format("puttocardlib id=%d sid=%d",id,warcard.sid))
+	self:log("debug","war",string.format("[puttocardlib] id=%d sid=%d",id,warcard.sid))
 	warcard:clear()
 	warcard:reinit()
 	local pos = #self.leftcards + 1
@@ -195,7 +195,7 @@ function cwarobj:confirm_handcard(ids)
 			table.insert(giveup_handcards)
 		end
 	end
-	self:log("info","war",format("confirm_handcard handcards=%s",ids))
+	self:log("info","war",format("[confirm_handcard] handcards=%s",ids))
 	for i,id in ipairs(ids) do
 		self:putinhand(id)
 	end
@@ -206,7 +206,7 @@ function cwarobj:confirm_handcard(ids)
 		local id = self:pickcard()
 		self:putinhand(id)
 	end
-	self:log("info","war",format("confirm_handcard handcards=%s leftcards=%s",handcards,leftcards))
+	self:log("info","war",format("[confirm_handcard] handcards=%s leftcards=%s",handcards,leftcards))
 end
 
 function cwarobj:lookcards_confirm(id)
@@ -225,7 +225,7 @@ end
 
 function cwarobj:beginround()
 	self.roundcnt = self.roundcnt + 1
-	self:log("debug","war",string.format("beginround roundcnt=%d",self.roundcnt))
+	self:log("debug","war",string.format("[beginround] roundcnt=%d",self.roundcnt))
 	self.state = "beginround"
 	warmgr.refreshwar(self.warid,self.pid,"beginround",{
 		roundcnt = self.roundcnt,
@@ -259,9 +259,9 @@ end
 function cwarobj:endround(roundcnt)
 	roundcnt = roundcnt or self.roundcnt
 	assert(roundcnt == self.roundcnt)
-	self:log("debug","war",string.format("endround roundcnt=%d",roundcnt))
+	self:log("debug","war",string.format("[endround] roundcnt=%d",roundcnt))
 	if self.state ~= "beginround" then
-		self:log("warning","war",string.format("[non-begin round] endround roundcnt=%d",roundcnt))
+		self:log("warning","war",string.format("[non-begin round] [endround] roundcnt=%d",roundcnt))
 		return
 	end
 	self.state = "endround"
@@ -380,7 +380,7 @@ end
 
 function cwarobj:canplaycard(warcard,pos,targetid,choice)
 	if not warcard.choice and warcard.inarea ~= "hand" then
-		self:log("warning","war",string.format("[no handcard] playcard id=%d",self.pid,warcardid))
+		self:log("warning","war",string.format("[no handcard] [playcard] id=%d",self.pid,warcardid))
 		return false
 	end
 	if not warcard.choice then
@@ -397,7 +397,7 @@ function cwarobj:canplaycard(warcard,pos,targetid,choice)
 			return false
 		end
 		if not self:isvalidtarget(warcard,target) then
-			self:log("warning","war",string.format("[invalid target] playcard id=%d targetid=%d",warcardid,targetid))
+			self:log("warning","war",string.format("[invalid target] [playcard] id=%d targetid=%d",warcardid,targetid))
 			return false
 		end
 	end
@@ -418,13 +418,13 @@ end
 function cwarobj:playcard(warcardid,pos,targetid,choice)
 	local warcard = self:getcard(warcardid)
 	if not warcard then
-		self:log("warning","war",string.format("[non-exist card] playcard id=%s",warcardid))
+		self:log("warning","war",string.format("[non-exist card] [playcard] id=%s",warcardid))
 		return
 	end
 	if not self:canplaycard(warcard,pos,targetid,choice) then
 		return
 	end
-	self:log("debug","war",string.format("playcard id=%d sid=%d pos=%s targetid=%s",warcard.id,warcard.sid,pos,targetid))
+	self:log("debug","war",string.format("[playcard] id=%d sid=%d pos=%s targetid=%s",warcard.id,warcard.sid,pos,targetid))
 	if not warcard.choice then
 		self:addcrystal(-warcard.crystalcost)
 		self:removefromhand(warcard)
@@ -509,7 +509,7 @@ function cwarobj:launchattack(attackerid,defenserid)
 	if not self:canattack(defenser) then
 		return
 	end
-	self:log("debug","war",string.format("launchattack id=%d targetid=%d",attacker.id,defenser.id))
+	self:log("debug","war",string.format("[launchattack] id=%d targetid=%d",attacker.id,defenser.id))
 	self:__launchattack(attacker,defenser)	
 end
 
@@ -517,7 +517,7 @@ function cwarobj:__launchattack(attacker,defenser)
 	if not self:execute("before_attack",attacker,defenser) then
 		return
 	end
-	self:log("debug","war",string.format("__launchattack id=%d targetid=%d",attacker.id,defenser.id))
+	self:log("debug","war",string.format("[__launchattack] id=%d targetid=%d",attacker.id,defenser.id))
 	if attacker.id == self.hero.id then
 		if defenserid == self.enemy.hero.id then
 			self:hero_attack_hero()
@@ -590,7 +590,7 @@ function cwarobj:putinhand(id)
 	if not self:execute("before_putinhand",warcard) then
 		return
 	end
-	self:log("debug","war",string.format("putinhand id=%d sid=%d",warcard.id,warcard.sid))
+	self:log("debug","war",string.format("[putinhand] id=%d sid=%d",warcard.id,warcard.sid))
 	table.insert(self.handcards,warcard.id)
 	warcard.inarea = "hand"
 	warmgr.refreshwar(self.warid,self.pid,"putinhand",{id=warcard.id,sid=warcard.sid})
@@ -601,13 +601,13 @@ end
 
 function cwarobj:clearhandcard()
 	self.handcard = {}
-	self:log("debug","war",string.format("clearhandcard"))
+	self:log("debug","war",string.format("[clearhandcard]"))
 	warmgr.refreshwar(self.warid,self.pid,"clearhandcard",{})
 end
 
 function cwarobj:removefromhand(warcard)
 	assert(warcard.inarea == "hand","Invalid inarea:" .. tostring(warcard.inarea))
-	self:log("debug","war",string.format("removefromhand id=%d sid=%d",warcard.id,warcard.sid))
+	self:log("debug","war",string.format("[removefromhand] id=%d sid=%d",warcard.id,warcard.sid))
 	local pos
 	for i,id in ipairs(self.handcards) do
 		if id == warcard.id then
@@ -648,7 +648,7 @@ function cwarobj:putinwar(warcard,pos,reason)
 	if not self:execute("before_putinwar",warcard,pos,reason) then
 		return
 	end
-	self:log("debug","war",string.format("putinwar id=%d sid=%d pos=%d",warcard.id,warcard.sid,pos,reason))
+	self:log("debug","war",string.format("[putinwar] id=%d sid=%d pos=%d",warcard.id,warcard.sid,pos,reason))
 	warcard.inarea = "war"
 	local num = #self.warcards
 	for i = pos,num do
@@ -675,7 +675,7 @@ function cwarobj:removefromwar(warcard)
 	if not self:execute("before_removefromwar",warcard) then
 		return
 	end
-	self:log("debug","war",string.format("removefromwar id=%d sid=%d pos=%d",warcard.id,warcard.sid,pos))
+	self:log("debug","war",string.format("[removefromwar] id=%d sid=%d pos=%d",warcard.id,warcard.sid,pos))
 	warmgr.refreshwar(self.warid,self.pid,"removefromwar",{id=warcard.id,})
 	for i = pos + 1,#self.warcards do
 		local id = self.warcards[i]
@@ -697,7 +697,7 @@ function cwarobj:addsecret(warcard)
 	if not self:execute("before_addsecret",warcard) then
 		return
 	end
-	self:log("debug","war",string.format("addsecret id=%d",warcard.id))
+	self:log("debug","war",string.format("[addsecret] id=%d",warcard.id))
 	warcard.inarea = "war"
 	table.insert(self.secretcards,warcard.id)
 	warcard:execute("onaddsecret")
@@ -714,7 +714,7 @@ function cwarobj:delsecret(warcardid,reason)
 			if not self:execute("before_delsecret",warcard,reason) then
 				return
 			end
-			self:log("debug","war",string.format("delsecret id=%d reason=%s",warcardid,reason))
+			self:log("debug","war",string.format("[delsecret] id=%d reason=%s",warcardid,reason))
 			warcard.inarea = "graveyard"
 			table.remove(self.secretcards,pos)
 			warcard:execute("ondelsecret",reason)
@@ -744,7 +744,7 @@ end
 function cwarobj:delcard(id,reason)
 	local card = self:getcard(id)
 	if card then
-		self:log("debug","war",string.format("delcard id=%d reason=%s",id,reason))
+		self:log("debug","war",string.format("[delcard] id=%d reason=%s",id,reason))
 		card.inarea = "graveyard"
 		self.id_card[id] = nil
 		warmgr.refreshwar(self.warid,self.pid,"delcard",{id=id,})
@@ -754,7 +754,7 @@ end
 function cwarobj:addcard(card)
 	local id = card.id
 	assert(self:getcard(id) == nil,"Repeat cardid:" .. tostring(id))
-	self:log("debug","war",format("addcard id=%d data=%s",card.id,card:pack()))
+	self:log("debug","war",format("[addcard] id=%d data=%s",card.id,card:pack()))
 	card.inarea = "init"
 	self.id_card[id] = card
 	warmgr.refreshwar(self.warid,self.pid,"addcard",{card=card:pack(),})
@@ -766,31 +766,31 @@ function cwarobj:destroycard(id)
 end
 
 function cwarobj:addcrystal(value)
-	self:log("debug","war",string.format("addcrystal %d+%d=%d",self.crystal,value,self.crystal+value))
+	self:log("debug","war",string.format("[addcrystal] value=%d+%d->%d",self.crystal,value,self.crystal+value))
 	self.crystal = self.crystal + value
 	warmgr.refreshwar(self.warid,self.pid,"sync",{crystal=self.crystal})
 end
 
 function cwarobj:setcrystal(value)
-	self:log("debug","war",string.format("setcrystal %d",value))
+	self:log("debug","war",string.format("[setcrystal] value=%d",value))
 	self.crystal = value
 	warmgr.refreshwar(self.warid,self.pid,"sync",{crystal=self.crystal,})
 end
 
 function cwarobj:setemptycrystal(value)
-	self:log("debug","war",string.format("set_emptycrystal %d",value))
+	self:log("debug","war",string.format("[set_emptycrystal] value=%d",value))
 	self.emptycrystal = value
 	warmgr.refreshwar(self.warid,self.pid,"sync",{emptycrystal=self.emptycrystal})
 end
 
 function cwarobj:addemptycrystal(value)
-	self:log("debug","war",string.format("addemptycrystal %d+%d=%d",self.emptycrystal,value,self.emptycrystal+value))
+	self:log("debug","war",string.format("[addemptycrystal] value=%d+%d->%d",self.emptycrystal,value,self.emptycrystal+value))
 	self.emptycrystal = self.emptycrystal + value
 	warmgr.refreshwar(self.warid,self.pid,"sync",{emptycrystal=self.emptycrystal,})
 end
 
 function cwarobj:addlockcrystal(value)
-	self:log("debug","war",string.format("addlockcrystal %d+%d=%d",self.lockcrystal,value,self.lockcrystal+value))
+	self:log("debug","war",string.format("[addlockcrystal] value=%d+%d->%d",self.lockcrystal,value,self.lockcrystal+value))
 	self.lockcrystal = self.lockcrystal + value
 	warmgr.refreshwar(self.warid,self.pid,"sync",{lockcrystal=self.lockcrystal})
 end

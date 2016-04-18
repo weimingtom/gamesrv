@@ -60,7 +60,7 @@ function cvotemgr:addvote(typ,vote)
 	local voteid = self:gen_voteid()
 	vote.id = voteid
 	vote.type = typ
-	logger.log("info","vote",format("addvote type=%s id=%s vote=%s",typ,voteid,vote))
+	logger.log("info","vote",format("[addvote] type=%s id=%s vote=%s",typ,voteid,vote))
 	self.type_id_vote[typ][voteid] = vote
 	for pid,votenum in pairs(vote.member_vote) do
 		self.type_pid_id[typ][pid] = voteid
@@ -86,7 +86,7 @@ function cvotemgr:__delvote(id,typ)
 	if id_vote then
 		local vote = id_vote[id]
 		if vote then
-			logger.log("info","vote",string.format("delvote type=%s id=%s",typ,id))
+			logger.log("info","vote",string.format("[delvote] type=%s id=%s",typ,id))
 			xpcall(self.ondelvote,onerror,self,vote)
 			id_vote[id] = nil
 			for pid,_ in pairs(vote.member_vote) do
@@ -173,7 +173,7 @@ function cvotemgr:voteto(typ,pid,topid)
 		return false,"未知候选人"
 	end
 	vote.candidate[topid][pid] = true
-	logger.log("info","vote",string.format("voteto type=%s pid=%s topid=%s votenum=%s",typ,pid,topid,votenum))
+	logger.log("info","vote",string.format("[voteto] type=%s pid=%s topid=%s votenum=%s",typ,pid,topid,votenum))
 	if self:check_endvote(vote) then
 		self:delvote(vote.id,typ)
 	else
@@ -192,7 +192,7 @@ function cvotemgr:cancel_voteto(typ,pid)
 		return false,"未投票过，无法取消"
 	end
 	local votenum = vote.member_vote[pid]
-	logger.log("info","vote",string.format("cancel_voteto type=%s pid=%s topid=%s votenum=%s",typ,pid,topid,votenum))
+	logger.log("info","vote",string.format("[cancel_voteto] type=%s pid=%s topid=%s votenum=%s",typ,pid,topid,votenum))
 	vote.candidate[topid][pid] = nil
 	return true
 end
@@ -212,7 +212,7 @@ function cvotemgr:giveup_vote(typ,pid)
 		return false,"已投过票了，弃权失效"
 	end
 	local votenum = vote.member_vote[pid]
-	logger.log("info","vote",string.format("giveup_vote type=%s pid=%s votenum=%s",typ,pid,votenum))
+	logger.log("info","vote",string.format("[giveup_vote] type=%s pid=%s votenum=%s",typ,pid,votenum))
 	vote.giveup_member[pid] = true
 	if self:check_endvote(vote) then
 		self:delvote(vote.id,typ)
@@ -227,7 +227,7 @@ function cvotemgr:quit_vote(typ,pid)
 	if not vote then
 		return
 	end
-	logger.log("info","vote",string.format("quit_vote type=%s pid=%s",typ,pid))
+	logger.log("info","vote",string.format("[quit_vote] type=%s pid=%s",typ,pid))
 	self:cancel_voteto(typ,pid)
 	vote.member_vote[pid] = nil
 	vote.giveup_member[pid] = nil

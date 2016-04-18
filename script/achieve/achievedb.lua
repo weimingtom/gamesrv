@@ -21,7 +21,7 @@ function cachievedb:save()
 end
 
 function cachievedb:clear()
-	logger.log("info","achieve",string.format("clear,pid=%s",self.pid))
+	logger.log("info","achieve",string.format("[clear] pid=%s",self.pid))
 	ccontainer.clear(self)
 end
 
@@ -47,7 +47,7 @@ end
 
 function cachievedb:addachieve(achieve)
 	local achieveid = achieve.id
-	logger.log("info","achieve",string.format("addachieve,pid=%s achieveid=%s",self.pid,achieveid))
+	logger.log("info","achieve",string.format("[addachieve] pid=%s achieveid=%s",self.pid,achieveid))
 	self:add(achieve,achieveid)
 	self:sync(self.pid,achieve)
 end
@@ -55,7 +55,7 @@ end
 function cachievedb:delachieve(achieveid)
 	local achieve = self:getachieve(achieveid)
 	if achieve then
-		logger.log("info","achieve",string.format("delachieve,pid=%s achieveid=%s",self.pid,achieveid))
+		logger.log("info","achieve",string.format("[delachieve] pid=%s achieveid=%s",self.pid,achieveid))
 		self:del(achieveid)
 		-- sync to client
 	end
@@ -72,7 +72,7 @@ function cachievedb:checkachieve(achieveid,num)
 		self:addachieve(achieve)
 	end
 	if achieve.progress < achieve.target then
-		logger.log("info","achieve",string.format("checkachieve,pid=%s achieveid=%s progress=%d+%d",self.pid,achieveid,achieve.progress,num))
+		logger.log("info","achieve",string.format("[checkachieve] pid=%s achieveid=%s progress=%d+%d",self.pid,achieveid,achieve.progress,num))
 		achieve.progress = achieve.progress + num
 		achieve.progress = math.min(achieve.progress,achieve.target)
 		self:sync(self.pid,achieve)

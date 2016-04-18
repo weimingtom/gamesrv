@@ -106,7 +106,7 @@ function gm.docmd(pid,cmdline)
 		end
 		result = table.concat(tbl,",")
 	end
-	logger.log("info","gm",format("#%d(authority=%s) docmd='%s' issuccess=%s result=%s",pid,authority,cmdline,issuccess,result))
+	logger.log("info","gm",format("[gm.docmd] pid=%s authority=%s cmd='%s' issuccess=%s result=%s",pid,authority,cmdline,issuccess,result))
 	if pid ~= 0 then
 		net.msg.notify(pid,string.format("执行%s\n%s",issuccess and "成功" or "失败",result))
 	end
@@ -128,16 +128,23 @@ function gm.setauthority(args)
 		net.msg.notify(master.pid,string.format("玩家(%d)不在线,无法对其进行此项操作",pid))
 		return
 	end
-	if master.pid == player.pid then
+	if type(master) == "number" then -- oscmd
+		master_pid = master
+		master_auth = AUTH_SUPERADMIN
+	else
+		master_pid = master.pid
+		master_auth = master:authority()
+	end
+	if master_pid == player.pid then
 		net.msg.notify(master.pid,"无法给自己设置权限")
 		return
 	end
 	local auth = master:authority()
 	local target_auth = player:authority()
-	if authority > auth then
-		net.msg.notify(matster,string.format("权限不足,设定的权限大于自己拥有的权限(%d>%d)",authority,auth))
+	if authority > master_auth then
+		net.msg.notify(matster,string.format("权限不足,设定的权限大于自己拥有的权限(%d>%d)",authority,master_auth))
 	end
-	if auth <= target_auth then
+	if master_auth <= target_auth then
 		net.msg.notify(master.pid,"权限不足,自身权限没有目标权限高")
 		return
 	end
@@ -149,7 +156,7 @@ function gm.setauthority(args)
 		net.msg.notify(master.pid,"警告:你无法将他人设置成超级管理员")
 		return
 	end
-	logger.log("info","authority",string.format("#%d(authority=%d) setauthority,pid=%d authority(%d->%d)",auth,pid,target_auth,authority))
+	logger.log("info","authority",string.format("[gm.setauthority] pid=%d authority=%d tid=%d authority=%d->%d",master_pid,master_auth,pid,target_auth,authority))
 	player:setauthority(authority)
 end
 

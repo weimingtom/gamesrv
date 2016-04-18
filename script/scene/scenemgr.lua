@@ -23,14 +23,14 @@ function scenemgr.addscene(sceneid)
 	require "script.scene.init"
 	local scene = cscene.new(sceneid)
 	assert(scenemgr.scenes[sceneid] == nil)
-	logger.log("info","scene",string.format("addscene,sceneid=%s",sceneid))
+	logger.log("info","scene",string.format("[addscene] sceneid=%s",sceneid))
 	scenemgr.scenes[sceneid] = scene
 end
 
 function scenemgr.delscene(sceneid)
 	local scene = scenemgr.getscene(sceneid)
 	if scene then
-		logger.log("info","scene",string.fromat("delscene,sceneid=%s",sceneid))
+		logger.log("info","scene",string.fromat("[delscene] sceneid=%s",sceneid))
 		scene:quit()
 		scenemgr.scenes[sceneid] = nil
 	end
@@ -73,7 +73,7 @@ function scenemgr.addnpc(npc,sceneid)
 	local npcs = scene.npcs
 	local npcid = scenemgr.gennpcid()
 	npc.id = npcid
-	logger.log("info","scene",format("addnpc,npcid=%s npc=%s",npcid,npc))
+	logger.log("info","scene",format("[addnpc] npcid=%s npc=%s",npcid,npc))
 	scene.npcs[npcid] = npc
 	if npc.onadd then
 		npc.onadd(npc)
@@ -105,7 +105,7 @@ function scenemgr.__delnpc(npcid,sceneid)
 		if npc.ondel then
 			npc.ondel(npc)
 		end
-		logger.log("info","scene",format("delnpc,npcid=%s npc=%s",npcid,npc))
+		logger.log("info","scene",format("[delnpc] npcid=%s npc=%s",npcid,npc))
 		scene.npcs[npcid] = nil
 		return npc
 	end
@@ -129,7 +129,7 @@ function scenemgr.getnpc(npcid,sceneid)
 end
 
 function scenemgr.updatenpc(npc,updateattr)
-	logger.log("info","scene",format("updatenpc,npcid=%s updateattr=%s",updateattr))
+	logger.log("info","scene",format("[updatenpc] npcid=%s updateattr=%s",updateattr))
 	for k,v in pairs(updateattr) do
 		npc[k] = v
 	end

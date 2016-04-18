@@ -310,7 +310,7 @@ function cwarcard:addbuff(buff)
 		buff.exceedround = owner.roundcnt + buff.lifecircle
 		buff.lifecircle = nil
 	end
-	self:log("info","war",format("addbuff id=%s buff=%s",self.id,buff))
+	self:log("info","war",format("[addbuff] id=%s buff=%s",self.id,buff))
 	table.insert(self.buffs,buff)
 	local syncattrs = {}
 	for k,v in pairs(buff) do
@@ -341,7 +341,7 @@ end
 function cwarcard:delbuffbypos(pos)
 	local buff = table.remove(self.buffs,pos)
 	if buff then
-		self:log("info","war",format("delbuff id=%s pos=%s buff=%s",self.id,pos,buff))
+		self:log("info","war",format("[delbuff] id=%s pos=%s buff=%s",self.id,pos,buff))
 		local syncattrs = {}
 		for k,v in pairs(buff) do
 			if not self:cancompute(k) then
@@ -411,7 +411,7 @@ function cwarcard:addhalo(halo)
 		halo.exceedround = owner.roundcnt + halo.lifecircle
 		halo.lifecircle = nil
 	end
-	self:log("info","war",format("addhalo id=%s halo=%s",self.id,halo))
+	self:log("info","war",format("[addhalo] id=%s halo=%s",self.id,halo))
 	table.insert(self.halofrom,halo)
 	local syncattrs = {}
 	for k,v in pairs(halo) do
@@ -446,7 +446,7 @@ function cwarcard:delhalobypos(pos)
 		local owner = self:getowner()
 		local halofrom_warcard = owner:gettarget(halo.srcid)
 		halofrom_warcard.haloto[self.id] = nil
-		self:log("info","war",format("delhalo id=%s pos=%s halo=%s",self.id,pos,halo))
+		self:log("info","war",format("[delhalo] id=%s pos=%s halo=%s",self.id,pos,halo))
 		local syncattrs = {}
 		for k,v in pairs(halo) do
 			if not self:cancompute(k) then
@@ -603,7 +603,7 @@ function cwarcard:addeffect(effect)
 		effect.bheid = self.bheid
 	end
 	local packeffect = self:packeffect(effect)
-	self:log("info","war",format("addeffect effect=%s",packeffect))
+	self:log("info","war",format("[addeffect] effect=%s",packeffect))
 	if not self.effects[name] then
 		self.effects[name] = {}
 	end
@@ -761,7 +761,7 @@ function cwarcard:issilence()
 end
 
 function cwarcard:silence()
-	self:log("debug","war",string.format("silence id=%d",self.id))
+	self:log("debug","war",string.format("[silence] id=%d",self.id))
 	-- 恢复成初始属性
 	self:reinit()
 	self:clear()
@@ -897,7 +897,7 @@ end
 function cwarcard:execute(cmd,...)
 	local ignore_later_event,ignore_later_action = self:__execute(cmd,...)
 	if ignore_later_event or ignore_later_action then
-		self:log("info","war",string.format("execute,id=%s cmd=%s ignore_later_event=%s ignore_later_action=%s",self.id,cmd,ignore_later_event,ignore_later_action))
+		self:log("info","war",string.format("[execute] id=%s cmd=%s ignore_later_event=%s ignore_later_action=%s",self.id,cmd,ignore_later_event,ignore_later_action))
 	end
 	return ignore_later_event,ignore_later_action
 end

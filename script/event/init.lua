@@ -17,7 +17,7 @@ function event.playerdo(pid,name,num)
 
 	local func = event.trigger[name]
 	if not func then
-		logger.log("warning","event",string.format("unknow event,name=%s",name))
+		logger.log("warning","event",string.format("[unknow event] name=%s",name))
 		return
 	end
 	return func(pid,num)

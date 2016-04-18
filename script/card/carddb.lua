@@ -30,7 +30,7 @@ function ccarddb:save()
 end
 
 function ccarddb:clear()
-	logger.log("info","card",string.format("[%s] clear,pid=%s",self.name,self.pid))
+	logger.log("info","card",string.format("[clear] name=%s pid=%s",self.name,self.pid))
 	ccontainer.clear(self)
 	self.sid_id = {}
 end
@@ -47,7 +47,7 @@ function ccarddb:getcardbysid(sid)
 end
 
 function ccarddb:addcard(card,reason)
-	logger.log("info","card",string.format("[%s] addcard,pid=%s id=%s sid=%s reason=%s",self.name,self.pid,card.id,card.sid,reason))
+	logger.log("info","card",string.format("[addcard] name=%s pid=%s id=%s sid=%s reason=%s",self.name,self.pid,card.id,card.sid,reason))
 	self:__addcard(card)
 end
 
@@ -64,7 +64,7 @@ function ccarddb:delcard(id,reason)
 	if not card then
 		return
 	end
-	logger.log("info","card",string.format("[%s] delcard,pid=%s id=%s sid=%s reason=%s",self.name,self.pid,id,card.sid,reason))
+	logger.log("info","card",string.format("[delcard] name=%s pid=%s id=%s sid=%s reason=%s",self.name,self.pid,id,card.sid,reason))
 	self:del(id)
 	self.sid_id[card.sid] = nil
 	return card

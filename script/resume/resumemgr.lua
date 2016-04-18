@@ -53,7 +53,7 @@ function resumemgr.getresume(pid)
 end
 
 function resumemgr.addresume(pid,resume)
-	logger.log("info","resume",format("addresume,pid=%d resume=%s",pid,resume:save()))
+	logger.log("info","resume",format("[addresume] pid=%d resume=%s",pid,resume:save()))
 	resumemgr.objs[pid] = resume
 end
 
@@ -61,7 +61,7 @@ function resumemgr.delresume(pid)
 	local resume = resumemgr.objs[pid]
 	resumemgr.objs[pid] = nil
 	if resume then
-		logger.log("info","resume",format("delresume,pid=%d",pid))
+		logger.log("info","resume",format("[delresume] pid=%d",pid))
 		resume:savetodatabase()
 		closesave(resume)
 		local srvname = cserver.getsrvname()
@@ -79,7 +79,7 @@ local CMD = {}
 function CMD.query(srvname,pid,key)
 	local resume = resumemgr.getresume(pid)
 	if not resume then
-		logger.log("warning","resume",string.format("[no resume] query,srvname=%s pid=%s key=%s",srvname,pid,key))
+		logger.log("warning","resume",string.format("[no resume] [query] srvname=%s pid=%s key=%s",srvname,pid,key))
 		return
 	end
 	resume:addref(srvname)
@@ -89,13 +89,13 @@ function CMD.query(srvname,pid,key)
 	else
 		data[key] = resume:query(key)
 	end
-	logger.log("debug","resume",format("query,srvname=%s pid=%d key=%s data=%s",srvname,pid,key,data))
+	logger.log("debug","resume",format("[query] srvname=%s pid=%d key=%s data=%s",srvname,pid,key,data))
 	return data
 end
 
 -- gamesrv -> resumesrv
 function CMD.delref(srvname,pid)
-	logger.log("debug","resume",string.format("delref,srvname=%s pid=%d",srvname,pid))
+	logger.log("debug","resume",string.format("[delref] srvname=%s pid=%d",srvname,pid))
 	local resume = resumemgr.getresume(pid)
 	if not resume then
 		return
@@ -111,7 +111,7 @@ end
 
 -- resumesrv <-> gamesrv
 function CMD.sync(srvname,pid,data)
-	logger.log("debug","resume",format("sync,srvname=%s pid=%d data=%s",srvname,pid,data))
+	logger.log("debug","resume",format("[sync] srvname=%s pid=%d data=%s",srvname,pid,data))
 	data.pid = pid
 	local resume = resumemgr.getresume(pid)
 	if not resume then
@@ -136,7 +136,7 @@ function CMD.sync(srvname,pid,data)
 end
 
 function CMD.delete(srvname,pid)
-	logger.log("debug","resume",string.format("delete,srvname=%s pid=%d",srvname,pid))
+	logger.log("debug","resume",string.format("[delete] srvname=%s pid=%d",srvname,pid))
 	local resume = resumemgr.getresume(pid)
 	if resume then
 		resumemgr.delresume(pid)

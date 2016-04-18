@@ -63,7 +63,7 @@ function ccardtabledb:addcardtable(cardtable,reason)
 	if not pos then
 		return
 	end
-	logger.log("info","cardtable",format("[%s] addcardtable,pid=%s id=%s pos=%s cardtable=%s reason=%s",self.name,self.pid,id,pos,cardtable,reason))
+	logger.log("info","cardtable",format("[addcardtable] name=%s pid=%s id=%s pos=%s cardtable=%s reason=%s",self.name,self.pid,id,pos,cardtable,reason))
 	cardtable.pos = pos
 	self.pos_id[pos] = id
 	self:add(cardtable,id)
@@ -76,7 +76,7 @@ function ccardtabledb:delcardtable(id,reason)
 		return
 	end
 	local pos = assert(cardtable.pos)
-	logger.log("info","cardtable",string.format("[%s] delcardtable,pid=%s id=%s pos=%s reason=%s",self.name,self.pid,id,pos,reason))
+	logger.log("info","cardtable",string.format("[delcardtable] name=%s pid=%s id=%s pos=%s reason=%s",self.name,self.pid,id,pos,reason))
 	self.pos_id[pos] = nil
 	self:del(id)
 	return cardtable

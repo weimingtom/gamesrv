@@ -57,7 +57,7 @@ function game.init()
 	--huodongmgr.startgame()
 	game.initall = true
 	game.startgame() -- 初始化完后启动的逻辑
-	logger.log("info","game",string.format("startgame,runno=%s",globalmgr.server:query("runno",0)))
+	logger.log("info","game",string.format("[startgame] runno=%s",globalmgr.server:query("runno",0)))
 end
 
 function game.startgame()
@@ -69,20 +69,20 @@ end
 function game.shutdown(reason)
 	game.initall = nil
 	print("Shutdown")
-	logger.log("info","game",string.format("shutdown start,reason=%s",reason))
+	logger.log("info","game",string.format("[shutdown start] reason=%s",reason))
 	playermgr.kickall("shutdown")
 	game.saveall()
 	dbmgr.shutdown()
 	timer.timeout("timer.shutdown",20,function ()
 
-		logger.log("info","game",string.format("shutdown success,reason=%s",reason))
+		logger.log("info","game",string.format("[shutdown success] reason=%s",reason))
 		logger.shutdown()
 		os.execute(string.format("cd ../shell/ && sh killserver.sh %s",skynet.getenv("srvname")))
 	end)
 end
 
 function game.saveall()
-	logger.log("info","game","saveall")
+	logger.log("info","game","[saveall]")
 
 	--huodongmgr.savetodatabase()
 	saveall()

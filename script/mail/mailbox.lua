@@ -64,7 +64,7 @@ end
 
 -- wrapper
 function cmailbox:addmail(mail)
-	logger.log("info","mail",format("addmail,pid=%d srcid=%d mailid=%d data=%s",self.pid,mail.srcid,mail.mailid,mail:pack()))
+	logger.log("info","mail",format("[addmail] pid=%d srcid=%d mailid=%d data=%s",self.pid,mail.srcid,mail.mailid,mail:pack()))
 	local ret = self:__addmail(mail)
 	return ret
 end
@@ -72,7 +72,7 @@ end
 function cmailbox:delmail(mailid)
 	local mail = self.mails[mailid]
 	if mail then
-		logger.log("info","mail",format("delmail,pid=%d,srcid=%d mailid=%d",self.pid,mail.srcid,mailid))
+		logger.log("info","mail",format("[delmail] pid=%d,srcid=%d mailid=%d",self.pid,mail.srcid,mailid))
 		self.mails[mailid] = nil
 		for pos,v in ipairs(self.maillist) do
 			if v.mailid == mailid then
@@ -119,7 +119,7 @@ function cmailbox:getattach(mailid)
 	if not self:iscan_getattach(player,mail) then
 		return
 	end
-	logger.log("info","mail",format("getattach,pid=%d srcid=%d mailid=%d attach=%s",pid,mail.srcid,mailid,mail.attach))
+	logger.log("info","mail",format("[getattach] pid=%d srcid=%d mailid=%d attach=%s",pid,mail.srcid,mailid,mail.attach))
 	if next(mail.attach) then
 		local attach = mail.attach
 		mail.attach = {}

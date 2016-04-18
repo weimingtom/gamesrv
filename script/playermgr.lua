@@ -71,7 +71,7 @@ end
 
 function playermgr.addobject(obj,reason)
 	local pid = obj.pid
-	logger.log("info","playermgr",string.format("addobject,pid=%s agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
+	logger.log("info","playermgr",string.format("[addobject] pid=%s agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
 	assert(playermgr.id_obj[pid] == nil,"repeat object pid:" .. tostring(pid))
 	playermgr.id_obj[pid] = obj
 	if obj.__fd then
@@ -93,7 +93,7 @@ function playermgr.delobject(pid,reason)
 	obj = playermgr.id_obj[pid]
 	if obj then
 
-		logger.log("info","playermgr",string.format("delobject,pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
+		logger.log("info","playermgr",string.format("[delobject] pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
 		if obj.__state ~= "link" then
 			closesave(obj)
 		end
@@ -125,7 +125,7 @@ end
 function playermgr.kick(pid,reason)
 	local obj = playermgr.getobject(pid)
 	if obj then
-		logger.log("info","playermgr",string.format("kick,pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
+		logger.log("info","playermgr",string.format("[kick] pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
 		-- if hasn't '__agent', proto.kick will ignore it
 		playermgr.delobject(pid,"kick")
 		proto.kick(obj.__agent,obj.__fd)
@@ -168,7 +168,7 @@ end
 -- 仅在注册时创建临时玩家
 function playermgr.createplayer(pid,conf)
 	require "script.player"
-	logger.log("info","playermgr",format("createplayer, pid=%d player=%s",pid,conf))
+	logger.log("info","playermgr",format("[createplayer] pid=%d player=%s",pid,conf))
 	local db = dbmgr.getdb()
 	local maxpid = db:get(db:key("role","maxroleid"),0)
 	if pid > maxpid then
@@ -191,7 +191,7 @@ end
 function playermgr.nettransfer(obj1,obj2)
 	local proto = require "script.proto.init"
 	local id1,id2 = obj1.pid,obj2.pid
-	logger.log("info","playermgr",string.format("nettransfer,id1=%s id2=%s",id1,id2))
+	logger.log("info","playermgr",string.format("[nettransfer] id1=%s id2=%s",id1,id2))
 	local agent = assert(obj1.__agent,"link object havn't agent,pid:" .. tostring(id1))
 	local connect = assert(proto.connection[agent],"invalid agent:" .. tostring(agent))
 	obj2.__agent = agent
@@ -215,7 +215,7 @@ end
 function playermgr.addtoken(token,ext)
 	local v = playermgr.tokens[token]
 	if v then
-		logger.log("error","token",format("addtoken,token=%s ext=%s",token,ext))
+		logger.log("error","token",format("[addtoken] token=%s ext=%s",token,ext))
 	end
 	if ext.exceedtime then
 		ext.exceedtime = os.time() + ext.exceedtime
@@ -252,7 +252,7 @@ end
 -- 连线对象/在线对象，有连接ID，同时在fd_id中作标记
 --*/
 function playermgr.init()
-	logger.log("info","playermgr","init")
+	logger.log("info","playermgr","[init]")
 	playermgr.num = 0 -- playermgr.num == playermgr.onlinenum + playermgr.offlinenum + playermgr.kuafunum + playermgr.linknum
 	playermgr.onlinenum = 0
 	playermgr.offlinenum = 0

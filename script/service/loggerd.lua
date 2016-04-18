@@ -179,7 +179,7 @@ skynet.start(function ()
 	skynet.dispatch("lua",function (session,source,cmd,...)
 		local func = logger[cmd]
 		if not func then
-			logger.log("warning","error",string.format("[logger] invalid cmd:%s",cmd))
+			logger.log("warning","error",string.format("[logger] invalid_cmd=%s",cmd))
 		end
 		func(...)
 	end)

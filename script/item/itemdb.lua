@@ -75,7 +75,7 @@ function citemdb:additem(item,reason)
 		})
 	end
 	local itemid = self:genid()
-	logger.log("info","item",string.format("additem,pid=%s itemid=%s itemtype=%s num=%s pos=%s reason=%s",self.pid,itemid,itemtype,item.num,pos,reason))
+	logger.log("info","item",string.format("[additem] pid=%s itemid=%s itemtype=%s num=%s pos=%s reason=%s",self.pid,itemid,itemtype,item.num,pos,reason))
 	item.pos = pos
 	self:add(obj,itemid)
 	self.pos_id[pos] = itemid
@@ -90,7 +90,7 @@ function citemdb:delitem(itemid,reason)
 	if item then
 		local pos = assert(item.pos,"No pos item:" .. tostring(itemid))
 		local itemtype = item.type
-		logger.log("info","item",string.format("delitem,pid=%s itemid=%s itemtype=%s num=%s pos=%s reason=%s",self.pid,itemid,itemtype,item.num,pos,reason))
+		logger.log("info","item",string.format("[delitem] pid=%s itemid=%s itemtype=%s num=%s pos=%s reason=%s",self.pid,itemid,itemtype,item.num,pos,reason))
 		self:del(itemid)
 		self.pos_id[pos] = nil
 		if self.type_ids[itemtype] then
@@ -136,7 +136,7 @@ function citemdb:costitembytype(itemtype,num,reason)
 	end
 	local items = self:getitemsbytype(itemtype)
 	if items then
-		logger.log("info","item",string.format("costitembytype,pid=%s itemtype=%s num=%s reason=%s",self.pid,itemtype,num,reason))
+		logger.log("info","item",string.format("[costitembytype] pid=%s itemtype=%s num=%s reason=%s",self.pid,itemtype,num,reason))
 		local costnum = num
 		items = table.sort(items,citemdb.order_costitem)
 		for i,item in ipairs(items) do
@@ -154,7 +154,7 @@ end
 
 function citemdb:additembytype(itemtype,num,bind,reason)
 	local itemdata = assert(getitemdata(itemtype),"Invalid itemtype:" .. tostring(itemtype))
-	logger.log("info","item",string.format("additembytype,pid=%s itemtype=%s num=%s bind=%s reason=%s",self.pid,itemtype,num,bind,reason))
+	logger.log("info","item",string.format("[additembytype] pid=%s itemtype=%s num=%s bind=%s reason=%s",self.pid,itemtype,num,bind,reason))
 	local items = self:getitemsbytype(itemtype)
 	if not items then
 		self:__additembytype(itemtype,num,bind,reason)
@@ -223,7 +223,7 @@ function citemdb:getfreepos()
 end
 
 function citemdb:expandspace(addspace)
-	logger.log("info","item",string.format("expandspace,pid=%s addspace=%s",self.pid,addspace))
+	logger.log("info","item",string.format("[expandspace] pid=%s addspace=%s",self.pid,addspace))
 	self.expandspace = addspace
 end
 

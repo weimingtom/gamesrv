@@ -18,7 +18,7 @@ function proto.sendpackage(agent,protoname,cmd,request,onresponse)
 		return
 	end
 	connect.session = connect.session + 1
-	logger.log("debug","netclient",format("[send] source=%s session=%d pid=%d protoname=%s cmd=%s request = %s onresponse=%s",agent,connect.session,connect.pid,protoname,cmd,request,onresponse))
+	logger.log("debug","netclient",format("[send] source=%s session=%d pid=%d protoname=%s cmd=%s request=%s onresponse=%s",agent,connect.session,connect.pid,protoname,cmd,request,onresponse))
 	logger.pprintf("[send] REQUEST:%s\n",{
 		pid = connect.pid,
 		session = connect.session,
@@ -40,12 +40,12 @@ end
 local function onrequest(agent,cmd,request)
 	local connect = proto.connection[agent]
 	if not connect then
-		logger.log("warning","netclient",format("[NON EXIST AGENT] onrequest,agent=%s cmd=%s request=%s",agent,cmd,request))
+		logger.log("warning","netclient",format("[NON EXIST AGENT] [onrequest] agent=%s cmd=%s request=%s",agent,cmd,request))
 		return
 	end
 	local obj = playermgr.getobject(connect.pid)
 	if not obj then
-		logger.log("warning","netclient",format("[NON EXIST OBJECT] onrequest,agent=%s cmd=%s request=%s",agent,cmd,request))
+		logger.log("warning","netclient",format("[NON EXIST OBJECT] [onrequest] agent=%s cmd=%s request=%s",agent,cmd,request))
 		return
 	end
 	logger.pprintf("[recv] REQUEST:%s\n",{
@@ -60,13 +60,13 @@ local function onrequest(agent,cmd,request)
 		return
 	end
 	if not net[protoname] then
-		logger.log("warning","netclient",format("unknow proto,pid=%s cmd=%s request=%s",pid,cmd,request))
+		logger.log("warning","netclient",format("[unknow proto] pid=%s cmd=%s request=%s",pid,cmd,request))
 		return
 	end
 	local REQUEST = net[protoname].REQUEST
     local func = REQUEST[subprotoname]
     if not func then
-        logger.log("warning","netclient",format("unknow cmd,pid=%s,cmd=%s request=%s",pid,cmd,request))
+        logger.log("warning","netclient",format("[unknow cmd] pid=%s cmd=%s request=%s",pid,cmd,request))
         return
     end
 
@@ -82,7 +82,7 @@ end
 local function onresponse(agent,session,response)
 	local connect = proto.connection[agent]
 	if not connect then
-		logger.log("warning","netclient",format("[NON EXIST AGENT] onresponse,agent=%s cmd=%s request=%s",agent,cmd,request))
+		logger.log("warning","netclient",format("[NON EXIST AGENT] [onresponse] agent=%s cmd=%s request=%s",agent,cmd,request))
 		return
 	end
 	-- 替换下线时，旧对象已被删除，忽略其收到的回复

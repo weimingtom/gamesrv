@@ -60,14 +60,14 @@ function cfrienddb:onload()
 	for pos,pid in ipairs(self.frdlist) do
 		local frdblk = self:getfrdblk(pid)
 		if not frdblk then
-			logger.log("error","friend",string.format("delfrdlist(onload),pid=%d",pid))
+			logger.log("error","friend",string.format("[delfrdlist onload] pid=%d",pid))
 			table.remove(self.frdlist,pos)
 		end
 	end
 	for pos,pid in ipairs(self.applyerlist) do
 		local frdblk = self:getfrdblk(pid)
 		if not frdblk then
-			logger.log("error","friend",string.format("delapplyerlist(onload),pid=%d",pid))
+			logger.log("error","friend",string.format("[delapplyerlist onload] pid=%d",pid))
 			table.remove(self.applyerlist,pos)
 		end
 	end
@@ -162,7 +162,7 @@ function cfrienddb:addapplyer(pid)
 	if pos then
 		return
 	end
-	logger.log("info","friend",string.format("#%d addapplyer,pid=%d",self.pid,pid))
+	logger.log("info","friend",string.format("[addapplyer] owner=%s pid=%d",self.pid,pid))
 	table.insert(self.applyerlist,pid)
 	local frdblk = self:getfrdblk(pid)
 	frdblk:addref(self.pid)
@@ -171,7 +171,7 @@ function cfrienddb:addapplyer(pid)
 end
 
 function cfrienddb:delapplyer(pid)
-	logger.log("info","friend",string.format("#%d delapplyer,pid=%d",self.pid,pid))
+	logger.log("info","friend",string.format("[delapplyer] owner=%s pid=%d",self.pid,pid))
 	local pos = findintable(self.applyerlist,pid)
 	if not pos then
 	else
@@ -183,7 +183,7 @@ function cfrienddb:delapplyer(pid)
 end
 
 function cfrienddb:addfriend(pid)
-	logger.log("info","friend",string.format("#%d addfriend %d",self.pid,pid))
+	logger.log("info","friend",string.format("[addfriend] owner=%s pid=%d",self.pid,pid))
 	table.insert(self.frdlist,pid)
 	local frdblk = self:getfrdblk(pid)
 	frdblk:addref(self.pid)
@@ -197,7 +197,7 @@ function cfrienddb:delfriend(pid)
 	if not pos then
 		ret = false
 	else
-		logger.log("info","friend",string.format("#%d delfriend %d",self.pid,pid))
+		logger.log("info","friend",string.format("[delfriend] owner=%s pid=%d",self.pid,pid))
 		table.remove(self.frdlist,pos)
 		local frdblk = self:getfrdblk(pid)
 		frdblk:delref(self.pid)
@@ -233,7 +233,7 @@ function cfrienddb:apply_addfriend(pid)
 		net.msg.notify(self.pid,"您的申请已经发出")
 		return
 	end
-	logger.log("info","friend",string.format("#%d apply_addfriend %d",self.pid,pid))
+	logger.log("info","friend",string.format("[apply_addfriend] owner=%s pid=%d",self.pid,pid))
 	table.insert(toapplylist,pid)
 	self.thistemp:set("toapplylist",toapplylist,300)
 	net.friend.addlist(self.pid,"toapply",pid,true)
@@ -269,7 +269,7 @@ function cfrienddb:agree_addfriend(pid)
 		net.msg.notify(self.pid,"该玩家未向你发起过申请")
 		return
 	end
-	logger.log("info","friend",string.format("#%d agree_addfriend %d",self.pid,pid))
+	logger.log("info","friend",string.format("[agree_addfriend] owner=%s pid=%d",self.pid,pid))
 	self:delapplyer(pid)
 	self:addfriend(pid)
 	local srvname = route.getsrvname(pid)
@@ -294,7 +294,7 @@ function cfrienddb:agree_addfriend(pid)
 end
 
 function cfrienddb:reject_addfriend(pid)
-	logger.log("info","friend",string.format("#%d reject_addfriend %d",self.pid,pid))
+	logger.log("info","friend",string.format("[reject_addfriend] owner=%s pid=%d",self.pid,pid))
 	self:delapplyer(pid)
 end
 
@@ -304,7 +304,7 @@ function cfrienddb:sendmsg(pid,msg)
 	if not frdblk:query("online") then
 		return
 	end
-	logger.log("debug","friend",string.format("#%d sendmsg to %d,msg=%s",self.pid,pid,msg))
+	logger.log("debug","friend",string.format("[sendmsg] owner=%s pid=%d msg=%s",self.pid,pid,msg))
 	local srvname = route.getsrvname(pid)
 	if srvname == cserver.getsrvname() then
 		net.friend.addmsgs(pid,self.pid,msg)

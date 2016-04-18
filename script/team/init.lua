@@ -294,7 +294,7 @@ function cteam:addapplyer(player)
 		roletype = player.roletype,
 		time = os.time(),
 	}
-	logger.log("info","team",format("addapplyer,teamid=%d applyer=%s",self.teamid,applyer))
+	logger.log("info","team",format("[addapplyer] teamid=%d applyer=%s",self.teamid,applyer))
 	if #self.applyers >= 10 then
 		self:delapplyer(1,true)
 	end
@@ -307,7 +307,7 @@ end
 function cteam:delapplyer(pid,ispos)
 	local applyer,pos = self:getapplyer(pid,ispos)
 	if applyer then
-		logger.log("info","team",string.format("delapplyer,teamid=%d pid=%d",self.teamid,applyer.pid))
+		logger.log("info","team",string.format("[delapplyer] teamid=%d pid=%d",self.teamid,applyer.pid))
 		table.remove(self.applyers,pos)
 		self:broadcast(function (uid)
 			sendpackage(uid,"team","delapplyer",{pid,})

@@ -24,7 +24,7 @@ local function ontimer(id)
 	--printf("saveobjs:%s",keys(__saveobjs))
 	if obj then
 		local flag = uniqueflag(obj)
-		logger.log("info","saveobj",string.format("ontimer uniqueflag=%s",flag))
+		logger.log("info","saveobj",string.format("[ontimer] uniqueflag=%s",flag))
 		timer.timeout(flag,SAVE_DELAY,functor(ontimer,obj.__saveobj_id))
 		nowsave(obj)
 	end
@@ -39,7 +39,7 @@ end
 function add_saveobj(obj)
 	local id = assert(obj.__saveobj_id)
 	assert(__saveobjs[id] == nil,"repeat saveobj id:" .. tostring(id))
-	logger.log("info","saveobj",string.format("add_saveobj uniqueflag=%s",uniqueflag(obj)))
+	logger.log("info","saveobj",string.format("[add_saveobj] uniqueflag=%s",uniqueflag(obj)))
 	__saveobjs[id] = obj
 end
 
@@ -49,7 +49,7 @@ function del_saveobj(obj)
 	local saveobj = get_saveobj(id)
 	if saveobj then
 		assert(obj == saveobj)
-		logger.log("info","saveobj",string.format("del_saveobj uniqueflag=%s",uniqueflag(saveobj)))
+		logger.log("info","saveobj",string.format("[del_saveobj] uniqueflag=%s",uniqueflag(saveobj)))
 		__saveobjs[id] = nil
 	end
 	-- not savetodatabase
@@ -60,7 +60,7 @@ function get_saveobj(id)
 end
 
 function saveall()
-	logger.log("info","saveobj","saveall")
+	logger.log("info","saveobj","[saveall]")
 	for id,obj in pairs(__saveobjs) do
 		nowsave(obj)
 	end
@@ -114,7 +114,7 @@ function autosave(obj)
 		local name = string.format("%s.%s",obj.savename,obj.pid)
 		opensave(obj,name)
 	end
-	logger.log("info","saveobj",string.format("autosave,uniqueflag=%s",uniqueflag(obj)))
+	logger.log("info","saveobj",string.format("[autosave] uniqueflag=%s",uniqueflag(obj)))
 end
 
 function oncesave(obj)
@@ -127,7 +127,7 @@ function oncesave(obj)
 		local name = string.format("%s.%s",obj.savename,obj.pid)
 		opensave(obj,name)
 	end
-	logger.log("info","saveobj",string.format("oncesave,uniqueflag=%s",uniqueflag(obj)))
+	logger.log("info","saveobj",string.format("[oncesave] uniqueflag=%s",uniqueflag(obj)))
 end
 
 function nowsave(obj)
@@ -140,7 +140,7 @@ function nowsave(obj)
 				table.insert(mergeliststr,uniqueflag(obj))
 			end
 			mergeliststr = table.concat(mergeliststr,"->")
-			logger.log("info","saveobj",string.format("nowsave uniqueflag=%s mergelist=%s",uniqueflag(obj),mergeliststr))
+			logger.log("info","saveobj",string.format("[nowsave] uniqueflag=%s mergelist=%s",uniqueflag(obj),mergeliststr))
 			obj.mergelist = {}
 			for id,mergeobj in pairs(mergelist) do
 				obj.mergelist[id] = nil
@@ -165,7 +165,7 @@ end
 --*/
 function mergeto(obj1,obj2)
 	local id = assert(obj1.__saveobj_id)
-	logger.log("info","saveobj",string.format("mergeto obj1=%s obj2=%s",uniqueflag(obj1),uniqueflag(obj2)))
+	logger.log("info","saveobj",string.format("[mergeto] obj1=%s obj2=%s",uniqueflag(obj1),uniqueflag(obj2)))
 	obj2.mergelist[id] = obj1
 end
 
@@ -175,7 +175,7 @@ end
 --*/
 function clearsavetype(obj)
 	local flag = uniqueflag(obj)
-	logger.log("info","saveobj",string.format("clearsavetype uniqueflag=%s",flag))
+	logger.log("info","saveobj",string.format("[clearsavetype] uniqueflag=%s",flag))
 	obj.savetype = nil
 end
 

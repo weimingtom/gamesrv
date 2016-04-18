@@ -18,11 +18,11 @@ function cserver:init()
 	self.onlinelimit = 20000	
 	self.savename = string.format("%s.%s",self.flag,self.pid)
 	autosave(self)
-	logger.log("info","server","init")
+	logger.log("info","server","[init]")
 end
 
 function cserver:create()
-	logger.log("info","server","create")
+	logger.log("info","server","[create]")
 	self.data = {
 		createday = getdayno(),
 	}
@@ -73,7 +73,7 @@ function cserver:getopenday()
 end
 
 function cserver:addopenday(val,reason)
-	logger.log("info","server",string.format("addopenday,val=%d reason=%s",val,reason))
+	logger.log("info","server",string.format("[addopenday] val=%d reason=%s",val,reason))
 	self:add("openday",val)
 end
 
