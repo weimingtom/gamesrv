@@ -59,10 +59,10 @@ function cluster._call(issafecall,srvname,protoname,cmd,...)
 	local self_srvname = skynet.getenv("srvname")
 	assert(srvname ~= self_srvname,"cluster call self,srvname:" .. tostring(srvname))
 	local package = {...}
-	logger.log("debug","netcluster",format("[pcall] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,package))
-	local ret = {skynet_cluster.call(srvname,".MAINSRV","cluster",true,self_srvname,protoname,cmd,...)}
+	logger.log("debug","netcluster",format("[call] issafecall=%s srvname=%s protoname=%s cmd=%s package=%s",issafecall,srvname,protoname,cmd,package))
+	local ret = {skynet_cluster.call(srvname,".MAINSRV","cluster",issafecall,self_srvname,protoname,cmd,...)}
 
-	logger.log("debug","netcluster",format("[return] srvname=%s protoname=%s cmd=%s package=%s retval=%s",srvname,protoname,cmd,package,ret))
+	logger.log("debug","netcluster",format("[return] issafecall=%s srvname=%s protoname=%s cmd=%s package=%s retval=%s",issafecall,srvname,protoname,cmd,package,ret))
 	return table.unpack(ret)
 end
 
