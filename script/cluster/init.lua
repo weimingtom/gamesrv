@@ -29,12 +29,12 @@ end
 
 function cluster.dispatch (session,source,srvname,cmd,...)
 	local rettbl = table.pack(pcall(cluster.__dispatch,session,source,srvname,cmd,...))
-	local isok = rettbl[1]
+	local isok = table.remove(rettbl,1)
 	if isok then
-		table.remove(rettbl,1)
 		skynet.ret(skynet.pack(table.unpack(rettbl)))
 	else
-		local errmsg = rettbl[2]
+		local errmsg = table.concat(rettbl)
+		print(errmsg)
 		logger.log("error","onerror",errmsg)
 		skynet.response()(false)
 	end
