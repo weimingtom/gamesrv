@@ -27,7 +27,7 @@ function cluster.init()
 	end
 end
 
-function cluster.dispatch (session,source,issafecall,srvname,cmd,...)
+function cluster.dispatch (session,source,srvname,cmd,...)
 	local rettbl = table.pack(pcall(cluster.__dispatch,session,source,srvname,cmd,...))
 	local isok = rettbl[1]
 	if isok then
