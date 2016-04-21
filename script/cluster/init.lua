@@ -28,12 +28,15 @@ function cluster.init()
 end
 
 function cluster.dispatch (session,source,issafecall,srvname,cmd,...)
-	--print("manservice.lua",session,source,issafecall,srvname,cmd,...)
-	if not issafecall then	
-		skynet.ret(skynet.pack(cluster.__dispatch(session,source,srvname,cmd,...)))
+	local rettbl = table.pack(pcall(cluster.__dispatch,session,source,srvname,cmd,...))
+	local isok = rettbl[1]
+	if isok then
+		table.remove(rettbl,1)
+		skynet.ret(skynet.pack(table.unpack(rettbl)))
 	else
-		-- xpcall 无法返回错误消息
-		skynet.ret(skynet.pack(xpcall(cluster.__dispatch,onerror,session,source,srvname,cmd,...)))
+		local errmsg = rettbl[2]
+		logger.log("error","onerror",errmsg)
+		skynet.response()(false)
 	end
 end
 
@@ -48,22 +51,19 @@ function cluster.__dispatch(session,source,srvname,protoname,...)
 end
 
 function cluster.call(srvname,protoname,cmd,...)
-	return cluster._call(false,srvname,protoname,cmd,...)
-end
-
-function cluster.pcall(srvname,protoname,cmd,...)
-	return cluster._call(true,srvname,protoname,cmd,...)
-end
-
-function cluster._call(issafecall,srvname,protoname,cmd,...)
 	local self_srvname = skynet.getenv("srvname")
 	assert(srvname ~= self_srvname,"cluster call self,srvname:" .. tostring(srvname))
 	local package = {...}
-	logger.log("debug","netcluster",format("[call] issafecall=%s srvname=%s protoname=%s cmd=%s package=%s",issafecall,srvname,protoname,cmd,package))
-	local ret = {skynet_cluster.call(srvname,".MAINSRV","cluster",issafecall,self_srvname,protoname,cmd,...)}
+	logger.log("debug","netcluster",format("[call] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,package))
+	local ret = {skynet_cluster.call(srvname,".MAINSRV","cluster",self_srvname,protoname,cmd,...)}
 
-	logger.log("debug","netcluster",format("[return] issafecall=%s srvname=%s protoname=%s cmd=%s package=%s retval=%s",issafecall,srvname,protoname,cmd,package,ret))
+	logger.log("debug","netcluster",format("[return] srvname=%s protoname=%s cmd=%s package=%s retval=%s",srvname,protoname,cmd,package,ret))
 	return table.unpack(ret)
+
+end
+
+function cluster.pcall(srvname,protoname,cmd,...)
+	return pcall(cluster.call,srvname,protoname,cmd,...)
 end
 
 return cluster
