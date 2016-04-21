@@ -30,7 +30,8 @@ end
 -- @param integer fd 客户端套接字描述符
 --*/
 function SOCKET.close(fd)
-	print("socket close",fd)
+	--print("socket close",fd)
+	skynet.error("socket close",fd)
 	close_agent(fd)
 end
 
@@ -40,7 +41,8 @@ end
 -- @param string msg 错误描述
 --*/
 function SOCKET.error(fd, msg)
-	print("socket error",fd, msg)
+	--print("socket error",fd, msg)
+	skynet.error("socket error",fd,msg)
 	close_agent(fd)
 end
 
