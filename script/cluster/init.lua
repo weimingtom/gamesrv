@@ -37,30 +37,33 @@ function cluster.dispatch (session,source,issafecall,srvname,cmd,...)
 	end
 end
 
-function cluster.__dispatch(session,source,srvname,cmd,...)
-	if cmd == "heartbeat" then
+function cluster.__dispatch(session,source,srvname,protoname,...)
+	if protoname == "heartbeat" then
 		require "script.cluster.clustermgr"
 		return clustermgr.heartbeat(srvname)
 	else
-		local mod = assert(netcluster[cmd],string.format("[cluster] from %s,unkonw cmd:%s",srvname,cmd))
-		local ret = {mod.dispatch(srvname,...)}
-		logger.log("debug","netcluster",format("[return] srvname=%s session=%s retval=%s",srvname,session,ret))
-		return table.unpack(ret)
+		local mod = assert(netcluster[protoname],string.format("[cluster] from %s,unkonw protoname:%s",srvname,protoname))
+		return mod.dispatch(srvname,...)
 	end
 end
 
 function cluster.call(srvname,protoname,cmd,...)
-	local self_srvname = skynet.getenv("srvname")
-	assert(srvname ~= self_srvname,"cluster call self,srvname:" .. tostring(srvname))
-	logger.log("debug","netcluster",format("[call] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,{...}))
-	return skynet_cluster.call(srvname,".MAINSRV","cluster",nil,self_srvname,protoname,cmd,...)
+	return cluster._call(false,srvname,protoname,cmd,...)
 end
 
 function cluster.pcall(srvname,protoname,cmd,...)
+	return cluster._call(true,srvname,protoname,cmd,...)
+end
+
+function cluster._call(issafecall,srvname,protoname,cmd,...)
 	local self_srvname = skynet.getenv("srvname")
 	assert(srvname ~= self_srvname,"cluster call self,srvname:" .. tostring(srvname))
-	logger.log("debug","netcluster",format("[pcall] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,{...}))
-	return skynet_cluster.call(srvname,".MAINSRV","cluster",true,self_srvname,protoname,cmd,...)
+	local package = {...}
+	logger.log("debug","netcluster",format("[pcall] srvname=%s protoname=%s cmd=%s package=%s",srvname,protoname,cmd,package))
+	local ret = {skynet_cluster.call(srvname,".MAINSRV","cluster",true,self_srvname,protoname,cmd,...)}
+
+	logger.log("debug","netcluster",format("[return] srvname=%s protoname=%s cmd=%s package=%s retval=%s",srvname,protoname,cmd,package,ret))
+	return table.unpack(ret)
 end
 
 return cluster

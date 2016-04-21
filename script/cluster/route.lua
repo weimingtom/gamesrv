@@ -31,12 +31,17 @@ function route.addroute(pids,srvname)
 	end
 	local self_srvname = skynet.getenv("srvname")
 	srvname = srvname or self_srvname
+	if not route.map[srvname] then
+		route.map[srvname] = {}
+	end
 	for _,pid in ipairs(pids) do
 		route.map[srvname][pid] = true
 	end
 	if srvname == self_srvname then
-		for srvname,_ in pairs(clustermgr.connection) do
-			xpcall(cluster.call,onerror,srvname,"route","addroute",pids)
+		for servername,_ in pairs(clustermgr.connection) do
+			if servername ~= self_srvname then
+				xpcall(cluster.call,onerror,servername,"route","addroute",pids)
+			end
 		end
 	end
 end
@@ -55,8 +60,10 @@ function route.delroute(pids,srvname)
 		end
 	end
 	if srvname == self_srvname then
-		for srvname,_ in pairs(clustermgr.connection) do
-			xpcall(cluster.call,onerror,srvname,"route","delroute",pids)
+		for servername,_ in pairs(clustermgr.connection) do
+			if servername ~= self_srvname then
+				xpcall(cluster.call,onerror,servername,"route","delroute",pids)
+			end
 		end
 	end
 end

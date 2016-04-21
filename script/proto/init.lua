@@ -150,6 +150,7 @@ end
 local function dispatch (session,source,typ,...)
 	require "script.game"
 	if not game.initall then
+		logger.log("warning","netclient",string.format("recv package but not game.initall"))
 		return
 	end
 	if typ == "client" then -- 客户端消息
