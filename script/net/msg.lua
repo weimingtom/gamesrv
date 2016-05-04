@@ -1,9 +1,13 @@
 function starttimer_check_messagebox()
-	timer.timeout("timer.check_messagebox",300,starttimer_check_messagebox)	
+	timer.timeout("timer.check_messagebox",5,starttimer_check_messagebox)	
 	local now = os.time()
 	for id,session in pairs(messagebox.sessions) do
 		if session.exceedtime and session.exceedtime <= now then
 			messagebox.sessions[id] = nil
+			callback = session.callback
+			if callback then
+				callback(nil,session.request,0)
+			end
 		end
 	end
 end
@@ -49,11 +53,17 @@ end
 
 --[[
 function onbuysomething(player,request,buttonid)
-	if buttonid == 1 then
-		if not costok() then
-			return
+	if buttonid == 0 then -- 超时回调
+		-- player is nil
+		local pid = request.pid
+		-- dosomething
+	else
+		if buttonid == 1 then
+			if not costok() then
+				return
+			end
+			addres()
 		end
-		addres()
 	end
 end
 netmsg.messagebox(10001,
@@ -79,13 +89,15 @@ netmsg.messagebox(10001,
 				{
 					"确认",
 					"取消",
-				},onbuysomething)
+				},
+				onbuysomething)
 --]]
 
 
-function netmsg.messagebox(pid,type,title,content,attach,buttons,callback)
+function netmsg.messagebox(pid,type,title,content,attach,buttons,callback,exceedtime)
 	local id
 	local request = {
+		pid = pid,
 		id = id,
 		type = type,
 		title = title,
@@ -102,7 +114,7 @@ function netmsg.messagebox(pid,type,title,content,attach,buttons,callback)
 		messagebox.sessions[messagebox.id] = {
 			request = request,
 			callback = callback,
-			exceedtime = os.time() + 300,
+			exceedtime = exceedtime or (os.time() + 300),
 		}
 		id = messagebox.id
 	else
