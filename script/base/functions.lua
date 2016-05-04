@@ -899,6 +899,14 @@ function table.update(tbl1,tbl2)
 	end
 end
 
+function table.count(tbl)
+	local cnt = 0
+	for k,v in pairs(tbl) do
+		cnt = cnt + 1
+	end
+	return cnt
+end
+
 -- 扩展string
 function string.rtrim(str)
 	return string.gsub(str,"^[ \t\n\r]+","")
@@ -959,3 +967,55 @@ function string.urldecode(str)
 	str = string.gsub(str,"%%(%x%x)",string.urldecodechar)
 	return str
 end
+
+-- pack_function/unpack_function [START]
+local function getcmd(t,cmd)
+	local _cmd = string.format("return %s",cmd)
+	t[cmd] = load(_cmd,"=(load)","bt",_G)
+	return t[cmd]
+end
+local compile_cmd = setmetatable({},{__index=getcmd})
+
+
+function pack_function(cmd,...)
+	-- 保证最后一个参数为nil时不丢失
+	local n = select("#",...)
+	args = {...}
+	local pack_data = {
+		cmd = cmd,
+		args = cjson.encode(args),
+		n = n,
+		_name = "pack_function",
+	}
+	return pack_data
+end
+
+function unpack_function(pack_data)
+	local cmd = pack_data.cmd
+	local attrname,sep,funcname = string.match(cmd,"^(.*)([.:])(.+)$")	
+	local args = pack_data.args
+	args = cjson.decode(args)
+	print("cjson.decode",cmd,attrname,sep,funcname)
+	local n = pack_data.n
+	--loadstr = string.format("return %s",attrname)
+	--local chunk = load(loadstr,"(=load)","bt",_G)
+	local chunk = compile_cmd[attrname]
+	local caller = chunk()
+	if type(caller) == "function" then
+		caller = caller()
+	end
+	if sep == "." then
+		return functor(caller[funcname],table.unpack(args,1,n))
+	else
+		assert(sep == ":")
+		return functor(caller[funcname],caller,table.unpack(args,1,n))
+	end
+end
+
+function is_pack_function(func)
+	if type(func) == "table" then
+		return func._name == "pack_function"
+	end
+end
+
+-- pack_function/unpack_function [END]

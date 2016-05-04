@@ -8,12 +8,18 @@ local compile_cmd = setmetatable({},{__index=getcmd})
 
 local function docmd(srvname,cmd,...)
 	logger.log("debug","cluster","rpc",srvname,cmd,...)
-	local chunk = compile_cmd[cmd]
-	local func = chunk()
-	if type(func) ~= "function" then
-		return func
-	else
+
+	local attrname,sep,funcname = string.match(cmd,"^(.*)([.:])(.+)$")	
+	local chunk = compile_cmd[attrname]
+	local caller = chunk()
+	if type(caller) == "function" then
+		caller = caller()
+	end
+	local func = caller[funcname]
+	if sep == "." then
 		return func(...)
+	else
+		return func(caller,...)
 	end
 end
 

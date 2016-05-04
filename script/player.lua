@@ -56,6 +56,7 @@ function cplayer:init(pid)
 	}
 	self.taskmgr = ctaskmgr.new(self.pid)
 	self.itemdb = citemdb.new(self.pid)
+	self.delaytonextlogin = cdelaytonextlogin.new(self.pid)
 	self.autosaveobj = {
 		time = self.timeattr,
 		card = self.cardlib,
@@ -65,6 +66,7 @@ function cplayer:init(pid)
 		achieve = self.achievedb,
 		task = self.taskmgr,
 		item = self.itemdb,
+		delaytonextlogin = self.delaytonextlogin,
 	}
 
 	self.loadstate = "unload"
@@ -220,6 +222,8 @@ function cplayer:create(conf)
 end
 
 function cplayer:entergame()
+	-- 确保登录第一个执行
+	self.delaytonextlogin:entergame()
 	self:onlogin()
 	--xpcall(self.onlogin,onerror,self)
 end

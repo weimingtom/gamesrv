@@ -45,7 +45,7 @@ end
 --		},
 --		giveup_member = {  -- 弃权成员
 --		}
---		allow_voteto_self = false, -- 手否允许投给自己
+--		allow_voteto_self = false, -- 是否允许投给自己
 --		pass_vote = 10,	  -- 投票数达到一定值则终止投票
 --		exceedtime = os.time() + 300, -- 过期时间
 --		callback = function (vote,state)  -- 投票出结果后的回调函数
@@ -231,10 +231,6 @@ function cvotemgr:quit_vote(typ,pid)
 	self:cancel_voteto(typ,pid)
 	vote.member_vote[pid] = nil
 	vote.giveup_member[pid] = nil
-	local isvoted,topid = self:isvoted(vote,pid)
-	if isvoted then
-		vote.candidate[topid][pid] = nil
-	end
 	local sum_vote = 0
 	for _,votenum in pairs(vote.member_vote) do
 		sum_vote = sum_vote + votenum
