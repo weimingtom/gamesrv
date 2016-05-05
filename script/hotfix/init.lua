@@ -5,7 +5,7 @@ local ignore_module = {
 	"script%.init",
 	"script%.agent",
 	"script%.watchdob",
-	"script%.service%..+d",
+	"script%.service%..+",
 }
 
 print("chunk()",hotfix)
