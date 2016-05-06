@@ -1,12 +1,16 @@
 Astar = Astar or {}
 
+--/*
+--  --> x
+--  |
+--  v y
+--*/
 function Astar.init(map)
 	Astar.open = {}
 	Astar.close = {}
 	Astar.pointid = 0
-	Astar.step = map.step
-	Astar.oblique = Astar.oblique or 1
-	Astar.cost = map.cost
+	Astar.step = Astar.step or 1	   -- 直走开销
+	Astar.oblique = Astar.oblique or 1 -- 斜向走开销
 	Astar.height = map.height
 	Astar.width = map.width
 	Astar.xy_point = {}
@@ -17,10 +21,19 @@ function Astar.init(map)
 			Astar.addpoint(point)
 		end
 	end
+	for y,points in ipairs(Astar.xy_point) do
+		for x,point in ipairs(points) do
+			--io.write(string.format("(%s,%s,%s) ",x,y,point.type))
+			io.write(string.format("%s",point.type))
+		end
+		io.write("\n")
+	end
 end
 
 function Astar.findpath(point_start,point_end,canreach)
 	canreach = canreach or Astar.canreach
+	Astar.open = {}
+	Astar.close = {}
 	point_start.parent = nil
 	point_start.g = 0
 	point_start.h = Astar.h(point_start,point_end)
@@ -34,6 +47,7 @@ function Astar.findpath(point_start,point_end,canreach)
 			for x = point.x-1,point.x+1 do
 				local surround_point = Astar.getpoint(x,y)
 				if surround_point and canreach(point,surround_point) then
+					--print(string.format("(%s,%s,%s) -> (%s,%s,%s)",point.x,point.y,point.type,surround_point.x,surround_point.y,surround_point.type))
 					if not Astar.close[surround_point.id] then
 						if Astar.open[surround_point.id] then
 							Astar.findinopen(point,surround_point)
@@ -66,8 +80,9 @@ function Astar.notfindinopen(parent,child,point_end)
 	Astar.open[child.id] = true
 end
 
+-- 只会相邻节点间调用
 function Astar.g(point1,point2)
-	local g = math.abs(point2.x - point1.x) + math.abs(point2.y - point2.y) == 1 and Astar.step or Astar.oblique * Astar.step
+	local g = (math.abs(point2.x - point1.x) + math.abs(point2.y - point2.y)) == 2 and Astar.step or Astar.oblique
 	assert(g > 0)
 	return g
 end
@@ -91,14 +106,14 @@ function Astar.min()
 end
 
 function Astar.canreach(point1,point2)
-	return Astar.cost[point1.type][point2.type] > 0
+	return point2.type == 0 and point1.id ~= point2.id
 end
 
 function Astar.newpoint(x,y,type)
 	Astar.pointid = Astar.pointid + 1
 	return {
 		id = Astar.pointid,
-		type = type,
+		type = type, -- >=1--isbarrier
 		x = x,
 		y = y,
 		h = 0,
@@ -132,16 +147,14 @@ function Astar.getpoint(x,y)
 end
 
 function Astar.genmap(conf)
+	math.randomseed(os.time())
 	if not conf.points then
 		local types = {}
-		for k,_ in pairs(conf.cost) do
-			table.insert(types,k)
-		end
 		conf.points = {}
 		for i = 1,conf.height do
 			table.insert(conf.points,{})
 			for j = 1,conf.width do
-				local type = types[math.random(1,#types)]
+				local type = math.random(0,1)
 				table.insert(conf.points[i],type)
 			end	
 		end
@@ -154,18 +167,8 @@ function Astar.test(num)
 	local map = {
 		width = 9,
 		height = 9,
-		step = STEP,
+		step = 1,
 		oblique = 1,
-		cost = {
-			[0] = {
-				[0] = STEP,
-				[1] = -1,
-			},
-			[1] = {
-				[0] = STEP,
-				[1] = -1,
-			},
-		},
 		points = {
 			{0,1,1,1,1,0,1,1,1},
 			{0,0,1,0,1,1,1,1,0},
@@ -181,28 +184,12 @@ function Astar.test(num)
 	map = Astar.genmap({
 		height = 80,
 		width = 80,
-		step = STEP,
+		step = 1,
 		oblique = 1,
-		cost = {
-			[0] = {
-				[0] = STEP,
-				[1] = -1,
-			},
-			[1] = {
-				[0] = STEP,
-				[1] = -1,
-			},
-		},
 	})
-	for i = 1,map.height do
-		for j = 1,map.width do
-			io.write(string.format("%s,",map.points[i][j]))
-		end
-		print("\n")
-	end
 	Astar.init(map)
 	local point_start = Astar.getpoint(1,1)
-	local point_end = Astar.getpoint(80,1)
+	local point_end = Astar.getpoint(map.width,map.height)
 	local t1 = os.clock()
 	for i = 1,num do
 		local _,root = Astar.findpath(point_start,point_end)
