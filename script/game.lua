@@ -1,4 +1,5 @@
 require "script.skynet"
+require "3rd.init"
 require "script.base.init"
 require "script.conf.srvlist"
 require "script.playermgr"
