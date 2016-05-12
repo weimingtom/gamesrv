@@ -19,20 +19,22 @@ function REQUEST.register(obj,request)
 		local result,body = unpackbody(body)
 		if result == 0 then -- register success
 			logger.log("register",string.format("[register] account=%s passwd=%s ip=%s:%s",account,passwd,obj.__ip,obj.__port))
-			obj.passlogin = true	
+			obj.passlogin = true
 		end
 		return {result=result,}
 	else
 		return {result=status,}
 	end
 end
+
 -- 调试登录模式：只允许登录本服角色
 local function debuglogin(obj,request)
 	local account = request.account
 	local passwd = request.passwd
 	if account:sub(1,1) == "#" then
 		local pid = assert(tonumber(account:sub(2,-1)),account)
-		if passwd == "6c676c" then
+		--if passwd == "6c676c" then
+		if passwd == "1" then
 			obj.passlogin = true
 			local player = playermgr.getplayer(pid)
 			if not player then
@@ -69,7 +71,7 @@ function REQUEST.login(obj,request)
 			return {result=result,roles=roles}
 		end
 	end
-	local url = string.format("/login?acct=%s&passwd=%s",account,passwd)
+	local url = string.format("/login?acct=%s&passwd=%s&ip=%s",account,passwd,obj.__ip)
 	local status,body = httpc.get(cserver.accountcenter.host,url)
 	if status == 200 then
 		local result,body = unpackbody(body)

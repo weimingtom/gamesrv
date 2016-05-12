@@ -1,3 +1,4 @@
+NO_RESPONSE = -1
 STATUS_OK = 0						--OK
 STATUS_PASSWD_NOMATCH = 1			--密码不匹配
 STATUS_ACCT_FMT_ERR = 2				--帐号格式错误
@@ -17,5 +18,7 @@ STATUS_REPEAT_LOGIN = 15			--重复登录
 STATUS_OVERLIMIT = 16				--达到上限
 STATUS_PASSWD_FMT_ERR = 17			--密码格式错误
 STATUS_UNAUTH		 = 18			--认证失败
-STATUS_REDIRECT_SERVER = 19			-- 重定向服务器
+STATUS_BANACCT		 = 19			--禁止登录账号
+STATUS_BANIP		 = 20			--禁止登录ip
+
 
