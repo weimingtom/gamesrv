@@ -90,7 +90,7 @@ function playermgr.addobject(obj,reason)
 end
 
 function playermgr.delobject(pid,reason)
-	obj = playermgr.id_obj[pid]
+	local obj = playermgr.id_obj[pid]
 	if obj then
 
 		logger.log("info","playermgr",string.format("[delobject] pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
@@ -209,6 +209,14 @@ function playermgr.transfer_mark(obj1,obj2)
 	obj2.account = obj1.account
 	obj2.passwd = obj1.passwd
 	obj2.passlogin = obj1.passlogin
+end
+
+function playermgr.broadcast(func)
+	for pid,player in pairs(playermgr.id_obj) do
+		if player then
+			func(player)
+		end
+	end
 end
 
 -- token auth

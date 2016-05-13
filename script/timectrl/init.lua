@@ -88,7 +88,7 @@ function timectrl.month_update(now)
 end
 
 function timectrl.error_handle(...)
-	args = {...}
+	local args = {...}
 	logger.log("error","timectrl",string.format("[ERROR] %s",mytostring(args)))
 	error("timectrl error")
 end

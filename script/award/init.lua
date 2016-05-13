@@ -106,7 +106,7 @@ end
 
 function doaward(typ,id,rewards,reason,btip)
 	rewards = award.getaward(rewards)
-	local func = assert(award[typ],"Invalid cmd:" .. tostring(cmd))
+	local func = assert(award[typ],"Invalid type:" .. tostring(typ))
 
 	local srvname = getsrvname(typ,id)
 	logger.log("info","award",format("[doaward] srvname=%s typ=%s id=%d rewards=%s reason=%s btip=%s",srvname,typ,id,rewards,reason,btip))

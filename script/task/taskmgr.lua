@@ -102,6 +102,7 @@ function ctaskmgr:ondelpet(pettype,num)
 end
 
 function ctaskmgr:onfivehourupdate()
+	local player = playermgr.getplayer(self.pid)
 	for name,_ in pairs(self.name_taskdb) do
 		local taskdb = self:gettaskdb(name)
 		if taskdb.onfivehourupdate then

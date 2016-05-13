@@ -367,7 +367,7 @@ function cplayer:validpay(typ,num,notify)
 				gold = "金币",
 				chip = "chip",
 			}
-			net.msg.notify(self.pid,string.format("%s不足%d",resname[typ],num))
+			net.msg.notify(self.pid,string.format("%s不足%d",RESNAME[typ],num))
 		end
 		return false
 	end
@@ -512,7 +512,7 @@ function cplayer:teamstate()
 		self.teamid = nil
 		return NO_TEAM 
 	end
-	return team:teamstate(player.pid)
+	return team:teamstate(self.pid)
 end
 
 function cplayer:getteamid()
@@ -589,7 +589,7 @@ function cplayer:stop()
 	end
 end
 
-function cplayer:setpos(pos,nosnyc)
+function cplayer:setpos(pos,nosync)
 	local pid = self.pid
 	local scene = scenemgr.getscene(self.sceneid)
 	if scene then

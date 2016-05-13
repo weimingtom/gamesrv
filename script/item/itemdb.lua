@@ -77,7 +77,7 @@ function citemdb:additem(item,reason)
 	local itemid = self:genid()
 	logger.log("info","item",string.format("[additem] pid=%s itemid=%s itemtype=%s num=%s pos=%s reason=%s",self.pid,itemid,itemtype,item.num,pos,reason))
 	item.pos = pos
-	self:add(obj,itemid)
+	self:add(item,itemid)
 	self.pos_id[pos] = itemid
 	if not self.type_ids[itemtype] then
 		self.type_ids[itemtype] = {}

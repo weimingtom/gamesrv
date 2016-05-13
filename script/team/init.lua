@@ -287,7 +287,7 @@ function cteam:addapplyer(player)
 	if applyer then
 		return
 	end
-	local applyer = {
+	applyer = {
 		pid = pid,
 		name = player.name,
 		lv = player.lv,

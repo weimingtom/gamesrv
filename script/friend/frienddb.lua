@@ -222,7 +222,7 @@ function cfrienddb:req_delfriend(pid)
 			target.frienddb:delfriend(self.pid)
 		end
 	else
-		cluster.call(srvname,"playermethod",pid,"frienddb:delfriend",player.pid)
+		cluster.call(srvname,"playermethod",self.pid,"frienddb:delfriend",pid)
 	end
 end
 

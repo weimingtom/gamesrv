@@ -48,8 +48,9 @@ local function onrequest(agent,cmd,request)
 		logger.log("warning","netclient",format("[NON EXIST OBJECT] [onrequest] agent=%s cmd=%s request=%s",agent,cmd,request))
 		return
 	end
+	local pid = obj.pid
 	logger.pprintf("[recv] REQUEST:%s\n",{
-		pid = obj.pid,
+		pid = pid,
 		agent = skynet.address(agent),
 		cmd = cmd,
 		request = request,
@@ -82,7 +83,7 @@ end
 local function onresponse(agent,session,response)
 	local connect = proto.connection[agent]
 	if not connect then
-		logger.log("warning","netclient",format("[NON EXIST AGENT] [onresponse] agent=%s cmd=%s request=%s",agent,cmd,request))
+		logger.log("warning","netclient",format("[NON EXIST AGENT] [onresponse] agent=%s session=%s response=%s",agent,session,response))
 		return
 	end
 	-- 替换下线时，旧对象已被删除，忽略其收到的回复

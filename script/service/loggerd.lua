@@ -11,7 +11,7 @@ function logger.write(filename,msg)
 		logger.time.usec = 0
 	end
 	logger.time.usec = logger.time.usec + 1
-	fd = logger.gethandle(filename)
+	local fd = logger.gethandle(filename)
 	msg = string.format("[%s %06d] %s",date,logger.time.usec,msg)
 	fd:write(msg)
 	fd:flush()
@@ -63,11 +63,11 @@ function logger.log(mode,filename,...)
 end
 
 function logger.sendmail(to_list,subject,content)
-	function escape(str) 
+	local function escape(str) 
 		local ret = string.gsub(str,"\"","\\\"")
 		return ret
 	end
-	strsh = string.format("cd ../shell && python sendmail.py %s \"%s\" \"%s\"",to_list,escape(subject),escape(content))
+	local strsh = string.format("cd ../shell && python sendmail.py %s \"%s\" \"%s\"",to_list,escape(subject),escape(content))
 	os.execute(strsh)
 end
 
@@ -134,7 +134,7 @@ function logger.init()
 	print("logger.path:",logger.path)
 	os.execute(string.format("mkdir -p %s",logger.path))
 	os.execute(string.format("ls -R %s > .log.tmp",logger.path))
-	fd = io.open(".log.tmp","r")
+	local fd = io.open(".log.tmp","r")
 	local filename
 	local name
 	local section = ""

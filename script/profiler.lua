@@ -6,7 +6,7 @@
 --- profiler.stop()
 --- profiler.sort(xxx)
 --- profiler.dump(xxx)
-profiler = {}
+profiler = profiler or {}
 
 function profiler.init()
 	profiler.MAXTIME = 100
@@ -76,7 +76,7 @@ function profiler.trace(event,line)
 end
 
 function profiler.sort(key)
-	function cmp(lhs,rhs)
+	local function cmp(lhs,rhs)
 		if key == "avg_time" then
 			return lhs.sum_time / lhs.call_cnt < rhs.sum_time / rhs.call_cnt
 		else

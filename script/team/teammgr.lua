@@ -90,7 +90,7 @@ function cteammgr:createteam(player,param)
 	if not self:before_createteam(player,param) then
 		return
 	end
-	local teamid = self:genid()
+	teamid = self:genid()
 	logger.log("info","team",string.format("[createteam] pid=%d teamid=%d",pid,teamid))
 	local team = cteam.new(teamid,{})
 	team:create(player,param)
@@ -230,10 +230,8 @@ function cteammgr:publishteam(player,publish)
 		stage = publish.stage,
 		captain = player:packmember(),
 	}
-	broadcast(function (obj)
-		if obj.lv > data.limit then
-			sendpackage(uid,"team","publishteam",package)
-		end
+	playermgr.broadcast(function (obj)
+		sendpackage(obj.pid,"team","publishteam",package)
 	end)
 end
 
@@ -250,7 +248,7 @@ function cteammgr:getpublishteam(teamid)
 end
 
 function cteammgr:delpublishteam(teamid)
-	local publish = self.publish_teams[temaid]
+	local publish = self.publish_teams[teamid]
 	if publish then
 		logger.log("info","team",string.format("[delpublishteam] teamid=%d",teamid))
 		self.publish_teams[teamid] = nil
@@ -275,6 +273,7 @@ function cteammgr:team_automatch(teamid)
 end
 
 function cteammgr:automatch(player,target,stage)
+	local pid = player.pid
 	local matchdata = self.automatch_pids[pid]
 	self.automatch_pids[pid] = {
 		time = os.time(),

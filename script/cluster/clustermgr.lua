@@ -39,7 +39,7 @@ function clustermgr.onconnect(srvname)
 	if not oldstate then
 		logger.log("info","cluster",string.format("server(%s->%s) connected",cserver.getsrvname(),srvname))
 		if cserver.isresumesrv(srvname) then
-			broadcast(function (player)
+			playermgr.broadcast(function (player)
 				sendpackage(player.pid,"player","switch",{
 					friend = true,
 				})
@@ -55,7 +55,7 @@ function clustermgr.disconnect(srvname)
 	if oldstate then
 		logger.log("critical","cluster",string.format("server(%s->%s) lost connect",cserver.getsrvname(),srvname))
 		if cserver.isresumesrv(srvname) then
-			broadcast(function (player)
+			playermgr.broadcast(function (player)
 				sendpackage(player.pid,"player","switch",{
 					friend = false,
 				})

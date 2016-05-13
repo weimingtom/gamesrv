@@ -1,11 +1,11 @@
 require "script.profiler"
 
-function ignore_c(prof)
+local function ignore_c(prof)
 	local pos = string.find(prof.name,"%[C%]")
 	return not (pos and pos >= 1)
 end
 
-function test(...)
+local function test(...)
 	local args = {...}
 	if #args ~= 2 then
 		print("Usage: test_profiler filename sort_key")
@@ -22,4 +22,6 @@ function test(...)
 	profiler.dump(print,ignore_c)
 end
 
-test(...)
+--test(...)
+
+return test

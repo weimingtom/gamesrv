@@ -7,11 +7,6 @@ nettask.REQUEST = REQUEST
 function REQUEST.accepttask(player,request)
 	local pid = player.pid
 	local taskid = request.taskid
-	if taskid < 10000 then
-		local name = gettask_typename(taskid)
-		local ctrl = data_task_ctrl[name]
-		taskid = choosekey(ctrl.starttask)
-	end
 	local isok,msg = player.taskdb:canaccepttask(taskid)
 	if not isok then
 		if msg then
@@ -23,7 +18,9 @@ function REQUEST.accepttask(player,request)
 end
 
 function REQUEST.finishtask(player,request)
-	local taskdata = gettaskdata(taskid)
+	local taskid = request.taskid
+	local taskdb = player.taskmgr:gettaskdb_by_taskid(taskid)
+	local taskdata = taskdb:gettaskdata(taskid)
 	if not taskdata.client_canfinish then
 		return
 	end

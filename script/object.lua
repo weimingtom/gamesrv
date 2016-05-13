@@ -1,7 +1,7 @@
 require "script.base.class"
 cobject = class("cobject")
 
-print("oldid:",__id,cobject)
+--print("oldid:",__id,cobject)
 __object_id = __object_id or 0
 print("newid:",__object_id)
 

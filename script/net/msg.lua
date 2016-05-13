@@ -4,7 +4,7 @@ function starttimer_check_messagebox()
 	for id,session in pairs(messagebox.sessions) do
 		if session.exceedtime and session.exceedtime <= now then
 			messagebox.sessions[id] = nil
-			callback = session.callback
+			local callback = session.callback
 			if callback then
 				callback(nil,session.request,0)
 			end
@@ -98,7 +98,6 @@ function netmsg.messagebox(pid,type,title,content,attach,buttons,callback,exceed
 	local id
 	local request = {
 		pid = pid,
-		id = id,
 		type = type,
 		title = title,
 		content = content,
@@ -120,6 +119,7 @@ function netmsg.messagebox(pid,type,title,content,attach,buttons,callback,exceed
 	else
 		id = 0
 	end
+	request.id = id
 	sendpackage(pid,"msg","messagebox",request)
 	request.attach = attach
 end

@@ -54,7 +54,7 @@ function cwarcard:addleftatkcnt(addval)
 	leftatkcnt = math.min(self.atkcnt,math.max(0,leftatkcnt))
 	warmgr.refreshwar(self.warid,self.pid,"synchero",{
 		id = self.id,
-		leftatkcnt = self.leftatkcnt,
+		leftatkcnt = leftatkcnt,
 	})
 end
 

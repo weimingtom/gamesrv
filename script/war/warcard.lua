@@ -356,7 +356,7 @@ function cwarcard:delbuffbypos(pos)
 			end
 		end
 		warmgr.refreshwar(self.warid,self.pid,"delbuff",{
-			id = id,
+			id = self.id,
 			pos = pos,
 		})
 		if syncattrs.maxhp then
@@ -652,7 +652,7 @@ function cwarcard:deleffectbyid(bheid,name)
 		return self:__deleffectbysrcid(bheid,self.effects[name])
 	else
 		for i,effects in ipairs(self.effects) do
-			local effect = self__deleffectbyid(bheid,effects)
+			local effect = self:__deleffectbyid(bheid,effects)
 			if effect then
 				return effect
 			end

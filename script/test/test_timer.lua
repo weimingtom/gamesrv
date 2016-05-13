@@ -12,7 +12,7 @@ end
 
 function test_timer(...)
 	local args = table.pack(...)
-	name = ...
+	local name = ...
 	print("test_timer",...)
 	timer.timeout(name,5,function ()
 		test_timer(table.unpack(args))

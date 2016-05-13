@@ -63,7 +63,7 @@ function REQUEST.recallmember(player,request)
 					if buttonid ~= 1 then
 						return
 					end
-					if target.teamid ~= teamid then
+					if obj.teamid ~= teamid then
 						return
 					end
 					local team = teammgr:getteam(teamid)	
@@ -261,7 +261,7 @@ function REQUEST.apply_jointeam(player,request)
 	if teamid then
 		return
 	end
-	local teamid = request.teamid
+	teamid = request.teamid
 	local team = teammgr:getteam(teamid)
 	if not team then
 		return

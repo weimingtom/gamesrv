@@ -89,7 +89,7 @@ end
 function gm.getdoc()
 	if not gm.__doc then
 		gm.__doc = {}
-		fd = io.open("../script/gm/gmdoc.txt","rb")
+		local fd = io.open("../script/gm/gmdoc.txt","rb")
 		while true do
 			local line = fd:read("*l")
 			if not line then

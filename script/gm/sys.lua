@@ -38,7 +38,7 @@ end
 
 --- cmd: kickall
 function gm.kickall(args)
-	playermgr.kickall(pid,"gm")
+	playermgr.kickall("gm")
 end
 
 --- cmd: reloadproto
@@ -54,7 +54,7 @@ function gm.runcmd(args)
 	if not noresult then
 		cmdline = "return " .. cmdline
 	end
-	func = load(cmdline,"=(load)","bt")
+	local func = load(cmdline,"=(load)","bt")
 	return func()
 end
 

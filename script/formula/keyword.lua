@@ -5,9 +5,7 @@ function cplayer:player_lv()
 end
 
 function cplayer:player_org_lv()
-	local orgid = self:query("org.id")
-	local org = orgmgr.getorg(orgid)
-	return org and org.lv or 0
+	return 0
 end
 
 function cplayer:player_team_maxlv(state)

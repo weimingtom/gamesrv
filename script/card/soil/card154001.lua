@@ -106,7 +106,7 @@ function ccard154001:onuse(pos,targetid,choice)
 				local sid = ccard154001.effect.onuse.addfootman.sid
 				local num = ccard154001.effect.onuse.addfootman.num
 				num = math.min(num,owner:getfreespace("warcard"))
-				for i=1,num do
+				for j=1,num do
 					local footman = owner:newwarcard(sid)
 					owner:putinwar(footman,pos)
 				end

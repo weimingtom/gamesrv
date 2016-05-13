@@ -111,10 +111,10 @@ function ccard163012:onbeginround()
 		local effect = self:neweffect({
 			name = "before_playcard",
 			callback = function (self,warcard,pos,targetid,choice)
-				for id,buffid in pairs(id_buffid) do
-					local handcard = owner:gettarget(id)
+				for id2,buffid2 in pairs(id_buffid) do
+					local handcard = owner:gettarget(id2)
 					if handcard then
-						handcard:delbuff(buffid)
+						handcard:delbuff(buffid2)
 					end
 				end
 			end,

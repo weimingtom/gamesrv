@@ -1,5 +1,5 @@
 
-function distance(point1,point2)
+local function distance(point1,point2)
 	return math.sqrt((point1.x-point2.x)^2+(point1.y-point2.y)^2)
 end
 
@@ -64,7 +64,7 @@ local BT_npc = BT:new({
 
 })
 
-function player_move(player)
+local function player_move(player)
 	-- 模拟玩家移动
 	player.cur_loc.x = player.cur_loc.x + 1
 	player.cur_loc.y = player.cur_loc.y + 1

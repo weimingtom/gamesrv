@@ -107,6 +107,7 @@ end
 
 -- 打包与玩家相关的本服全局数据，如服务器等级，开服天数等
 function playermgr.packplayer4kuafu(pid)
+	local data = {}
 	return data
 end
 

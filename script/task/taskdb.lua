@@ -57,7 +57,7 @@ function ctaskdb:log(levelmode,filename,...)
 	levelmode = string.upper(levelmode)
 	local msg = table.concat({...},"\t")
 	msg = string.format("[%s] [name=%s] %s",levelmode,self.name,msg)
-	g_serverinfo:logger(filename,msg)
+	logger.log(filename,msg)
 end
 
 function ctaskdb:onlogin(player)
@@ -101,7 +101,7 @@ function ctaskdb:__newtask(conf)
 				conf.exceedtime = os.time({year=getyear(now),month=getyearmonth(now)+1,day=1,hour=5,min=0,sec=0,})
 			elseif taskdata.exceedtime == "forever" then
 			else
-				secs = assert(tonumber(taskdata.exceedtime))
+				local secs = assert(tonumber(taskdata.exceedtime))
 				secs = math.floor(secs)
 				conf.exceedtime = os.time() + secs
 			end
@@ -199,7 +199,7 @@ function ctaskdb:can_accepttask(taskid)
 	local isok = true
 	if taskdata.pretask and next(taskdata.pretask) then
 		for i,taskid in ipairs(taskdata.pretask) do
-			if not self.finishtasks[tid] then
+			if not self.finishtasks[taskid] then
 				isok = false
 			end
 		end

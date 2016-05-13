@@ -117,17 +117,8 @@ end
 --- usage: setauthority pid authority
 --- e.g. : setauthority 10001 80 # 将玩家10001权限设置成80(权限范围:[1,100])
 function gm.setauthority(args)
-	local ok,args = pcall(checkargs,args,"int:[10000,]","int:[1,100]")
-	if not ok then
-		net.msg.notify(master.pid,"usage: setauthority pid authorit")
-		error(result)
-	end
-	local pid,authority = table.unpack(args)	
-	local player = playermgr.getplayer(pid)
-	if not player then
-		net.msg.notify(master.pid,string.format("玩家(%d)不在线,无法对其进行此项操作",pid))
-		return
-	end
+	local master_pid
+	local master_auth
 	if type(master) == "number" then -- oscmd
 		master_pid = master
 		master_auth = AUTH_SUPERADMIN
@@ -135,25 +126,36 @@ function gm.setauthority(args)
 		master_pid = master.pid
 		master_auth = master:authority()
 	end
+	local ok,args = pcall(checkargs,args,"int:[10000,]","int:[1,100]")
+	if not ok then
+		net.msg.notify(master.pid,"usage: setauthority pid authorit")
+		return
+	end
+	local pid,authority = table.unpack(args)	
+	local player = playermgr.getplayer(pid)
+	if not player then
+		net.msg.notify(master_pid,string.format("玩家(%d)不在线,无法对其进行此项操作",pid))
+		return
+	end
 	if master_pid == player.pid then
-		net.msg.notify(master.pid,"无法给自己设置权限")
+		net.msg.notify(master_pid,"无法给自己设置权限")
 		return
 	end
 	local auth = master:authority()
 	local target_auth = player:authority()
 	if authority > master_auth then
-		net.msg.notify(matster,string.format("权限不足,设定的权限大于自己拥有的权限(%d>%d)",authority,master_auth))
+		net.msg.notify(master_pid,string.format("权限不足,设定的权限大于自己拥有的权限(%d>%d)",authority,master_auth))
 	end
 	if master_auth <= target_auth then
-		net.msg.notify(master.pid,"权限不足,自身权限没有目标权限高")
+		net.msg.notify(master_pid,"权限不足,自身权限没有目标权限高")
 		return
 	end
 	if target_auth == AUTH_SUPERADMIN then
-		net.msg.notify(master.pid,"警告:你无法对超级管理员设定权限")
+		net.msg.notify(master_pid,"警告:你无法对超级管理员设定权限")
 		return
 	end
 	if authority == AUTH_SUPERADMIN then
-		net.msg.notify(master.pid,"警告:你无法将他人设置成超级管理员")
+		net.msg.notify(master_pid,"警告:你无法将他人设置成超级管理员")
 		return
 	end
 	logger.log("info","authority",string.format("[gm.setauthority] pid=%d authority=%d tid=%d authority=%d->%d",master_pid,master_auth,pid,target_auth,authority))

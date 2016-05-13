@@ -99,7 +99,7 @@ function ccard143004:onuse(pos,targetid,choice)
 	local lr_magic_hurt = ccard143004.effect.onuse.lr_magic_hurt
 	magic_hurt = self:get_magic_hurt(magic_hurt)
 	lr_magic_hurt = self:get_magic_hurt(lr_magic_hurt)
-	local pos = target.pos
+	pos = target.pos
 	local target_owner = target:getowner()
 	local ltargetid = target_owner.warcards[pos-1]
 	local rtargetid = target_owner.warcards[pos+1]
@@ -107,6 +107,7 @@ function ccard143004:onuse(pos,targetid,choice)
 	if ltarget then
 		ltarget:addhp(-lr_magic_hurt,self.id)
 	end
+	local rtarget = target_owner:gettarget(rtargetid)
 	if rtarget then
 		ltarget:addhp(-lr_magic_hurt,self.id)
 	end

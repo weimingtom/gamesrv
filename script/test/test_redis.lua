@@ -75,7 +75,7 @@ function cdb:hvals(key)
 	return r
 end
 
-function main()
+local function main()
 	local conf = {
 		host = "127.0.0.1",
 		port = 6800,

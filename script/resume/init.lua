@@ -67,6 +67,7 @@ end
 function cresume:deletefromdatabase()
 	if cserver.isresumesrv() then
 		print("delresume",self.pid)
+		local db = dbmgr.getdb()
 		db:del(db:key("resume",self.pid))
 	end
 end
@@ -79,7 +80,7 @@ function cresume:onloadnull()
 			logger.log("error","error",string.format("[from resumesrv loadnull] srvname=%s pid=%s",route.getsrvname(self.pid),self.pid))
 			return
 		end
-		player = playermgr.getplayer(self.pid)
+		local player = playermgr.getplayer(self.pid)
 		if player then
 		else
 			player = playermgr.loadofflineplayer(self.pid)

@@ -16,6 +16,7 @@ MAX_NUMBER = math.floor(2 ^ 31 - 1)
 MIN_NUMBER = -MAX_NUMBER
 
 SYSTEM_MAIL = 0
+BASE_RATIO = 1000000
 
 --用户必须保证对象非递归嵌套表
 function mytostring(obj)
@@ -507,24 +508,13 @@ end
 function sendpackage(pid,protoname,cmd,args,onresponse)
 	require "script.playermgr"
 	require "script.proto.init"
-	obj = playermgr.getobject(pid)
+	local obj = playermgr.getobject(pid)
 	if obj then
 		if obj.__agent then
 			proto.sendpackage(obj.__agent,protoname,cmd,args,onresponse)
 		end
 	end
 end
-
-function broadcast(func)
-	require "script.playermgr"
-	for pid,player in pairs(playermgr.id_obj) do
-		if player then
-			func(player)
-		end
-	end
-end
-
-
 
 -- 常用函数
 function isvalid_name(name)
@@ -980,7 +970,7 @@ local compile_cmd = setmetatable({},{__index=getcmd})
 function pack_function(cmd,...)
 	-- 保证最后一个参数为nil时不丢失
 	local n = select("#",...)
-	args = {...}
+	local args = {...}
 	local pack_data = {
 		cmd = cmd,
 		args = cjson.encode(args),
@@ -1019,3 +1009,19 @@ function is_pack_function(func)
 end
 
 -- pack_function/unpack_function [END]
+
+-- global function [START]
+
+function istrue(val)
+	if val then
+		if type(val) == "number" then
+			return val ~= 0
+		elseif type(val) == "string" then
+			val = string.lower(val)
+			return val == "true" or val == "yes"
+		end
+	end
+	return false
+end
+
+-- global function [END]

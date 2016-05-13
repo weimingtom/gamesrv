@@ -206,7 +206,7 @@ function cwarobj:confirm_handcard(ids)
 		local id = self:pickcard()
 		self:putinhand(id)
 	end
-	self:log("info","war",format("[confirm_handcard] handcards=%s leftcards=%s",handcards,leftcards))
+	self:log("info","war",format("[confirm_handcard] handcards=%s leftcards=%s",self.handcards,self.leftcards))
 end
 
 function cwarobj:lookcards_confirm(id)
@@ -247,7 +247,7 @@ function cwarobj:beginround()
 end
 
 function cwarobj:pickcard_and_putinhand(id)
-	local id = self:pickcard(id)
+	id = id or self:pickcard(id)
 	if not id then
 		self.tiredvalue = self.tiredvalue + 1
 		self.hero:addhp(-self.tiredvalue,0)
@@ -379,6 +379,7 @@ function cwarobj:isvalidtarget(warcard,target)
 end
 
 function cwarobj:canplaycard(warcard,pos,targetid,choice)
+	local warcardid = warcard.id
 	if not warcard.choice and warcard.inarea ~= "hand" then
 		self:log("warning","war",string.format("[no handcard] [playcard] id=%d",self.pid,warcardid))
 		return false
@@ -467,7 +468,7 @@ function cwarobj:__playcard(warcard,pos,targetid,choice)
 	end
 	warcard:execute("onuse",pos,targetid,choice)
 	local sid = warcard.type == MAGICCARD.SECRET and 0 or warcard.sid
-	warmgr.refreshwar(self.warid,self.pid,"playcard",{id=warcardid,sid=sid,pos=pos,targetid=targetid})
+	warmgr.refreshwar(self.warid,self.pid,"playcard",{id=warcard.id,sid=sid,pos=pos,targetid=targetid})
 	self:execute("after_playercard",warcard,pos,targetid,choice)
 end
 
@@ -487,7 +488,7 @@ function cwarobj:canattack(target)
 			sneer_footmans[id] = true
 		end
 	end
-	if next(sneer_footmans) and not sneer_footman[targetid] then
+	if next(sneer_footmans) and not sneer_footmans[target.id] then
 		return false
 	else
 		return  true
@@ -519,7 +520,7 @@ function cwarobj:__launchattack(attacker,defenser)
 	end
 	self:log("debug","war",string.format("[__launchattack] id=%d targetid=%d",attacker.id,defenser.id))
 	if attacker.id == self.hero.id then
-		if defenserid == self.enemy.hero.id then
+		if defenser.id == self.enemy.hero.id then
 			self:hero_attack_hero()
 		else
 			self:hero_attack_footman(defenser)
@@ -539,16 +540,16 @@ function cwarobj:footman_attack_hero(warcard)
 	local target = self.enemy.hero
 	warcard:addleftatkcnt(-1)
 	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=warcard.id,targetid=target.id})
-	target:addhp(-warcard:getatk(),warcardid)
+	target:addhp(-warcard:getatk(),warcard.id)
 	warcard:addhp(-target:gete4e(),target.id)
 end
 
 function cwarobj:footman_attack_footman(warcard,target)
 	assert(warcard.inarea == "war")
 	warcard:addleftatkcnt(-1)
-	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=warcardid,targetid=target.id,})
+	warmgr.refreshwar(self.warid,self.pid,"launchattack",{id=warcard.id,targetid=target.id,})
 	target:addhp(-warcard:getatk(),warcard.id)
-	warcard:addhp(-target:gete4e(),targetid)
+	warcard:addhp(-target:gete4e(),target.id)
 end
 
 function cwarobj:hero_attack_footman(target)

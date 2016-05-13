@@ -1,12 +1,12 @@
 
 local function test()
-	tblname = "test"
+	local tblname = "test"
 	dbmgr.init()
 	local db = dbmgr.getdb()
 	print(db:set(tblname .. ":key1",1))
 	print(db:get(tblname .. ":key1"))
 	print(db:del(tblname .. ":key1"))
-	value = {
+	local value = {
 		test = {
 			test1 = {
 				test2 = 'ok',

@@ -78,7 +78,7 @@ function randomcard(cnt,limit)
 		local name = string.format("品质:%s",gold_quality)
 		local sids = getcards(name,function (cardcls)
 			local gold,quality = math.floor(gold_quality / 10),gold_quality % 10
-			isgold = gold == 2 and true or false
+			local isgold = gold == 2 and true or false
 			if is_goldcard(cardcls.sid) == isgold and getqualitybysid(cardcls.sid) == quality then
 				return true
 			end
@@ -128,10 +128,10 @@ end
 --/*
 --获取指定类别所有卡牌
 --*/
-local name_cards = name_cards or {}
+NAME_CARDS = NAME_CARDS or {}
 function getcards(name,condition)
 	require "script.card.cardmodule"
-	local cards = name_cards[name]	
+	local cards = NAME_CARDS[name]	
 	if cards then
 		return cards
 	end
@@ -142,7 +142,7 @@ function getcards(name,condition)
 			table.insert(cards,sid)
 		end
 	end
-	name_cards[name] = cards
+	NAME_CARDS[name] = cards
 	return cards
 end
 

@@ -27,8 +27,8 @@ function oscmd.ontimer()
 		local issuccess = table.remove(tbl,1)
 		local result
 		if next(tbl) then
-			for i,v in ipairs(tbl) do
-				tbl[i] = mytostring(v)
+			for j,v in ipairs(tbl) do
+				tbl[j] = mytostring(v)
 			end
 			result = table.concat(tbl,",")
 		end
@@ -45,7 +45,7 @@ function oscmd.docmd(line)
 	if cmd == "hotfix" then
 		return hotfix.hotfix(leftcmd)
 	elseif cmd == "gm" then
-		pid,leftcmd = string.match(leftcmd,"^([%d]+)%s+(.*)$")
+		local pid,leftcmd = string.match(leftcmd,"^([%d]+)%s+(.*)$")
 		pid = tonumber(pid)
 		if not pid then
 			logger.log("info","oscmd",format("docmd='%s' no pid",line))

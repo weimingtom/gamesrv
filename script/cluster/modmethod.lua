@@ -32,7 +32,7 @@ local function docmd(srvname,modname,methodname,...)
 	elseif sep == ":" then
 		return func(mod,...)
 	else
-		error("Invalid function seperator:" .. tostring(typ))
+		error("Invalid function seperator:" .. tostring(sep))
 	end
 end
 

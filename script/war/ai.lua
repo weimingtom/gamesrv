@@ -1,4 +1,4 @@
-ai = {}
+ai = ai or {}
 
 function ai.inject_ai(warid,pid)
 	local war = warmgr.getwar(warid)
@@ -109,7 +109,7 @@ function ai.onbeginround(warobj)
 			if warobj:canattack(warobj.enemy.hero) then
 				table.insert(valid_targets,warobj.enemy.hero.id)
 			end
-			for i,id in ipairs(warobj.enemy.warcards) do
+			for _,id in ipairs(warobj.enemy.warcards) do
 				local warcard = warobj.enemy:getcard(id)
 				if warobj:canattack(warcard) then
 					table.insert(valid_targets,id)

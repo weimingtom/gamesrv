@@ -136,7 +136,7 @@ function cmailbox:getattach(mailid)
 				award.__player(pid,{RESTYPE_CHIP,attach.chip},reason,true)
 			end
 			if attach.items and next(attach.items) then
-				for i,item in ipairs(items) do
+				for i,item in ipairs(attach.items) do
 					award.__player(pid,item,reason,true)
 				end
 			end

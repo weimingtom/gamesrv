@@ -21,4 +21,4 @@ STATUS_UNAUTH		 = 18			--认证失败
 STATUS_BANACCT		 = 19			--禁止登录账号
 STATUS_BANIP		 = 20			--禁止登录ip
 
-
+STATUS_REDIRECT_SERVER = 21			-- 重定向服务器

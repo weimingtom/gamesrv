@@ -33,12 +33,10 @@ function hotfix.hotfix(modname)
 	local env = _ENV
 	env.__hotfix = nil
 	local name = string.gsub(modname,"%.","/")
-	local match_pat
 	for pat in string.gmatch(patten,"[^;]+") do
 		local filename = string.gsub(pat,"?",name)
 		chunk,err = loadfile(filename,"bt",env)
 		if chunk then
-			match_pat = pat
 			break
 		else
 			table.insert(errlist,err)
