@@ -92,15 +92,19 @@ end
 
 function game.shutdown(reason)
 	game.initall = nil
-	_print("Shutdown")
+	_print("Shutdown...")
 	logger.log("info","game",string.format("[shutdown start] reason=%s",reason))
+	_print("playermgr.kickall")
 	playermgr.kickall("shutdown")
+	_print("game.saveall")
 	game.saveall()
+	_print("dbmgr.shutdown")
 	dbmgr.shutdown()
 	timer.timeout("timer.shutdown",20,function ()
-
+		_print("logger.shutdown")
 		logger.log("info","game",string.format("[shutdown success] reason=%s",reason))
 		logger.shutdown()
+		_print("Shutdown ok")
 		os.execute(string.format("cd ../shell/ && sh killserver.sh %s",skynet.getenv("srvname")))
 	end)
 end
