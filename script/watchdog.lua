@@ -12,7 +12,7 @@ local agent = {}
 -- @param string addr 客户端ip:port
 --*/
 function SOCKET.open(fd, addr)
-	agent[fd] = skynet.newservice("script/agent")
+	agent[fd] = skynet.newservice("script/agent",fd,addr)
 	skynet.call(agent[fd], "lua", "start", gate, fd,addr)
 end
 

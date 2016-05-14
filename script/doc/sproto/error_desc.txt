@@ -1,0 +1,12 @@
+1. sproto.queryproto 断言：xxx not found 是由于客户端和服务端协议不一致引起
+2. "./lualib/skynet.lua:445: Unknow session : xxx from xxxx"
+	skynet.send发送的消息收到回复时会报这个错误
+
+3. "./lualib/sproto.lua:218: Unknow session" 断言报错
+	服务端的一次请求，收到客户端多次回复，或者客户端自身发了一个不存在的会话ID
+
+4. "./lualib/sproto.lua:219: session not found"
+	客户端回复消息没有带session
+
+5. "./lualib/sproto.lua:198: Invalid unpack stream"
+	客户端发的sproto协议格式不对
