@@ -2,6 +2,7 @@
 -- 自动存盘管理器，纳入管理的对象必须实现以下函数：
 -- xx:savetodatabase()
 -- xx.savename = 存盘对象标示名字，方便人类理解
+-- xx.savedelay = 存盘间隔（不指定则为默认存盘间隔)
 -- 具体用法见：script/test/test_saveobj.lua
 -- 切记对象销毁后调用closesave关闭存盘
 --*/
@@ -33,6 +34,7 @@ end
 local function starttimer(obj)
 	local flag = uniqueflag(obj)
 	logger.log("info","saveobj",string.format("starttimer uniqueflag=%s",flag))
+	local delay = obj.savedelay or SAVE_DELAY
 	timer.timeout(flag,SAVE_DELAY,functor(ontimer,obj.__saveobj_id))
 end
 

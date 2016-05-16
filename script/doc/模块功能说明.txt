@@ -19,6 +19,11 @@
 +script 游戏上层逻辑脚本
 	+achieve  成就
 	+attrblock 玩家属性段支持模块
+		+basicattr.lua			基本属性，如金币/等级等可以放到该容器中
+		+attrcontainer.lua		属性容器
+		+delaytonextlogin.lua	保存"延迟到玩家下次登录"的动作
+		+saveobj.lua			提供统一存盘接口，需要存盘的对象只要生命成存盘对象，并且设置自动存盘，系统将会定时将其存盘
+		+time.lua				时间相关属性类，如今日:ctoday,本周:cthisweek 指定生命期对象:cthistemp
 	+auxliary 游戏逻辑辅助库
 	+award   奖励发放模块，整个游戏奖励发放都用该模块，支持各种奖励类型，如：独立概率奖励/互斥概率奖励
 	+base  基本库，包括游戏逻辑需要用到的部分基本组件，常用函数等
