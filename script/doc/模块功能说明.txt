@@ -1,0 +1,117 @@
++3rd   第三方库
+	+behaviourtree   行为树
+	+crab			 字符串过滤库
+	+lua-cjson		 json lua版本
+	+lua-snapshot	 lua内存快照,可以对比不同时间段内存用于内存泄漏检查
+	+luaxml			 lua版本xml解析/生成库
+
++daobiao  导表支持工具
+	+data 导表生成的数据
+	+parser 导表api,对pyexcelerator-0.6.4.1浅包装
+	+pyexcelerator-0.6.4.1  python版excel解析/生成库
+	+xls   导表excel文件
+	+daobiao.sh  快速导表脚本
+
++log	  游戏输出日志目录
+
++shell 游戏管理脚本
++skynet 游戏引擎
++script 游戏上层逻辑脚本
+	+achieve  成就
+	+attrblock 玩家属性段支持模块
+	+auxliary 游戏逻辑辅助库
+	+award   奖励发放模块，整个游戏奖励发放都用该模块，支持各种奖励类型，如：独立概率奖励/互斥概率奖励
+	+base  基本库，包括游戏逻辑需要用到的部分基本组件，常用函数等
+		+algorithm  算法库
+			+Astar.lua  A*算法
+		+class.lua   lua OO支持
+		+container.lua 容器库，如背包/邮箱等容器对象都可以继承自该类实现
+		+databaseable.lua  属性管理类，提供属性的动态创建/修改/删除/保存/载入功能
+		+functions.lua	   游戏常用函数定义的地方，一般和游戏逻辑无关，如字符串的拆分等函数
+		+functor.lua       函数适配器
+		+netcache.lua	   网络数据缓存，支持延时发送给客户端。如coc主界面显示了资源，资源会频繁变化，这种情况，效率上可以折中，如1s内变化的同一个属性可以1s后再发给客户端，减少同1秒同一个属性多次变化频繁通知客户端，提高效率
+		+node.lua		   node节点支持，用node可以实现树状结构，游戏内暂时没有用到
+		+ranks.lua		   排行榜类，支持多关键字字段/多比较字段，比较字段改动时自动调整排行，并对外提供回调接口
+		+timer.lua		   定时器api，支持创建定时器/删除定时器
+
+	+card  卡牌类定义的地方，游戏初衷之前是为了实现炉石服务端
+	+cardbag 卡牌包
+	+cluster  集群
+		+clustermgr.lua  集群管理器
+		+forward.lua     数据转发
+		+gamesrv.lua	 warsrv -> gamesrv / warsrvmgr -> gamesrv 协议集
+		+warsrv.lua		 gamesrv -> warsrv / warsrvmgr -> warsrv 协议集
+		+warsrvmgr.lua   gamesrv -> warsrvmgr / warsrv -> warsrvmgr 协议集
+		+route.lua       用于查询玩家“原服”的路由模块，不要求玩家ID按服务器分段（分段后合服，转服可能会导致根据分段ID无法判断玩家的服)
+		+rpc.lua		 集群rpc支持模块，支持远程调用另一台服务器的任意api（包括模块下的方法)
+		+playermethod.lua 准备废弃，可以用rpc替换。玩家方法远程调用
+		+modmethod.lua    准备废弃,可以用rpc替换。模块方法远程调用
+		+netcluster.lua   各类型集群注册模块
+		+init.lua		  集群对外api，提供cluster.call/cluster.pcall两个远程调用方法
+	+conf  游戏配置模块
+	+console 游戏控制台模块，非后台启服时，可以在控制台调用游戏提供的任何api，方便开发阶段测试
+	+constant 游戏常量模块
+	+data     游戏导表数据
+	+db       对redis驱动的浅包装，相当于redis驱动的代理，可以用redis驱动提供的任何方法，实际游戏提供了一个db服务,db操作最终会转发给db服处理
+	+doc      文档
+	+event    事件模块（处于设计阶段，可能不会用到)
+	+formula  策划公式支持，设想公式导表化
+	+friend   好友模块，支持跨服好友（好友数据存到中心节点，而不是本服，本服只存好友关系）
+	+gm		  gm模块，支持在线查询gm指令，如：help 金币 则会显示所有“包含金币的gm指令及用法”
+	+hotfix   热更新模块(只允许更新脚本层代码)
+	+huodong  活动模块
+	+item     物品模块（如物品类定义/背包定义等)
+	+logger   日志模块
+	+mail     邮件模块
+	+net      c2s网络通信模块
+		+login.lua 登录协议处理模块
+		+xxx.lua   其他协议处理模块
+	+oscmd    通过os控制游戏服支持模块，如启动服务器/安全关闭服务器，可以直接使用shell脚本:sh startserver.sh / sh shutdown.sh
+	+playermgr 玩家管理器其他相关模块
+		+kuafu.lua 跨服相关模块
+	+proto    sproto协议定义模块,支持协议文件热更新
+		+init.lua c2s/s2s协议调度模块
+		+其他协议描述定义文件
+	+resume   游戏数据中心，可能定义成datacenter比较好，暂时只用于存“玩家简介”，如玩家名/等级/金币数等非常基本常用的属性
+	+scene    场景模块
+	+service  其他服务定义模块
+		+init.lua  其他服务调用主服的api集
+		+loggerd.lua   日志服
+		+redisd.lua    使用redis的db服
+		+scened.lua    场景服
+		+testd.lua     测试服
+	+task     任务模块，支持任务生命期/任务的跳转/接受条件限制/是否自动提交或者自动完成等，具体设计都可以由导表控制，便于程序将重心放到任务具体逻辑上
+		+auxilary.lua 任务相关辅助库
+		+init.lua     任务基类定义
+		+taskdb.lua   任务容器基类定义
+		+taskmgr.lua  任务容器管理器，一个玩家身上可以有多类任务,如：师门任务/主线/支线等，每类任务都是一个任务容器，如师门任务:player.taskmgr.shimen
+		+today        日常任务模块
+		+thisweek     周常任务模块
+		+forever      永久任务模块
+		+thistemp     带指定生命期任务模块
+	+team	 队伍模块
+		+init.lua  队伍类定义
+		+teammgr.lua 队伍管理器
+	+test    测试模块
+	+timectrl 游戏定时驱动模块，类似os的crontab
+	+tools    游戏工具，暂时只包含了合服逻辑，后续该模块可能会去掉，命名也不太合理
+	+vote     投票管理模块，可以用该模块发起一次投票，在投票结束后（确认候选人/投票失效)会调用用户注册的回调函数
+	+war      战斗逻辑，炉石卡牌的战斗逻辑
+	+agent.lua  agent
+	+channel.lua 频道订阅/发布模块
+	+errcode.lua 错误码定义,一般是登录相关错误码定义
+	+game.lua    游戏启服/关服逻辑定义模块
+	+globalmgr.lua 全局对象管理器，设计上想统一管理所有全局对象，如服务器对象，感觉有点别扭，后续可能会重写
+	+init.lua    脚本层主函数入口
+	+loginqueue.lua 排队模块
+	+object.lua     连线对象定义模块，玩家管理器容器中包含4类对象：1.连线对象，2.在线对象，3.离线对象 4.跨服对象，每类对象有不同标记
+	+player.lua     玩家类定义
+	+playermgr.lua  玩家管理器
+	+preload.lua    每个模块载入前都需执行的逻辑
+	+profiler.lua   lua版性能检测模块
+	+server.lua     服务器类定义
+	+skynet.lua     载入skynet和skynet.manager
+	+watchdog.lua   watchdog
+
+
+
