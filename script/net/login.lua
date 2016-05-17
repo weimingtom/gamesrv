@@ -18,7 +18,7 @@ function REQUEST.register(obj,request)
 	if status == 200 then
 		local result,body = unpackbody(body)
 		if result == 0 then -- register success
-			logger.log("register",string.format("[register] account=%s passwd=%s ip=%s:%s",account,passwd,obj.__ip,obj.__port))
+			logger.log("info","register",string.format("[register] account=%s passwd=%s ip=%s:%s",account,passwd,obj.__ip,obj.__port))
 			obj.passlogin = true
 		end
 		return {result=result,}
