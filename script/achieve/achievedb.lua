@@ -93,7 +93,7 @@ function cachievedb.getbyevent(eventname)
 		cachievedb.event2achieves[eventname] = {}
 		for id,v in pairs(data_achievement) do
 			if type(id) == "number" then
-				table.insert(cachievedb.event2achieves[eventname],id)
+				table.insert(cachievedb.event2achieves[v.event],id)
 			end
 		end
 	end
