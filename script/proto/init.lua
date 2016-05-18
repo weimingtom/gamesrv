@@ -148,36 +148,21 @@ function CMD.close(agent)
 	proto.connection[agent] = nil
 end
 
-local function dispatch (session,source,typ,...)
-	require "script.game"
-	if not game.initall then
-		logger.log("warning","netclient",string.format("recv package but not game.initall"))
-		return
+function proto.dispatch(session,source,...)
+	local pid = 0
+	if proto.connection[source] then
+		pid = proto.connection[source].pid
 	end
-	if typ == "client" then -- 客户端消息
-		local pid = 0
-		if proto.connection[source] then
-			pid = proto.connection[source].pid
-		end
-		logger.log("debug","netclient",format("[recv] source=%s session=%d pid=%d typ=%s package=%s",source,session,pid,typ,{...}))
-		local cmd = ...
-		local f = proto.CMD[cmd]
-		xpcall(f,onerror,source,select(2,...))
-	elseif typ == "service" then  -- 当前节点“其他服务”消息
-		logger.log("debug","netservice",format("[rcv] source=%s session=%d type=%s package=%s",source,session,typ,{...}))
-		xpcall(service.dispatch,onerror,session,source,...)
-	elseif typ == "cluster" then  -- 其他节点（集群）消息
-		logger.log("debug","netcluster",format("[recv] source=%s session=%d type=%s package=%s",source,session,typ,{...}))
-		xpcall(cluster.dispatch,onerror,session,source,...)
-	elseif typ == "echo" then
-		--skynet.ret(skynet.pack(...))
-	end
+	logger.log("debug","netclient",format("[recv] source=%s session=%d pid=%d package=%s",source,session,pid,{...}))
+	local cmd = ...
+	local f = proto.CMD[cmd]
+	xpcall(f,onerror,source,select(2,...))
 end
+
 
 function proto.init()
 	proto.reloadproto()
 	proto.connection = {}
-	skynet.dispatch("lua",dispatch)
 end
 
 function proto.reloadproto()

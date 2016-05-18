@@ -1,5 +1,3 @@
-require "script.attrblock.time"
 require "script.attrblock.attrcontainer"
 require "script.attrblock.basicattr"
-require "script.attrblock.saveobj"
 require "script.attrblock.delaytonextlogin"

@@ -13,6 +13,7 @@ end
 service.scene = scene
 
 function service.dispatch(session,source,protoname,cmd,...)
+
 	local tbl = service[protoname]	
 	local func = tbl[cmd]
 	return func(...)
