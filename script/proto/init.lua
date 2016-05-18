@@ -80,6 +80,7 @@ local function onrequest(agent,cmd,request)
 	return r
 end
 
+-- 这里的session时sproto协议带的session，和skynet服务之间调用内部维护的session（proto.dispatch参数中的session)不一样!
 local function onresponse(agent,session,response)
 	local connect = proto.connection[agent]
 	if not connect then
@@ -156,7 +157,7 @@ function proto.dispatch(session,source,...)
 	logger.log("debug","netclient",format("[recv] source=%s session=%d pid=%d package=%s",source,session,pid,{...}))
 	local cmd = ...
 	local f = proto.CMD[cmd]
-	xpcall(f,onerror,source,select(2,...))
+	return f(source,select(2,...))
 end
 
 
