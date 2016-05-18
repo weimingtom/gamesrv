@@ -1,6 +1,4 @@
 cserver = class("cserver",cdatabaseable,{
-	srvname = skynet.getenv("srvname"),
-	serverid = skynet.getenv("serverid"),
 	gameflag = skynet.getenv("gameflag"),
 	accountcenter = {
 		host="127.0.0.1:6000",

@@ -41,8 +41,10 @@ function game.init()
 		math.randomseed(os.time() + d:byte(1) + (d:byte(2) * 256) + (d:byte(3) * 65536) + (d:byte(4) * 4294967296))
 		fd:close()
 	end
-	console.init()
-	_print("console.init")
+	if skynet.getenv("mode") == "debug" then
+		console.init()
+		_print("console.init")
+	end
 	logger.init()
 	_print("logger.init")
 	dbmgr.init()
