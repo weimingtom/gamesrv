@@ -2,32 +2,32 @@ timer = timer or {
 	timers = {},
 	id = 0,
 }
-function timer.timeout(flag,ti,func)
-	ti = ti * 100
-	return timer.timeout2(flag,ti,func)
+function timer.timeout(name,delay,callback)
+	delay = delay * 100
+	return timer.timeout2(name,delay,callback)
 end
 
-function timer.timeout2(flag,ti,func)
-	logger.log("debug","timer",string.format("[timeout] flag=%s,ti=%s func=%s",flag,ti,func))
-	local id = timer.addtimer(flag,func)
-	skynet.timeout(ti,function ()
-		timer.ontimeout(flag,id)
+function timer.timeout2(name,delay,callback)
+	logger.log("debug","timer",string.format("[timeout] name=%s,delay=%s callback=%s",name,delay,callback))
+	local id = timer.addtimer(name,callback)
+	skynet.timeout(delay,function ()
+		timer.ontimeout(name,id)
 	end)
 	return id
 end
 
-function timer.untimeout(flag,id)
-	logger.log("debug","timer",string.format("[untimeout] flag=%s,id=%s",flag,id))
-	return timer.deltimer(flag,id)
+function timer.untimeout(name,id)
+	logger.log("debug","timer",string.format("[untimeout] name=%s,id=%s",name,id))
+	return timer.deltimer(name,id)
 end
 
 function timer.deltimerbyid(id)
-	for flag,funcs in pairs(timer.timers) do
-		if funcs[id] then
-			logger.log("debug","timer",string.format("[deltimerbyid] flag=%s,id=%s",flag,id))
-			local func = funcs[id]
-			funcs[id] = nil
-			return func,flag
+	for name,callbacks in pairs(timer.timers) do
+		if callbacks[id] then
+			logger.log("debug","timer",string.format("[deltimerbyid] name=%s,id=%s",name,id))
+			local callback = callbacks[id]
+			callbacks[id] = nil
+			return callback,name
 		end
 	end
 end
@@ -42,17 +42,17 @@ function timer.genid()
 	return timer.id
 end
 
-function timer.addtimer(flag,func)
-	if not timer.timers[flag] then
-		timer.timers[flag] = {}
+function timer.addtimer(name,callback)
+	if not timer.timers[name] then
+		timer.timers[name] = {}
 	end
 	local id = timer.genid()
-	timer.timers[flag][id] = func
+	timer.timers[name][id] = callback
 	return id
 end
 
-function timer.gettimer(flag,id)
-	local timers = timer.timers[flag]
+function timer.gettimer(name,id)
+	local timers = timer.timers[name]
 	if not id then
 		return timers
 	elseif timers then
@@ -60,25 +60,24 @@ function timer.gettimer(flag,id)
 	end
 end
 
-function timer.deltimer(flag,id)
-	local timers = timer.timers[flag]
+function timer.deltimer(name,id)
+	local timers = timer.timers[name]
 	if not id then
-		local funcs = timer.timers[flag]
-		timer.timers[flag] = nil
-		return funcs
+		local callbacks = timer.timers[name]
+		timer.timers[name] = nil
+		return callbacks
 	elseif timers then
-		local func = timers[id]
+		local callback = timers[id]
 		timers[id] = nil
-		return func
+		return callback
 	end
 end
 
 
-function timer.ontimeout(flag,id)
-	local func = timer.gettimer(flag,id)
-	if func then
-		xpcall(func,onerror)
-		--func()
+function timer.ontimeout(name,id)
+	local callback = timer.gettimer(name,id)
+	if callback then
+		xpcall(callback,onerror)
 	end
 end
 

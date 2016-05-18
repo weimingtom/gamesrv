@@ -1,0 +1,75 @@
++定时器api
+	+timer.timeout(name,delay,callback)
+		+功能:开启一个定时器
+		+参数:
+			+name  string  定时器名
+			+delay integer 延迟执行定时器的间隔（秒为单位)
+			+callback function 定时器时间到后回调函数
+		+返回值:
+			+id  integer 定时器的唯一ID
+			
+	+timer.timeout2(name,delay,callback)
+		+功能:开启一个定时器
+		+参数:
+			+name	string  定时器名
+			+delay  integer 延迟执行定时器的间隔（1/100秒为单位)
+			+callback function 定时器时间到后回调函数
+		+返回值:
+			+id   integer 定时器的唯一ID
+
+	+timer.untimeout(name,id)
+		+功能: 关闭定时器
+		+参数:
+			+name string  定时器名
+			+id   integer 定时器唯一ID,未指定改字段则删除所有具有name名的定时器
+		+返回值:
+			+删除成功:删除的定时器回调函数，删除失败:nil
+			
+	+timer.deltimerbyid(id)
+		+功能: 关闭一个定时器
+		+参数:
+			+id  integer 定时器唯一ID
+		+返回值:
+			+删除成功:删除的定时器回调函数，删除失败:nil
+
+	+说明:
+		每个定时器都有一个唯一ID，和一个“描述其功能”的名字，其中多个定时器名字可相同，用timer.untimeout(name)
+		删除给定名字的定时器时会删除所有具有该名字的定时器，如果要精确删除指定定时器，必须用创建定时器时返回的
+		定时器ID调用timer.deltimerbyid(id)来删除,举例:
+			-- 设定一个10s后爆炸的炸弹
+			local id = timer.timeout("bomb",10,onbomb)
+			-- 删除之前设定的炸弹
+			timer.untimeout("bomb")  -- 注意：所有具有"bomb"名字的定时器都会被删除
+			-- 精确删除之前设定的炸弹
+			timer.deltimerbyid(id)
+
+
++S2S通信
+	+S2S通过rpc通信，原始rpc调用接口如下
+		+cluster.call(srvname,protoname,cmd,...)
+			+功能:远程调用指定服务器的api
+			+参数:
+				+srvname   string 服务器名
+				+protoname string 协议名
+				+cmd       string 子协议名
+				+其他参数
+			+返回值:
+				+远程调用失败则报错（对方报错了),成功则返回被调用函数返回值
+
+		+cluster.pcall(srvname,protoname,cmd,...)
+			+该函数参数/功能和cluster.pcall,但为安全调用方式，返回>=两个值，第一个为bool值,表示
+			调用是否成功,后续参数为被调用函数返回值
+
+	
+	+为了方便战斗服和逻辑服通信，可以用上诉API包装易于使用的API，如:
+		sendtogamesrv(protoname,cmd,request)
+			+功能: 给游戏逻辑服发协议
+			+参数:
+				+protoname  string 主协议名
+				+cmd		string 子协议名
+				+request    table 协议参数
+
+		例如: 通知服务端某个玩家pid逃跑了
+			  sendtogamesrv("war","quitwar",{
+					  pid = pid,
+			  })
