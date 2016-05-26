@@ -68,7 +68,8 @@ function logger.sendmail(to_list,subject,content)
 		return ret
 	end
 	local strsh = string.format("cd ../shell && python sendmail.py %s \"%s\" \"%s\"",to_list,escape(subject),escape(content))
-	os.execute(strsh)
+	--os.execute(strsh)
+	io.popen(strsh,"r")
 end
 
 -- console/print
