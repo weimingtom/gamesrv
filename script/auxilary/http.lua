@@ -1,10 +1,13 @@
-function packbody(result,extra)
-	return string.format("result=%d|%s",result,cjson.encode(extra))
+function packbody(errcode,result)
+	return cjson.encode({
+		errcode = errcode,
+		result = result,
+	})
 end
 
 function unpackbody(body)
-	local result,extra = body:match("result=([%d]+)|(.*)")
-	return tonumber(result),cjson.decode(extra)
+	local data = cjson.decode(body)
+	return tonumber(data.errcode),data.result
 end
 
 function response(id,statuscode,bodyfunc,header)
