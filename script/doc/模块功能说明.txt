@@ -69,13 +69,14 @@
 	+logger   日志模块
 	+mail     邮件模块
 	+net      c2s网络通信模块
+		+init.lua  主服lua协议注册模块(c2s/s2s/服务之间协议通讯注册模块)
 		+login.lua 登录协议处理模块
 		+xxx.lua   其他协议处理模块
 	+oscmd    通过os控制游戏服支持模块，如启动服务器/安全关闭服务器，可以直接使用shell脚本:sh startserver.sh / sh shutdown.sh
 	+playermgr 玩家管理器其他相关模块
 		+kuafu.lua 跨服相关模块
 	+proto    sproto协议定义模块,支持协议文件热更新
-		+init.lua c2s/s2s协议调度模块
+		+init.lua c2s协议调度模块
 		+其他协议描述定义文件
 	+resume   游戏数据中心，可能定义成datacenter比较好，暂时只用于存“玩家简介”，如玩家名/等级/金币数等非常基本常用的属性
 	+scene    场景模块
