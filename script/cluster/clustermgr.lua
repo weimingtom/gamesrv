@@ -72,7 +72,9 @@ function clustermgr.init()
 	clustermgr.connection = {}
 	clustermgr.srvlist = {}
 	clustermgr.loadconfig()
-	clustermgr.checkserver()
+	-- 启服60s后再连接其他服，防止所有服同时启动服务器那一刻call阻塞导致启服失败
+	timer.timeout("clustermgr.checkserver",60,clustermgr.checkserver)
+	--clustermgr.checkserver()
 end
 
 function __hotfix(oldmod)

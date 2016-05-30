@@ -36,14 +36,14 @@
 	-- 编译引入的第三方库，后续初始化服务器也类似，不再累述
 	cd /home/game/servers/gamesrv_100/3rd && make clean && make all
 
-2. 中心节点服（方便做世界服、跨服好友哦，主要保存玩家简介信息）
+2. 中心节点服/数据中心（方便做世界服、跨服好友哦，主要保存玩家简介信息）
 	cd /home/game/servers
-	git clone --recursive https://github.com/sundream/gamesrv.git resumesrv
+	git clone --recursive https://github.com/sundream/gamesrv.git datacenter
 	
 	修改配置文件:
-	cd /home/game/servers/resumesrv
-	cp script/conf/template/resumesrv.conf script/conf/resumesrv.conf
-	将配置文件中的srvname字段改成：srvname = "resumesrv"
+	cd /home/game/servers/datacenter
+	cp script/conf/template/datacenter.conf script/conf/datacenter.conf
+	将配置文件中的srvname字段改成：srvname = "datacenter"
 
 3. 账号中心
 	cd /home/game/servers
@@ -76,7 +76,7 @@ cd $SERVER_ROOT/shell && sh startserver.sh
 如:
 cd /home/game/servers/gamesrv_100/shell && sh startredis.sh
 cd /home/game/servers/accountcenter/shell && sh startserver.sh
-cd /home/game/servers/resumesrv/shell && sh startserver.sh
+cd /home/game/servers/datacenter/shell && sh startserver.sh
 cd /home/game/servers/gamesrv_100/shell && sh startserver.sh
 ```
 ## 关闭服务器
