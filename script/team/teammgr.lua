@@ -46,7 +46,7 @@ end
 
 function cteammgr:save()
 	local data = {}
-	data.teams = keys(self.teams)
+	data.teams = table.keys(self.teams)
 	local tmp = {}
 	for teamid,v in pairs(self.publish_teams) do
 		tmp[tostring(teamid)] = v

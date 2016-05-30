@@ -1,5 +1,5 @@
 skynet = require "script.skynet"
-require "script.base.functions"
+require "script.base.util.init"
 
 logger = logger or {}
 function logger.write(filename,msg)

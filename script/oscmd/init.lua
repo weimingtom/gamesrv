@@ -23,16 +23,17 @@ function oscmd.ontimer()
 
 	 
 	for i,line in ipairs(lines) do
-		local tbl = {xpcall(oscmd.docmd,onerror,line)}
+		local tbl = {pcall(oscmd.docmd,line)}
+		local pcall_ok = table.remove(tbl,1)
 		local issuccess = table.remove(tbl,1)
 		local result
 		if next(tbl) then
 			for j,v in ipairs(tbl) do
-				tbl[j] = mytostring(v)
+				tbl[i] = mytostring(v)
 			end
 			result = table.concat(tbl,",")
 		end
-		logger.log("info","oscmd",format("[oscmd.ontimer] docmd='%s' issuccess=%s result=%s",line,issuccess,result))
+		logger.log("info","oscmd",format("[oscmd.ontimer] docmd='%s' pcall_ok=%s issuccess=%s return=%s",line,pcall_ok,issuccess,result))
 	end
 end
 

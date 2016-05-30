@@ -22,7 +22,7 @@ end
 
 local function ontimer(id)
 	local obj = get_saveobj(id)
-	--printf("saveobjs:%s",keys(__saveobjs))
+	--printf("saveobjs:%s",table.keys(__saveobjs))
 	if obj then
 		local flag = uniqueflag(obj)
 		logger.log("info","saveobj",string.format("[ontimer] uniqueflag=%s",flag))

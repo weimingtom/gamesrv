@@ -82,7 +82,7 @@ function cserver:isopen(typ)
 		if not cserver.isgamesrv() then
 			return false
 		end
-		if not clustermgr.isconnect("resumesrv") then	
+		if not clustermgr.isconnect("datacenter") then	
 			return false
 		end
 		return true
@@ -104,6 +104,11 @@ end
 function cserver.isresumesrv(srvname)
 	srvname = srvname or cserver.getsrvname()
 	return string.find(srvname,"resume") ~= nil
+end
+
+function cserver.isdatacenter(srvname)
+	srvname = srvname or cserver.getsrvname()
+	return srvname == "datacenter"
 end
 
 function cserver.isgamesrv(srvname)

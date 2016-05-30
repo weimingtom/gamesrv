@@ -154,11 +154,11 @@ function cfrienddb:addapplyer(pid)
 	if #self.applyerlist >= self:getapplyerlimit() then
 		self:delapplyer(self.applyerlist[1])
 	end
-	local pos = findintable(self.applyerlist,pid)
+	local pos = table.find(self.applyerlist,pid)
 	if pos then
 		return
 	end
-	pos = findintable(self.frdlist,pid)
+	pos = table.find(self.frdlist,pid)
 	if pos then
 		return
 	end
@@ -172,7 +172,7 @@ end
 
 function cfrienddb:delapplyer(pid)
 	logger.log("info","friend",string.format("[delapplyer] owner=%s pid=%d",self.pid,pid))
-	local pos = findintable(self.applyerlist,pid)
+	local pos = table.find(self.applyerlist,pid)
 	if not pos then
 	else
 		table.remove(self.applyerlist,pos)
@@ -193,7 +193,7 @@ end
 
 function cfrienddb:delfriend(pid)
 	local ret
-	local pos = findintable(self.frdlist,pid)
+	local pos = table.find(self.frdlist,pid)
 	if not pos then
 		ret = false
 	else
@@ -228,7 +228,7 @@ end
 
 function cfrienddb:apply_addfriend(pid)
 	local toapplylist,exceedtime = self.thistemp:query("toapplylist",{})
-	local pos = findintable(toapplylist,pid)
+	local pos = table.find(toapplylist,pid)
 	if pos then
 		net.msg.notify(self.pid,"您的申请已经发出")
 		return
@@ -255,7 +255,7 @@ function cfrienddb:apply_addfriend(pid)
 end
 
 function cfrienddb:agree_addfriend(pid)
-	local pos = findintable(self.frdlist,pid)
+	local pos = table.find(self.frdlist,pid)
 	if pos then
 		net.msg.notify(self.pid,"该玩家已经是你好友了")
 		return
@@ -264,7 +264,7 @@ function cfrienddb:agree_addfriend(pid)
 		net.msg.notify(self.pid,"好友个数已达上限")
 		return
 	end
-	pos = findintable(self.applyerlist,pid)
+	pos = table.find(self.applyerlist,pid)
 	if not pos then
 		net.msg.notify(self.pid,"该玩家未向你发起过申请")
 		return

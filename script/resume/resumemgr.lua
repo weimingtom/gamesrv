@@ -65,9 +65,9 @@ function resumemgr.delresume(pid)
 		resume:savetodatabase()
 		closesave(resume)
 		local srvname = cserver.getsrvname()
-		if cserver.isresumesrv(srvname) then
+		if cserver.isdatacenter(srvname) then
 		else
-			cluster.call("resumesrv","resumemgr","delref",pid)
+			cluster.call("datacenter","resumemgr","delref",pid)
 		end
 	end
 end
@@ -75,7 +75,7 @@ end
 
 -- request
 local CMD = {}
--- gamesrv --> resumesrv
+-- gamesrv --> datacenter
 function CMD.query(srvname,pid,key)
 	local resume = resumemgr.getresume(pid)
 	if not resume then
@@ -93,7 +93,7 @@ function CMD.query(srvname,pid,key)
 	return data
 end
 
--- gamesrv -> resumesrv
+-- gamesrv -> datacenter
 function CMD.delref(srvname,pid)
 	logger.log("debug","resume",string.format("[delref] srvname=%s pid=%d",srvname,pid))
 	local resume = resumemgr.getresume(pid)
@@ -103,13 +103,13 @@ function CMD.delref(srvname,pid)
 	resume:delref(srvname)
 end
 
--- gamesrv -> resumesrv
+-- gamesrv -> datacenter
 function CMD.create(srvname,pid,data)
 	data.pid = pid
 	resumemgr.create(pid,data)
 end
 
--- resumesrv <-> gamesrv
+-- datacenter <-> gamesrv
 function CMD.sync(srvname,pid,data)
 	logger.log("debug","resume",format("[sync] srvname=%s pid=%d data=%s",srvname,pid,data))
 	data.pid = pid
@@ -120,7 +120,7 @@ function CMD.sync(srvname,pid,data)
 	for k,v in pairs(data) do
 		resume:set(k,v,true)
 	end
-	if cserver.isresumesrv() then
+	if cserver.isdatacenter() then
 		-- syncto gamesrv
 		for srvname2,_ in pairs(resume.srvname_ref) do
 			if srvname2 ~= srvname then

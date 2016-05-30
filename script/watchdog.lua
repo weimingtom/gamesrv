@@ -12,7 +12,8 @@ local agent = {}
 -- @param string addr 客户端ip:port
 --*/
 function SOCKET.open(fd, addr)
-	agent[fd] = skynet.newservice("script/agent",fd,addr)
+	agent[fd] = skynet.newservice("script/agent")
+	skynet.error("socket open",agent[fd],fd,addr)
 	skynet.call(agent[fd], "lua", "start", gate, fd,addr)
 end
 
@@ -52,7 +53,7 @@ end
 -- @param string msg 消息数据
 --*/
 function SOCKET.data(fd, msg)
-	print("socket.data",fd,msg)
+	--print("socket.data",fd,msg)
 end
 
 --/*

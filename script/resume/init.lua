@@ -10,7 +10,7 @@ function cresume:init(pid)
 	self.pid_ref = {}
 	self.srvname_ref = {}
 	self.data = {}
-	if not cserver.isresumesrv() then
+	if not cserver.isdatacenter() then
 		self.nosavetodatabase = true
 	end
 
@@ -33,11 +33,11 @@ function cresume:loadfromdatabase()
 	local data
 	if not self.loadstate or self.loadstate == "unload" then
 		self.loadstate = "loading"
-		if cserver.isresumesrv() then
+		if cserver.isdatacenter() then
 			local db = dbmgr.getdb()
 			data = db:get(db:key("resume",self.pid))
 		else
-			data = cluster.call("resumesrv","resumemgr","query",self.pid,"*")
+			data = cluster.call("datacenter","resumemgr","query",self.pid,"*")
 		end
 		if not data or not next(data) then
 			self:onloadnull()
@@ -65,7 +65,7 @@ function cresume:savetodatabase()
 end
 
 function cresume:deletefromdatabase()
-	if cserver.isresumesrv() then
+	if cserver.isdatacenter() then
 		print("delresume",self.pid)
 		local db = dbmgr.getdb()
 		db:del(db:key("resume",self.pid))
@@ -77,7 +77,7 @@ function cresume:onloadnull()
 	if cserver.isgamesrv() then
 		print("resume:create",route.getsrvname(self.pid),skynet.getenv("srvname"),self.pid)
 		if route.getsrvname(self.pid) ~= skynet.getenv("srvname") then
-			logger.log("error","error",string.format("[from resumesrv loadnull] srvname=%s pid=%s",route.getsrvname(self.pid),self.pid))
+			logger.log("error","error",string.format("[from datacenter loadnull] srvname=%s pid=%s",route.getsrvname(self.pid),self.pid))
 			return
 		end
 		local player = playermgr.getplayer(self.pid)
@@ -86,7 +86,7 @@ function cresume:onloadnull()
 			player = playermgr.loadofflineplayer(self.pid)
 		end
 		self:create(player:packresume())
-	elseif cserver.isresumesrv() then
+	elseif cserver.isdatacenter() then
 	end
 end
 
@@ -97,8 +97,8 @@ function cresume:create(resume)
 	self.loadnull = nil
 	self.data = resume
 	if cserver.isgamesrv() then
-		cluster.call("resumesrv","resumemgr","create",self.pid,self:save())
-	elseif cserver.isresumesrv() then
+		cluster.call("datacenter","resumemgr","create",self.pid,self:save())
+	elseif cserver.isdatacenter() then
 		nowsave(self)
 	end
 end
@@ -142,7 +142,7 @@ function cresume:sync(data)
 			sendpackage(pid,"friend","sync",data)
 		end
 	end
-	cluster.call("resumesrv","resumemgr","sync",self.pid,data)
+	cluster.call("datacenter","resumemgr","sync",self.pid,data)
 end
 
 return cresume

@@ -195,9 +195,9 @@ end
 function cteam:choose_newcaptain()
 	local newcaptain
 	if next(self.follow) then
-		newcaptain = randlist(keys(self.follow))
+		newcaptain = randlist(table.keys(self.follow))
 	elseif next(self.leave) then
-		newcaptain = randlist(keys(self.leave))
+		newcaptain = randlist(table.keys(self.leave))
 	end
 	return newcaptain
 end
@@ -403,10 +403,10 @@ end
 function cteam:members(state)
 	local pids = {}
 	if state == TEAM_STATE_FOLLOW then
-		pids = keys(self.follow)
+		pids = table.keys(self.follow)
 		table.insert(pids,1,self.captain)
 	elseif state == TEAM_STATE_LEAVE then
-		pids = keys(self.leave)
+		pids = table.keys(self.leave)
 	elseif state == TEAM_STATE_ALL then
 		pids = {self.captain}
 		for uid,_ in pairs(self.follow) do

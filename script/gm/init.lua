@@ -96,7 +96,9 @@ function gm.docmd(pid,cmdline)
 		player = 0
 	end
 	master = player
-	local tbl = {xpcall(docmd,onerror,player,cmdline)}
+	--local tbl = {xpcall(docmd,onerror,player,cmdline)}
+	-- gm指令执行的报错不记录到onerror.log中
+	local tbl = {pcall(docmd,player,cmdline)}
 	master = nil
 	local issuccess = table.remove(tbl,1)
 	local result
