@@ -20,6 +20,8 @@ function mailmgr.loadmailbox(pid)
 	local mailbox = cmailbox.new(pid)
 	mailbox:loadfromdatabase()
 	mailmgr.mailboxs[pid] = mailbox
+	mailbox.savename = string.format("%s.%s",mailbox.flag,mailbox.pid)
+	autosave(mailbox)
 	return mailbox
 end
 

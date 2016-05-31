@@ -11,9 +11,6 @@ function cmailbox:init(pid)
 	self.mailid = MIN_MAILID
 	self.mails = {}
 	self.maillist = {}
-
-	self.savename = string.format("%s.%s",self.flag,self.pid)
-	autosave(self)
 end
 
 function cmailbox:load(data)

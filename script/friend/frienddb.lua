@@ -82,7 +82,6 @@ function cfrienddb:onlogin(player)
 	resumemgr.onlogin(player) -- keep before
 	local frdblk = self:getfrdblk(self.pid)
 	frdblk:addref(self.pid)
-	frdblk:set("online",true)
 	for _,pid in ipairs(self.frdlist) do
 		frdblk = self:getfrdblk(pid)
 		frdblk:addref(self.pid)
@@ -129,7 +128,6 @@ function cfrienddb:onlogoff(player)
 	resumemgr.onlogoff(player) -- keep before
 	local frdblk = self:getfrdblk(self.pid)
 	frdblk:delref(self.pid)
-	frdblk:set("online",false)
 	for _,pid in ipairs(self.frdlist) do
 		frdblk = self:getfrdblk(pid)
 		frdblk:delref(self.pid)

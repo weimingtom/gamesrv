@@ -79,7 +79,7 @@ function route.syncto(srvname)
 		pidlist = table.keys(pidlist)
 		logger.log("debug","route",format("[syncto] server(%s->%s) pidlist=%s",skynet.getenv("srvname"),srvname,pidlist))
 		for i = 1,#pidlist,step do
-			cluster.call(srvname,"route","addroute",slice(pidlist,i,i+step-1))
+			cluster.call(srvname,"route","addroute",table.slice(pidlist,i,i+step-1))
 		end
 		cluster.call(srvname,"route","sync_finish")
 	end,onerror)

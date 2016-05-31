@@ -5,6 +5,8 @@
 -- xx.savedelay = 存盘间隔（不指定则为默认存盘间隔)
 -- 具体用法见：script/test/test_saveobj.lua
 -- 切记对象销毁后调用closesave关闭存盘
+-- 一般而言：对于需要纳入管理器的对象，再加入管理器时调用autosave，从管理器
+-- 删除时调用closesave,如果存盘对象是全局对象，则新建时调用autosave即可。
 --*/
 
 local SAVE_DELAY = SAVE_DELAY or 300
@@ -69,12 +71,12 @@ function saveall()
 end
 
 -- 初始化存盘对象
-function opensave(obj,name)
+function opensave(obj)
 	-- 忽略临时对象
-	if obj.__temp then
-		return
-	end
-	obj.__saveobj_name = assert(name)
+	assert(obj.__temp==nil)
+	--if obj.__temp then
+	--	return
+	--end
 	local id = obj.__saveobj_id
 	local saveobj = get_saveobj(id)
 	if not saveobj then
@@ -92,7 +94,6 @@ end
 -- 关闭存盘对象
 function closesave(obj)
 	del_saveobj(obj)
-	obj.__saveobj_name = nil
 	obj.__saveobj_id = nil
 	obj.mergelist = nil
 	obj.savetype = nil
@@ -113,8 +114,7 @@ function autosave(obj)
 	obj.savetype = "autosave"
 	if not isopensave(obj) then
 		assert(obj.savename,"属性'savename'未设置")
-		local name = string.format("%s.%s",obj.savename,obj.pid)
-		opensave(obj,name)
+		opensave(obj)
 	end
 	logger.log("info","saveobj",string.format("[autosave] uniqueflag=%s",uniqueflag(obj)))
 end
@@ -126,8 +126,7 @@ function oncesave(obj)
 	obj.savetype = "oncesave"
 	if not isopensave(obj) then
 		assert(obj.savename,"属性'savename'未设置")
-		local name = string.format("%s.%s",obj.savename,obj.pid)
-		opensave(obj,name)
+		opensave(obj)
 	end
 	logger.log("info","saveobj",string.format("[oncesave] uniqueflag=%s",uniqueflag(obj)))
 end

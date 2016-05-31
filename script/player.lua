@@ -71,8 +71,7 @@ function cplayer:init(pid)
 
 	self.loadstate = "unload"
 
-	self.savename = string.format("%s.%s",self.flag,self.pid)
-	autosave(self)
+	
 end
 
 function cplayer:save()
@@ -315,7 +314,6 @@ function cplayer:onlogin()
 			obj:onlogin(self)
 		end
 	end
-	self:doing("login")
 	if not self.sceneid then
 		self.sceneid = BORN_SCENEID
 		self.pos = randlist(ALL_BORN_LOCS)
@@ -332,7 +330,6 @@ function cplayer:onlogoff()
 			obj:onlogoff(self)
 		end
 	end
-	self:doing("logoff")
 	self:exitscene(self.sceneid)
 	self:synctoac()
 end
@@ -445,13 +442,6 @@ function cplayer:addres(typ,num,reason,btip)
 		net.msg.notify(self.pid,msg)
 	end
 	return num
-end
-
-function cplayer:doing(what)
-	if globalmgr.server:isopen("friend") then
-		local frdblk = self.frienddb:getfrdblk(self.pid)
-		frdblk:set("doing",what)
-	end
 end
 
 function cplayer:pack_fight_profile(wartype)

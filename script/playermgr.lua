@@ -33,10 +33,11 @@ function playermgr.loadofflineplayer(pid)
 	end
 	player = cplayer.new(pid)
 	player:loadfromdatabase(true)
-	assert(player:isloaded())
-	player.__state = "offline"
-	playermgr.addobject(player,"loadofflineplayer")
-	return player
+	if player:isloaded() then
+		player.__state = "offline"
+		playermgr.addobject(player,"loadofflineplayer")
+		return player
+	end
 end
 
 function playermgr.getobjectbyfd(fd)
@@ -49,7 +50,7 @@ end
 function playermgr.allobject(state)
 	local list = {}
 	for pid,obj in pairs(playermgr.id_obj) do
-		local mystate = obj.__state or "online"
+		local mystate = obj.__state
 		if not state or mystate == state then
 			table.insert(list,pid)
 		end
@@ -61,7 +62,7 @@ end
 function playermgr.allplayer()
 	local list = {}
 	for pid,obj in pairs(playermgr.id_obj) do
-		local mystate = obj.__state or "online"
+		local mystate = obj.__state
 		if mystate == "online" then
 			table.insert(list,pid)
 		end
@@ -87,6 +88,11 @@ function playermgr.addobject(obj,reason)
 	else
 		playermgr.onlinenum = playermgr.onlinenum + 1
 	end
+	-- typename(obj) == "cplayer"
+	if obj.__state ~= "link" then
+		obj.savename = string.format("%s.%s",obj.flag,obj.pid)
+		autosave(obj)
+	end
 end
 
 function playermgr.delobject(pid,reason)
@@ -94,11 +100,13 @@ function playermgr.delobject(pid,reason)
 	if obj then
 
 		logger.log("info","playermgr",string.format("[delobject] pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
+		-- typename(obj) == "cplayer"
 		if obj.__state ~= "link" then
 			closesave(obj)
 		end
 		-- 保证删除对象前下线
 		if not obj.__state or obj.__state == "online" then
+			-- disconnect会触发存盘
 			xpcall(obj.disconnect,onerror,obj,reason)
 		end
 		playermgr.num = playermgr.num - 1
@@ -115,7 +123,6 @@ function playermgr.delobject(pid,reason)
 		if obj.__fd then
 			playermgr.fd_id[obj.__fd] = nil
 		end
-
 	end
 	require "script.loginqueue"
 	loginqueue.remove(pid)
@@ -176,6 +183,7 @@ function playermgr.createplayer(pid,conf)
 	end
 	local player = playermgr.newplayer(pid,true)
 	player:create(conf)
+	player:savetodatabase()
 	nowsave(player)
 	return player
 end

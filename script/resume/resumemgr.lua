@@ -26,12 +26,14 @@ function resumemgr.onlogin(player)
 		resumemgr.create(player.pid,player:packresume())
 	end
 	resume = resumemgr.getresume(pid)
+	resume:set("online",true,true)
 	resume:sync(player:packresume())
 end
 
 function resumemgr.onlogoff(player)
 	local pid = player.pid
 	local resume = resumemgr.getresume(pid)
+	resume:set("online",false,true)
 	resume:sync(player:packresume())
 end
 
@@ -55,6 +57,8 @@ end
 function resumemgr.addresume(pid,resume)
 	logger.log("info","resume",format("[addresume] pid=%d resume=%s",pid,resume:save()))
 	resumemgr.objs[pid] = resume
+	resume.savename = string.format("%s.%s",resume.flag,resume.pid)
+	autosave(resume)
 end
 
 function resumemgr.delresume(pid)

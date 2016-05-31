@@ -21,7 +21,8 @@ local validarea = {
 function REQUEST.enter(player,request)
 	local what = assert(request.what)
 	assert(validarea[what],"Invalid area:" .. tostring(what))
-	return player:doing(what)
+	-- dosomething?
+	return
 end
 
 local RESPONSE = {}

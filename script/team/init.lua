@@ -10,9 +10,6 @@ function cteam:init(teamid,param)
 	self.applyers = {}
 	self.target = param.target or 0
 	self.stage = param.stage or 0
-	
-	self.savename = string.format("cteam.%s",self.teamid)
-	autosave(self)
 end
 
 function cteam:load(data)
@@ -61,11 +58,6 @@ function cteam:loadfromdatabase()
 		local data = db:get(db:key("team",self.teamid))
 		self:load(data)
 		self.loadstate = "loaded"
-		local now = os.time()
-		if now - self.createtime > DAY_SECS then
-			teammgr.teams[self.teamid] = nil
-			self:delfromdatabase()
-		end
 	end
 end
 

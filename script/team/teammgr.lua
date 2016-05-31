@@ -32,10 +32,16 @@ function cteammgr:load(data)
 	if not data or not next(data) then
 		return
 	end
+	local now = os.time()
 	for i,teamid in ipairs(data.teams) do
 		local team = cteam.new(teamid)
-		self.teams[teamid] = team
 		team:loadfromdatabase()
+		-- 已过期
+		if now - team.createtime > DAY_SECS then
+			team:delfromdatabase()
+		else
+			self:addteam(teamid,team)
+		end
 	end
 	local tmp = {}
 	for teamid,v in pairs(data.publish_teams) do
@@ -52,6 +58,26 @@ function cteammgr:save()
 		tmp[tostring(teamid)] = v
 	end
 	data.publish_teams = tmp
+end
+
+function cteammgr:getteam(teamid)
+	return self.teams[teamid]
+end
+
+function cteammgr:addteam(teamid,team)
+	self.teams[teamid] = team
+	team.savename = string.format("team.%s",teamid)
+	autosave(team)
+end
+
+function cteammgr:delteam(teamid)
+	local team = self:getteam(teamid)
+	if team then
+		self.teams[teamid] = nil
+		closesave(team)
+		--team:savetodatabase()
+		team:delfromdatabase()
+	end
 end
 
 function cteammgr:loadfromdatabase()
@@ -94,7 +120,7 @@ function cteammgr:createteam(player,param)
 	logger.log("info","team",string.format("[createteam] pid=%d teamid=%d",pid,teamid))
 	local team = cteam.new(teamid,{})
 	team:create(player,param)
-	self.teams[teamid] = team
+	self:addteam(teamid,team)
 	self:after_createteam(player,teamid)
 	return teamid,team
 end
@@ -116,7 +142,7 @@ function cteammgr:dismissteam(player)
 	end
 	closesave(team)
 	team:dismissteam()
-	self.teams[teamid] = nil
+	self:delteam(teamid)
 	self:after_dismissteam(player,teamid)
 	return true
 end
@@ -376,9 +402,6 @@ function cteammgr:changetarget(player,target,stage)
 	end
 end
 
-function cteammgr:getteam(teamid)
-	return self.teams[teamid]
-end
 
 function cteammgr:before_createteam(player,param)
 	return true

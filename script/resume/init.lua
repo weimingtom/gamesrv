@@ -14,8 +14,7 @@ function cresume:init(pid)
 		self.nosavetodatabase = true
 	end
 
-	self.savename = string.format("%s.%s",self.flag,self.pid)
-	autosave(self)
+	
 end
 
 function cresume:load(data)
@@ -99,7 +98,7 @@ function cresume:create(resume)
 	if cserver.isgamesrv() then
 		cluster.call("datacenter","resumemgr","create",self.pid,self:save())
 	elseif cserver.isdatacenter() then
-		nowsave(self)
+		self:savetodatabase()
 	end
 end
 

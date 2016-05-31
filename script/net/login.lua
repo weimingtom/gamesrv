@@ -33,7 +33,6 @@ local function debuglogin(obj,request)
 	local passwd = request.passwd
 	if account:sub(1,1) == "#" then
 		local pid = assert(tonumber(account:sub(2,-1)),account)
-		--if passwd == "6c676c" then
 		if passwd == "1" then
 			obj.passlogin = true
 			local player = playermgr.getplayer(pid)
