@@ -2,7 +2,7 @@ cdb = cdb or {}
 
 function cdb.new(conf)
 	local self = {}
-	self.dbsrv = skynet.newservice("script/service/redisd")
+	self.dbsrv = skynet.uniqueservice("script/service/redisd")
 	setmetatable(self,{__index = function (t,k)
 		local cmd = k
 		local f = function (self,...)

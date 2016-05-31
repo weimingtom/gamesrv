@@ -6,7 +6,9 @@ local conn = nil
 
 local command = {}
 function command.connect(conf)
-	conn = redis.connect(conf)
+	if not conn then
+		conn = redis.connect(conf)
+	end
 end
 
 function command.disconnect()
