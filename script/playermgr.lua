@@ -177,7 +177,7 @@ function playermgr.createplayer(pid,conf)
 	require "script.player"
 	logger.log("info","playermgr",format("[createplayer] pid=%d player=%s",pid,conf))
 	local db = dbmgr.getdb()
-	local maxpid = db:get(db:key("role","maxroleid"),0)
+	local maxpid = db:get(db:key("role","maxroleid")) or 0
 	if pid > maxpid then
 		db:set(db:key("role","maxroleid"),pid)
 	end

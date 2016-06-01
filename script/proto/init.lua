@@ -80,7 +80,7 @@ local function onrequest(agent,cmd,request)
 	return r
 end
 
--- 这里的session时sproto协议带的session，和skynet服务之间调用内部维护的session（proto.dispatch参数中的session)不一样!
+-- 这里的session是sproto协议带的session，和skynet服务之间调用内部维护的session（proto.dispatch参数中的session)不一样!
 local function onresponse(agent,session,response)
 	local connect = proto.connection[agent]
 	if not connect then
