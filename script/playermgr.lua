@@ -184,7 +184,6 @@ function playermgr.createplayer(pid,conf)
 	local player = playermgr.newplayer(pid,true)
 	player:create(conf)
 	player:savetodatabase()
-	nowsave(player)
 	return player
 end
 

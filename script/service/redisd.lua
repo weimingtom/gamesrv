@@ -14,6 +14,7 @@ end
 function command.disconnect()
 	if conn then
 		conn:disconnect()
+		conn = nil
 	end
 end
 
