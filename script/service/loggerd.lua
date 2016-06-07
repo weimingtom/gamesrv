@@ -69,7 +69,7 @@ function logger.sendmail(to_list,subject,content)
 	end
 	local strsh = string.format("cd ../shell && python sendmail.py %s \"%s\" \"%s\"",to_list,escape(subject),escape(content))
 	--os.execute(strsh)
-	io.popen(strsh,"r")
+	io.popen(strsh)
 end
 
 -- console/print
@@ -163,7 +163,8 @@ function logger.init()
 		end
 	end
 	fd:close()
-	os.execute("rm -rf .log.tmp")
+	--os.execute("rm -rf .log.tmp")
+	os.remove(".log.tmp")
 	skynet.retpack(true)
 end
 

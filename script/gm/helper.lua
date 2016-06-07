@@ -40,7 +40,8 @@ function gm.buildgmdoc()
 	end
 	fdin:close()
 	fdout:close()
-	os.execute("rm -rf " .. tmpfilename)
+	--os.execute("rm -rf " .. tmpfilename)
+	os.remove(tmpfilename)
 	gm.__doc = nil
 end
 

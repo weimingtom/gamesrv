@@ -19,7 +19,8 @@ function oscmd.ontimer()
 		lines[#lines+1]=line
 	end
 	fd:close()
-	os.execute("rm -rf " .. filename)
+	--os.execute("rm -rf " .. filename)
+	os.remove(filename)
 
 	 
 	for i,line in ipairs(lines) do
