@@ -45,7 +45,7 @@ function cluster.__dispatch(session,source,srvname,protoname,...)
 		require "script.cluster.clustermgr"
 		return clustermgr.heartbeat(srvname)
 	else
-		local mod = assert(netcluster[protoname],string.format("[cluster] from %s,unkonw protoname:%s",srvname,protoname))
+		local mod = assert(netcluster[protoname],string.format("[cluster] from %s,unknow protoname:%s",srvname,protoname))
 		return mod.dispatch(srvname,...)
 	end
 end

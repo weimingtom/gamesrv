@@ -149,15 +149,14 @@ function CMD.close(agent)
 	proto.connection[agent] = nil
 end
 
-function proto.dispatch(session,source,...)
+function proto.dispatch(session,source,cmd,...)
 	local pid = 0
 	if proto.connection[source] then
 		pid = proto.connection[source].pid
 	end
-	logger.log("debug","netclient",format("[recv] source=%s session=%d pid=%d package=%s",source,session,pid,{...}))
-	local cmd = ...
+	logger.log("debug","netclient",format("[recv] source=%s session=%d pid=%d cmd=%s package=%s",source,session,pid,cmd,{...}))
 	local f = proto.CMD[cmd]
-	return f(source,select(2,...))
+	return f(source,...)
 end
 
 

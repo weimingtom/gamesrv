@@ -127,10 +127,10 @@ function cmailbox:getattach(mailid)
 			end
 		else
 			if attach.gold and attach.gold > 0 then
-				award.__player(pid,{RESTYPE_GOLD,attach.gold},reason,true)
+				award.__player(pid,{type=RESTYPE_GOLD,num=attach.gold},reason,true)
 			end
 			if attach.chip and attach.chip > 0 then
-				award.__player(pid,{RESTYPE_CHIP,attach.chip},reason,true)
+				award.__player(pid,{type=RESTYPE_CHIP,num=attach.chip},reason,true)
 			end
 			if attach.items and next(attach.items) then
 				for i,item in ipairs(attach.items) do

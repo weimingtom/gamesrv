@@ -1,3 +1,4 @@
+local profile = require "profile"
 net = net or {}
 function net.init()
 	net.test = require "script.net.test"
@@ -15,12 +16,16 @@ function net.init()
 	skynet.dispatch("lua",net.dispatch)
 end
 
+-- 指令开销计时
+net.ti = net.ti or {}
+
 function net.dispatch(session,source,typ,...)
 	require "script.game"
 	if not game.initall then
 		logger.log("warning","error",string.format("recv package but not game.initall"))
 		return
 	end
+	profile.start()
 	if typ == "client" then -- 客户端消息
 		-- proto.dispatch will log
 		xpcall(proto.dispatch,onerror,session,source,...)
@@ -33,6 +38,15 @@ function net.dispatch(session,source,typ,...)
 	elseif typ == "echo" then
 		--skynet.ret(skynet.pack(...))
 	end
+	local time = profile.stop()
+	local limit = skynet.getenv("maxcosttime") or 0.05
+	if time >= limit then
+		logger.log("info","profile",time,session,source,typ,...)
+	end
+end
+
+function __hotfix(oldmod)
+	net.init()
 end
 
 return net

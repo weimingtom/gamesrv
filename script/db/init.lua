@@ -23,15 +23,16 @@ function cdb.new(conf)
 end
 
 function cdb:connect(conf)
-	logger.log("info","db",format("connect to database:%s conn=%s",conf,self.dbsrv))
+	logger.log("info","db",format("[connect to database] conf=%s conn=%s",conf,self.dbsrv))
 	skynet.call(self.dbsrv,"lua","connect",conf)
 end
 
 function cdb:disconnect()
-	logger.log("info","db",format("disconnect %s",tostring(self.dbsrv)))
+	logger.log("info","db",format("[disconnect] conn=%s",tostring(self.dbsrv)))
 	skynet.call(self.dbsrv,"lua","disconnect")
 	self.dbsrv = nil
 end
+
 
 
 function cdb:key(...)

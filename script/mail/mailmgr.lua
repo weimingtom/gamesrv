@@ -43,12 +43,12 @@ end
 
 -- 支持跨服邮件
 function mailmgr.sendmail(pid,amail)
-	local server = globalmgr.server
+	local self_srvname = cserver.getsrvname()
 	local srvname = route.getsrvname(pid)
 	if not srvname then -- non-exist pid
 		return false
 	end
-	if srvname ~= server.srvname then
+	if srvname ~= self_srvname then
 		cluster.call(srvname,"modmethod","mail.mailmgr",".sendmail",pid,amail)
 		return true
 	end

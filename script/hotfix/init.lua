@@ -4,8 +4,8 @@ local patten = workdir .. "/?.lua"
 local ignore_module = {
 	"script%.init",
 	"script%.agent",
-	"script%.watchdob",
-	"script%.service%..+",
+	"script%.watchdog",
+	"script%.service%..+d",
 }
 
 print("chunk()",hotfix)

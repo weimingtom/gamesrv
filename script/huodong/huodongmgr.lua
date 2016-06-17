@@ -3,10 +3,6 @@ huodongmgr = huodongmgr or {}
 function huodongmgr.init()
 	huodongmgr.huodongs = {}
 	huodongmgr.loadstate = "unload"
-	-- autosave
-	setmetatable(huodongmgr,{
-		__index = csaveobj,
-	})
 	huodongmgr.loadfromdatabase()
 
 	huodongmgr.savename = "huodongmgr"

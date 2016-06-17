@@ -205,9 +205,10 @@
 
 .TaskType {
 	taskid 0 : integer
-	state 1 : integer #1--接受状态，2--完成状态该
+	state 1 : integer #1--接受状态，2--完成状态
 	data 2 : string #需要用json解包
 }
+
 friend_apply_addfriend 300 {
 	request {
 		pid 0 : integer
@@ -535,7 +536,7 @@ team_invite_jointeam 811 {
 }
 
 
-# 同步/请求一个队伍数据
+#请求同步一个队伍数据
 team_syncteam 812 {
 	request {
 		teamid 0 : integer

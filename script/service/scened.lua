@@ -233,27 +233,27 @@ function scene.enter(player)
 	end)
 end
 
-function scene.exit(pid)
+function scene.leave(pid)
 	local player = scene.players[pid]
 	if player then
-		logger.log("info","scene",string.format("[exit] address=%s sceneid=%d pid=%d",scene.address,scene.sceneid,pid))
+		logger.log("info","scene",string.format("[leave] address=%s sceneid=%d pid=%d",scene.address,scene.sceneid,pid))
 		scene.players[pid] = nil
 	end
 	local package = {
 		pid = pid,
 	}
+	skynet.send(".MAINSRV","lua","service","scene","leave",pid)
 	scene.broadcast(function (obj)
 		if obj.agent then
-			sendpackage(obj.agent,"scene","exit",package)
+			sendpackage(obj.agent,"scene","leave",package)
 		end
 	end)
 end
 
 -- 退出服务
-function scene.quit()
+function scene.exit()
 	for pid,player in pairs(scene.players) do
-		scene.exit(pid)
-		skynet.send(".MAINSRV","data","service","scene","quit",pid)
+		scene.leave(pid)
 	end
 	skynet.exit()
 end
@@ -271,8 +271,8 @@ local command = {
 	setpos = scene.setpos,
 	set = scene.set,
 	enter = scene.enter,
+	leave = scene.leave,
 	exit = scene.exit,
-	quit = scene.quit,
 }
 
 skynet.start(function ()

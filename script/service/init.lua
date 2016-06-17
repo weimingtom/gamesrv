@@ -1,12 +1,12 @@
 service = service or {}
 
 local scene = {}
-function scene.quit(pid)
+function scene.leave(pid)
 	local player = playermgr.getplayer(pid)
 	if player then
 		player.sceneid = nil		
 		player.pos = nil
-		player:enter(DEFAULT_SCENEID,DEFAULT_POS)
+		player:enterscene(DEFAULT_SCENEID,DEFAULT_POS)
 	end
 end
 

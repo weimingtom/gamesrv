@@ -100,14 +100,18 @@ function playermgr.delobject(pid,reason)
 	if obj then
 
 		logger.log("info","playermgr",string.format("[delobject] pid=%d agent=%s fd=%s state=%s reason=%s",pid,obj.__agent,obj.__fd,obj.__state,reason))
+		assert(obj.__state)
 		-- typename(obj) == "cplayer"
 		if obj.__state ~= "link" then
 			closesave(obj)
-		end
-		-- 保证删除对象前下线
-		if not obj.__state or obj.__state == "online" then
-			-- disconnect会触发存盘
-			xpcall(obj.disconnect,onerror,obj,reason)
+			-- 保证删除对象前下线
+			if obj.__state == "online" then
+				-- disconnect会触发存盘
+				xpcall(obj.disconnect,onerror,obj,reason)
+			else
+				-- 离线/跨服对象，只走存盘逻辑
+				xpcall(obj.savetodatabase,onerror,obj)
+			end
 		end
 		playermgr.num = playermgr.num - 1
 		if obj.__state == "link" then
@@ -158,7 +162,6 @@ end
 function playermgr.genpid()
 	require "script.cluster.route"
 	local srvname = skynet.getenv("srvname")
-	local conf = srvlist[srvname]
 	local minroleid = math.floor(tonumber(skynet.getenv("minroleid")))
 	local maxroleid = math.floor(tonumber(skynet.getenv("maxroleid")))
 	local db = dbmgr.getdb()

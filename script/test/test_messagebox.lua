@@ -15,7 +15,6 @@ local function test(pid,choice)
 	if not player then
 		return
 	end
-	print("online")
 	local request = {
 		title = "条件不足",
 		content = "是否花费100金币购买:",
@@ -40,8 +39,9 @@ local function test(pid,choice)
 			"取消",
 		},
 	}
+	local LACK_CONDITION = 0
 	if choice == 1 then
-		net.msg.messagebox(pid,request.title,request.content,request.attach,request.buttons,onbuysomething)	
+		net.msg.messagebox(pid,LACK_CONDITION,request.title,request.content,request.attach,request.buttons,onbuysomething)	
 	elseif choice == 2 then
 		onbuysomething(player,request,1)
 	end

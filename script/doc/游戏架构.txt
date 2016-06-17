@@ -5,14 +5,14 @@
 		2. 游戏逻辑服: gamesrv
 		3. 战斗管理/分配服: warsrvmgr
 		4. 战斗服: warsrv
-		5. 数据中心: resumesrv(暂时只存了玩家简介，因此命名成resumesrv)
+		5. 数据中心: datacenter(暂时只存了玩家简介)
 
 	1.2	 集群通信
 		1. 集群通信通过rpc实现，主要提供两个接口:
 			cluster.call(srvname,protoname,cmd,...)
 			被调用方报错，调用方也会报错，如果调用正常，则会原样返回被调用函数返回值
 			cluster.pcall(srvname,protoname,cmd,...)
-			用法同cluster.call,为安全调用，第一个返回值为bool值，表示调用是否成功，第二个为调用方返回的值
+			用法同cluster.call,为安全调用，第一个返回值为bool值，表示调用是否成功，后续同cluster.call
 		2. rpc调用举例
 			假定gamesrv_100想给gamesrv_101服务器上玩家pid发封邮件:
 			在gamesrv_100方调用

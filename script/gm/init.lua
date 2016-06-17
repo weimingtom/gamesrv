@@ -189,6 +189,7 @@ end
 
 function __hotfix(oldmod)
 	gm.init()
+	gm.__doc = nil
 end
 
 return gm

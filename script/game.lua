@@ -27,6 +27,7 @@ require "script.award.init"
 require "script.formula.init"
 require "script.event.init"
 require "script.channel"
+require "script.service.init"
 
 local function _print(...)
 	print(...)

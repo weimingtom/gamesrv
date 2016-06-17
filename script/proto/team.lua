@@ -60,7 +60,7 @@ team_invite_jointeam 811 {
 }
 
 
-# 同步/请求一个队伍数据
+#请求同步一个队伍数据
 team_syncteam 812 {
 	request {
 		teamid 0 : integer

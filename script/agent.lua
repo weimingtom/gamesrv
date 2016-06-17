@@ -119,6 +119,7 @@ function CMD.unsubscribe(channel)
 	if c then
 		print("unsubscribe",channel,c.channel,c)
 		c:unsubscribe()
+		channels[channel] = nil
 	end
 end
 

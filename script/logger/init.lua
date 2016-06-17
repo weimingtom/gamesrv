@@ -1,6 +1,6 @@
 
 logger = logger or {}
-LOGGERSRV=".LOGGER"
+local LOGGERSRV=".LOGGER"
 --function logger.write(filename,msg)
 --	skynet.send(LOGGERSRV,"lua","write",filename,msg)
 --end

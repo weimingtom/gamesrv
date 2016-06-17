@@ -330,7 +330,7 @@ function cplayer:onlogoff()
 			obj:onlogoff(self)
 		end
 	end
-	self:exitscene(self.sceneid)
+	self:leavescene(self.sceneid)
 	self:synctoac()
 end
 
@@ -590,12 +590,12 @@ function cplayer:setpos(pos,nosync)
 	end
 end
 
-function cplayer:exitscene(sceneid)
+function cplayer:leavescene(sceneid)
 	sceneid = sceneid or self.sceneid
 	if sceneid then
 		local scene = scenemgr.getscene(sceneid)
 		if scene then
-			skynet.send(scene.scenesrv,"lua","exit",self.pid)
+			skynet.send(scene.scenesrv,"lua","leave",self.pid)
 		end
 	end
 end
@@ -609,7 +609,7 @@ function cplayer:enterscene(sceneid,pos,noexit)
 		return
 	end
 	if not noexit then
-		self:exitscene(self.sceneid)
+		self:leavescene(self.sceneid)
 	end
 	skynet.send(newscene.scenesrv,"lua","enter",self:packscene())
 	self.sceneid = sceneid

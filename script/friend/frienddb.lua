@@ -71,8 +71,8 @@ function cfrienddb:onload()
 			table.remove(self.applyerlist,pos)
 		end
 	end
-
 end
+
 
 function cfrienddb:onlogin(player)
 	local server = globalmgr.server
@@ -85,38 +85,38 @@ function cfrienddb:onlogin(player)
 	for _,pid in ipairs(self.frdlist) do
 		frdblk = self:getfrdblk(pid)
 		frdblk:addref(self.pid)
-		net.friend.sync(self.pid,frdblk:save())
+		net.friend.S2C.sync(self.pid,self:pack_frdblk(frdblk))
 	end
 	local frdcnt = self:query("frdcnt",0)
 	local frdlist = self.frdlist
 	local new_frdlist
 	if #self.frdlist > frdcnt then
-		frdlist = slice(self.frdlist,1,frdcnt)
-		new_frdlist = slice(frdcnt+1,#self.frdlist)
+		frdlist = table.slice(self.frdlist,1,frdcnt)
+		new_frdlist = table.slice(frdcnt+1,#self.frdlist)
 	end
-	net.friend.addlist(self.pid,"friend",frdlist)
+	net.friend.S2C.addlist(self.pid,"friend",frdlist)
 	if new_frdlist then
-		net.friend.addlist(self.pid,"friend",new_frdlist,true)
+		net.friend.S2C.addlist(self.pid,"friend",new_frdlist,true)
 	end
 	for _,pid in ipairs(self.applyerlist) do
 		frdblk = self.getfrdblk(pid)
 		frdblk:addref(self.pid)
-		net.friend.sync(self.pid,frdblk:save())
+		net.friend.S2C.sync(self.pid,self:pack_frdblk(frdblk))
 	end
 	local applyercnt = self:query("applyercnt",0)
 	local applyerlist = self.applyerlist
 	local new_applyerlist
 	if #self.applyerlist > applyercnt then
-		applyerlist = slice(1,applyercnt)
-		new_applyerlist = slice(applyercnt+1,#self.applyerlist)
+		applyerlist = table.slice(1,applyercnt)
+		new_applyerlist = table.slice(applyercnt+1,#self.applyerlist)
 	end
-	net.friend.addlist(self.pid,"applyer",applyerlist)
+	net.friend.S2C.addlist(self.pid,"applyer",applyerlist)
 	if new_applyerlist then
-		net.friend.addlist(self.pid,"applyer",new_applyerlist,true)
+		net.friend.S2C.addlist(self.pid,"applyer",new_applyerlist,true)
 	end
 	local toapplylist = self.thistemp:query("toapplylist")
 	if toapplylist then
-		net.friend.addlist(self.pid,"toapply",toapplylist)
+		net.friend.S2C.addlist(self.pid,"toapply",toapplylist)
 	end
 end
 
@@ -148,6 +148,17 @@ function cfrienddb:delfrdblk(pid)
 	return resumemgr.delresume(pid)
 end
 
+function cfrienddb:pack_frdblk(frdblk)
+	return {
+		pid = frdblk.pid,
+		name = frdblk:query("name"),
+		lv = frdblk:query("lv"),
+		roletype = frdblk:query("roletype"),
+		srvname = frdblk:query("srvname"),
+	}
+end
+
+
 function cfrienddb:addapplyer(pid)
 	if #self.applyerlist >= self:getapplyerlimit() then
 		self:delapplyer(self.applyerlist[1])
@@ -164,8 +175,8 @@ function cfrienddb:addapplyer(pid)
 	table.insert(self.applyerlist,pid)
 	local frdblk = self:getfrdblk(pid)
 	frdblk:addref(self.pid)
-	net.friend.sync(self.pid,frdblk:save())
-	net.friend.addlist(self.pid,"applyer",pid,true)
+	net.friend.S2C.sync(self.pid,self:pack_frdblk(frdblk))
+	net.friend.S2C.addlist(self.pid,"applyer",pid,true)
 end
 
 function cfrienddb:delapplyer(pid)
@@ -177,16 +188,20 @@ function cfrienddb:delapplyer(pid)
 		local frdblk = self:getfrdblk(pid)
 		frdblk:delref(self.pid)
 	end
-	net.friend.dellist(self.pid,"applyer",pid)
+	net.friend.S2C.dellist(self.pid,"applyer",pid)
 end
 
 function cfrienddb:addfriend(pid)
+	local pos = table.find(self.frdlist,pid)
+	if pos then
+		return
+	end
 	logger.log("info","friend",string.format("[addfriend] owner=%s pid=%d",self.pid,pid))
 	table.insert(self.frdlist,pid)
 	local frdblk = self:getfrdblk(pid)
 	frdblk:addref(self.pid)
-	net.friend.sync(self.pid,frdblk:save())
-	net.friend.addlist(self.pid,"friend",pid,true)
+	net.friend.S2C.sync(self.pid,self:pack_frdblk(frdblk))
+	net.friend.S2C.addlist(self.pid,"friend",pid,true)
 end
 
 function cfrienddb:delfriend(pid)
@@ -201,7 +216,7 @@ function cfrienddb:delfriend(pid)
 		frdblk:delref(self.pid)
 		ret = true
 	end
-	net.friend.dellist(self.pid,"friend",pid)	
+	net.friend.S2C.dellist(self.pid,"friend",pid)	
 	return ret
 end
 
@@ -220,7 +235,7 @@ function cfrienddb:req_delfriend(pid)
 			target.frienddb:delfriend(self.pid)
 		end
 	else
-		cluster.call(srvname,"playermethod",self.pid,"frienddb:delfriend",pid)
+		rpc.call(srvname,"playermethod",self.pid,"frienddb:delfriend",pid)
 	end
 end
 
@@ -228,26 +243,24 @@ function cfrienddb:apply_addfriend(pid)
 	local toapplylist,exceedtime = self.thistemp:query("toapplylist",{})
 	local pos = table.find(toapplylist,pid)
 	if pos then
-		net.msg.notify(self.pid,"您的申请已经发出")
+		net.msg.S2C.notify(self.pid,"您的申请已经发出")
 		return
 	end
 	logger.log("info","friend",string.format("[apply_addfriend] owner=%s pid=%d",self.pid,pid))
 	table.insert(toapplylist,pid)
 	self.thistemp:set("toapplylist",toapplylist,300)
-	net.friend.addlist(self.pid,"toapply",pid,true)
+	net.friend.S2C.addlist(self.pid,"toapply",pid,true)
 	local srvname = route.getsrvname(pid)
 	if srvname == cserver.getsrvname() then
 		local target = playermgr.getplayer(pid)
-		if target then
-			target.frienddb:addapplyer(self.pid)
-		else
+		if not target then
 			target = playermgr.loadofflineplayer(pid)
 		end
 		if target then
 			target.frienddb:addapplyer(self.pid)
 		end
 	else
-		cluster.call(srvname,"playermethod",pid,"frienddb:addapplyer",self.pid)
+		rpc.call(srvname,"playermethod",pid,"frienddb:addapplyer",self.pid)
 	end
 	
 end
@@ -255,16 +268,16 @@ end
 function cfrienddb:agree_addfriend(pid)
 	local pos = table.find(self.frdlist,pid)
 	if pos then
-		net.msg.notify(self.pid,"该玩家已经是你好友了")
+		net.msg.S2C.notify(self.pid,"该玩家已经是你好友了")
 		return
 	end
 	if #self.frdlist >= self:getfriendlimit() then
-		net.msg.notify(self.pid,"好友个数已达上限")
+		net.msg.S2C.notify(self.pid,"好友个数已达上限")
 		return
 	end
 	pos = table.find(self.applyerlist,pid)
 	if not pos then
-		net.msg.notify(self.pid,"该玩家未向你发起过申请")
+		net.msg.S2C.notify(self.pid,"该玩家未向你发起过申请")
 		return
 	end
 	logger.log("info","friend",string.format("[agree_addfriend] owner=%s pid=%d",self.pid,pid))
@@ -272,21 +285,19 @@ function cfrienddb:agree_addfriend(pid)
 	self:addfriend(pid)
 	local srvname = route.getsrvname(pid)
 	if not srvname then
-		net.msg.notify(self.pid,"该玩家不存在")
+		net.msg.S2C.notify(self.pid,"该玩家不存在")
 		return
 	end
 	if srvname == cserver.getsrvname() then
 		local target = playermgr.getplayer(pid)
-		if target then
-			target.frienddb:addfriend(self.pid)
-		else
+		if not target then
 			target = playermgr.loadofflineplayer(pid)
 		end
 		if target then
 			target.frienddb:addfriend(self.pid)
 		end
 	else
-		cluster.call(srvname,"playermethod",pid,"frienddb:addfriend",self.pid)
+		rpc.call(srvname,"playermethod",pid,"frienddb:addfriend",self.pid)
 	end
 
 end
@@ -305,9 +316,9 @@ function cfrienddb:sendmsg(pid,msg)
 	logger.log("debug","friend",string.format("[sendmsg] owner=%s pid=%d msg=%s",self.pid,pid,msg))
 	local srvname = route.getsrvname(pid)
 	if srvname == cserver.getsrvname() then
-		net.friend.addmsgs(pid,self.pid,msg)
+		net.friend.S2C.addmsgs(pid,self.pid,msg)
 	else
-		cluster.call(srvname,"modmethod","net.friend",".addmsgs",pid,self.pid,msg)
+		rpc.call(srvname,"modmethod","net.friend",".addmsgs",pid,self.pid,msg)
 	end
 end
 
