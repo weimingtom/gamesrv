@@ -87,7 +87,7 @@ function gm.countonline(args)
 	local onlinenum,num = 0,0
 	for pid,obj in pairs(playermgr.id_obj) do
 		num = num + 1
-		if obj.__type and obj.__type.__name == "cplayer" then
+		if obj.__state == "online" then
 			onlinenum = onlinenum + 1
 		end
 	end

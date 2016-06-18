@@ -6,7 +6,7 @@ gm = require "script.gm.init"
 function gm.test(args)
 	local isok,args = checkargs(args,"string","string")
 	if not isok then
-		net.msg.notify(master.pid,"usage: test test_filename json_str")
+		net.msg.notify(master_pid,"usage: test test_filename json_str")
 		return
 	end
 	local test_filename = args[1]

@@ -8,6 +8,7 @@ local AUTH_NORMAL = 10
 
 gm = gm or {}
 master = nil
+master_pid = nil
 
 local function getcmd(cmds,cmd)
 	if cmds[cmd] then
@@ -96,10 +97,12 @@ function gm.docmd(pid,cmdline)
 		player = 0
 	end
 	master = player
+	master_pid = player == 0 and 0 or player.pid
 	--local tbl = {xpcall(docmd,onerror,player,cmdline)}
 	-- gm指令执行的报错不记录到onerror.log中
 	local tbl = {pcall(docmd,player,cmdline)}
 	master = nil
+	master_pid = nil
 	local issuccess = table.remove(tbl,1)
 	local result
 	if next(tbl) then
@@ -119,18 +122,15 @@ end
 --- usage: setauthority pid authority
 --- e.g. : setauthority 10001 80 # 将玩家10001权限设置成80(权限范围:[1,100])
 function gm.setauthority(args)
-	local master_pid
 	local master_auth
 	if type(master) == "number" then -- oscmd
-		master_pid = master
 		master_auth = AUTH_SUPERADMIN
 	else
-		master_pid = master.pid
 		master_auth = master:authority()
 	end
 	local ok,args = pcall(checkargs,args,"int:[10000,]","int:[1,100]")
 	if not ok then
-		net.msg.notify(master.pid,"usage: setauthority pid authorit")
+		net.msg.notify(master_pid,"usage: setauthority pid authorit")
 		return
 	end
 	local pid,authority = table.unpack(args)	

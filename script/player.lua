@@ -217,7 +217,7 @@ function cplayer:create(conf)
 	local db = dbmgr.getdb()
     db:hset(db:key("role","list"),self.pid,1)
     route.addroute(self.pid)
-	self:oncreate()
+	self:oncreate(conf)
 end
 
 function cplayer:entergame()
@@ -274,8 +274,8 @@ local function heartbeat(pid)
 	end
 end
 
-function cplayer:oncreate()
-	logger.log("info","createrole",string.format("[createrole end] account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s:%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,self:ip(),self:port()))
+function cplayer:oncreate(conf)
+	logger.log("info","createrole",string.format("[createrole end] account=%s pid=%d name=%s roletype=%d lv=%s gold=%d ip=%s:%s",self.account,self.pid,self.name,self.roletype,self.lv,self.gold,conf.__ip,conf.__port))
 	for k,obj in pairs(self.autosaveobj) do
 		if obj.oncreate then
 			obj:oncreate(self)

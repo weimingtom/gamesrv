@@ -6,13 +6,13 @@ gm = require "script.gm.init"
 function gm.addcard(args)
 	local isok,args = checkargs(args,"int","int","int")
 	if not isok then
-		net.msg.notify(master.pid,"usage: addcard sid amount")	
+		net.msg.notify(master_pid,"usage: addcard sid amount")	
 		return
 	end
 	local pid,sid,amount = table.unpack(args)
 	local player = playermgr.getplayer(pid)
 	if not player then
-		net.msg.notify(master.pid,string.format("player(%d) not online",pid))
+		net.msg.notify(master_pid,string.format("player(%d) not online",pid))
 		return
 	end
 	player:addcardbysid(sid,amount)
@@ -24,13 +24,13 @@ end
 function gm.delcard(args)
 	local isok,args = checkargs(args,"int","int","int")	
 	if not isok then
-		net.msg.notify(master.pid,"usage: delcard pid sid amount")
+		net.msg.notify(master_pid,"usage: delcard pid sid amount")
 		return
 	end
 	local pid,sid,amount = table.unpack(args)
 	local player = playermgr.getpalyer(pid)
 	if not player then
-		net.msg.notify(master.pid,string.format("player(%d) not online",pid))
+		net.msg.notify(master_pid,string.format("player(%d) not online",pid))
 		return
 	end
 	player:delcardbysid(sid,amount)
@@ -42,13 +42,13 @@ end
 function gm.clearcard(args)
 	local isok,args = checkargs(args,"int","string")
 	if not isok then
-		net.msg.notify(master.pid,"usage: clearcard pid")
+		net.msg.notify(master_pid,"usage: clearcard pid")
 		return
 	end
 	local pid,racename = table.unpack(args)
 	local player = playermgr.getplayer(pid)
 	if not player then
-		net.msg.notify(master.pid,string.format("player(%d) not online",pid))
+		net.msg.notify(master_pid,string.format("player(%d) not online",pid))
 		return
 	end
 	if racename == "all" then
